@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -178,8 +180,7 @@
   <div class="header">
     <h1>PREFEITURA MUNICIPAL DE CURITIBA</h1>
     <h2>FORMULÁRIO DO CRESCIMENTO VERTICAL 2025</h2>
-    <p>SERVIDORES INTEGRANTES DO GRUPO OCUPACIONAL: MÉDIO TÉCNICO</p>
-    
+    <p>SERVIDORES INTEGRANTES DO GRUPO OCUPACIONAL: MÉDIO</p>
     <p>LEI: 16.198/2023</p>
   </div>
 
@@ -382,13 +383,13 @@
               <td style="text-align: left">1) Participação como docente, palestrante ou instrutor</td>
               <td>1.0</td>
               <td>8.0</td>
-              <td>3</td>
-              <td><strong>3.0</strong></td>
+              <td>0</td>
+              <td><strong>0.0</strong></td>
             </tr>
           
         <tr class="total">
           <td colspan="4" style="text-align: right"><strong>Total Quadro B:</strong></td>
-          <td><strong>3.0</strong></td>
+          <td><strong>0.0</strong></td>
         </tr>
       </tbody>
     </table>
@@ -412,21 +413,21 @@
               <td style="text-align: left">1) Tempo de efetivo exercício no cargo, em anos</td>
               <td>0.4</td>
               <td>12.0</td>
-              <td>20</td>
-              <td><strong>8.0</strong></td>
+              <td>0</td>
+              <td><strong>0.0</strong></td>
             </tr>
           
             <tr>
               <td style="text-align: left">2) Tempo de efetivo gerenciamento de equipes, em anos</td>
               <td>0.4</td>
               <td>12.0</td>
-              <td>20</td>
-              <td><strong>8.0</strong></td>
+              <td>0</td>
+              <td><strong>0.0</strong></td>
             </tr>
           
         <tr class="total">
           <td colspan="4" style="text-align: right"><strong>Total Quadro C:</strong></td>
-          <td><strong>16.0</strong></td>
+          <td><strong>0.0</strong></td>
         </tr>
       </tbody>
     </table>
@@ -463,9 +464,9 @@
   </div>
 
   <div class="pontuacao-final">
-    PONTUAÇÃO FINAL DO CRESCIMENTO VERTICAL 2025: 19.00 pontos
+    PONTUAÇÃO FINAL DO CRESCIMENTO VERTICAL 2025: 0.00 pontos
     <div class="formula">
-      (Quadro A + Quadro B + Quadro C) - Quadro D = (0.00 + 3.0 + 16.0) + 0.0
+      (Quadro A + Quadro B + Quadro C) - Quadro D = (0.00 + 0.0 + 0.0) + 0.0
     </div>
   </div>
 </body>
