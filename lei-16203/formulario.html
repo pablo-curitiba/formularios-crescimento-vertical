@@ -1,454 +1,488 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulário Crescimento Vertical - Servidor</title>
-  <style>
-    @page {
-      size: A4;
-      margin: 1.5cm;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 11pt;
-      line-height: 1.4;
-      color: #000;
-      background: white;
-      padding: 20px;
-    }
-    
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 3px solid #1e3a8a;
-    }
-    
-    .header h1 {
-      font-size: 16pt;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    
-    .header h2 {
-      font-size: 14pt;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    
-    .header p {
-      font-size: 10pt;
-      margin: 3px 0;
-    }
-    
-    .dados-servidor {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
-      font-size: 10pt;
-    }
-    
-    .dados-servidor .campo {
-      border-bottom: 1px solid #ccc;
-      padding: 5px 0;
-    }
-    
-    .dados-servidor .campo.full {
-      grid-column: 1 / -1;
-    }
-    
-    .dados-servidor label {
-      font-weight: bold;
-      margin-right: 5px;
-    }
-    
-    .quadro {
-      margin-bottom: 20px;
-      page-break-inside: avoid;
-    }
-    
-    .quadro-titulo {
-      background-color: #1e3a8a;
-      color: white;
-      padding: 8px 10px;
-      font-weight: bold;
-      font-size: 11pt;
-      margin-bottom: 2px;
-    }
-    
-    .info-box {
-      background-color: #eff6ff;
-      border-left: 4px solid #3b82f6;
-      padding: 12px;
-      margin-bottom: 5px;
-      font-size: 9pt;
-    }
-    
-    .info-box p {
-      margin: 5px 0;
-    }
-    
-    .info-box strong {
-      color: #1e40af;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 5px;
-      font-size: 9pt;
-    }
-    
-    th, td {
-      border: 1px solid #000;
-      padding: 6px 4px;
-      text-align: left;
-    }
-    
-    th {
-      background-color: #e5e7eb;
-      font-weight: bold;
-      text-align: center;
-      font-size: 8pt;
-    }
-    
-    td {
-      text-align: center;
-    }
-    
-    td:first-child {
-      text-align: left;
-    }
-    
-    .bg-blue-100 {
-      background-color: #dbeafe;
-    }
-    
-    .bg-green-100 {
-      background-color: #dcfce7;
-    }
-    
-    .subtotal {
-      background-color: #f3f4f6;
-      font-weight: 600;
-    }
-    
-    .total {
-      background-color: #fef3c7;
-      font-weight: bold;
-    }
-    
-    .pontuacao-final {
-      background-color: #16a34a;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 14pt;
-      margin-top: 20px;
-    }
-    
-    .pontuacao-final .formula {
-      font-size: 10pt;
-      font-weight: normal;
-      margin-top: 8px;
-    }
-    
-    @media print {
-      body {
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Formulario CV</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 15mm;
+      }
+      
+      * {
+        margin: 0;
         padding: 0;
+        box-sizing: border-box;
       }
       
-      .quadro {
-        page-break-inside: avoid;
+      body {
+        font-family: Arial;
+        font-size: 9pt;
+        padding: 10px;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>PREFEITURA MUNICIPAL DE CURITIBA</h1>
-    <h2>FORMULÁRIO DO CRESCIMENTO VERTICAL 2025</h2>
-    <p>SERVIDORES INTEGRANTES DO GRUPO OCUPACIONAL: MÉDIO</p>
-    <p style="font-weight: bold; margin-top: 5px;">CARGO: GUARDA MUNICIPAL</p>
-    <p>LEI: 16.203/2023</p>
-  </div>
+      
+      .header {
+        text-align: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #1e3a8a;
+      }
+      
+      .header h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+      
+      .header h2 {
+        font-size: 12pt;
+        font-weight: bold;
+        margin-bottom: 3px;
+      }
+      
+      .header p {
+        font-size: 8pt;
+        margin: 2px 0;
+      }
+      
+      .dados {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-bottom: 12px;
+        font-size: 8pt;
+      }
+      
+      .dados .campo {
+        border-bottom: 1px solid #999;
+        padding: 3px 0;
+      }
+      
+      .dados label {
+        font-weight: bold;
+        margin-right: 4px;
+      }
+      
+      .info-limite {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 8px;
+        margin: 10px 0;
+        font-size: 8pt;
+      }
+      
+      .quadro-titulo {
+        background: #1e3a8a;
+        color: #fff;
+        padding: 5px 8px;
+        font-weight: bold;
+        font-size: 9pt;
+        margin-top: 10px;
+        margin-bottom: 3px;
+      }
+      
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 5px 0;
+        font-size: 7pt;
+        table-layout: fixed;
+      }
+      
+      th, td {
+        border: 0.5pt solid #000;
+        padding: 3px 2px;
+        text-align: center;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      
+      th {
+        background: #e5e7eb;
+        font-weight: bold;
+        font-size: 6.5pt;
+      }
+      
+      td:first-child {
+        text-align: left;
+        padding-left: 4px;
+      }
+      
+      .bg-blue {
+        background: #dbeafe;
+      }
+      
+      .bg-green {
+        background: #dcfce7;
+      }
+      
+      .total {
+        background: #fef3c7;
+        font-weight: bold;
+      }
+      
+      .total-combinado {
+        background: #f97316;
+        color: #fff;
+        font-weight: bold;
+        font-size: 9pt;
+      }
+      
+      .final {
+        background: #16a34a;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+        font-size: 12pt;
+        font-weight: bold;
+        margin-top: 12px;
+      }
+      
+      .alerta {
+        background: #fee;
+        border-left: 4px solid #c00;
+        padding: 8px;
+        margin: 10px 0;
+        color: #c00;
+        font-weight: bold;
+      }
+    </style>
+  </head>
 
-  <div class="dados-servidor">
-    <div class="campo">
-      <label>SERVIDOR:</label>
-      <span>_____________________</span>
+  <body>
+    <div class="header">
+      <h1>PREFEITURA MUNICIPAL DE CURITIBA</h1>
+      <h2>FORMULÁRIO DO CRESCIMENTO VERTICAL 2025</h2>
+      <p>GRUPO: MÉDIO | LEI: 16.203/2023</p>
     </div>
-    <div class="campo">
-      <label>MATRÍCULA:</label>
-      <span>_____________________</span>
-    </div>
-    <div class="campo">
-      <label>UNIDADE:</label>
-      <span>_____________________</span>
-    </div>
-    <div class="campo">
-      <label>LOTAÇÃO:</label>
-      <span>_____________________</span>
-    </div>
-    <div class="campo full">
-      <label>INTERSTÍCIO:</label>
-      <span>_____________________</span>
-    </div>
-  </div>
 
-  <div class="quadro">
-    <div class="quadro-titulo">QUADRO A - ESCOLARIZAÇÃO FORMAL (Limite: 60,0 pontos)</div>
-    <div class="info-box">
-      <p><strong>MULTIPLICADOR POR TEMPO DE FORMAÇÃO</strong></p>
-      <p>• Cálculo: 0.0556 pontos por mês completo de formação</p>
-      <p>• Contagem: A partir da entrada no cargo ou início da formação (o que for mais recente)</p>
-      <p>• Limite: Máximo de 10.0 pontos ou 15 anos de formação</p>
+    <div class="dados">
+      <div class="campo">
+        <label>SERVIDOR:</label>
+        <span>____________</span>
+      </div>
+      <div class="campo">
+        <label>MATRÍCULA:</label>
+        <span>____________</span>
+      </div>
+      <div class="campo">
+        <label>CARGO:</label>
+        <span>Guarda Municipal</span>
+      </div>
+      <div class="campo">
+        <label>UNIDADE:</label>
+        <span>____________</span>
+      </div>
+      <div class="campo">
+        <label>LOTAÇÃO:</label>
+        <span>____________</span>
+      </div>
+      <div class="campo">
+        <label>INTERSTÍCIO:</label>
+        <span>____________</span>
+      </div>
     </div>
+
+    <div class="alerta">
+      ⚠️ ATENÇÃO: Quadro A não atinge requisito mínimo de 15.0 pontos! Faltam 15.00 pontos.
+    </div>
+
+    <div class="info-limite">
+      <b>IMPORTANTE:</b> Os Quadros A e B somados têm limite conjunto de 60,0 pontos. O Quadro A (Na área de atuação) é usado para verificar o requisito mínimo de 15.0 pontos. O Quadro B (Em qualquer área) serve como pontuação complementar.
+    </div>
+
+    <div class="quadro-titulo">QUADRO A - ESCOLARIZAÇÃO FORMAL (NA ÁREA DE ATUAÇÃO)</div>
+    
     <table>
+      <colgroup>
+        <col style="width: 35%">
+        <col style="width: 8%">
+        <col style="width: 8%">
+        <col style="width: 8%">
+        <col style="width: 9%">
+        <col style="width: 9%">
+        <col style="width: 10%">
+        <col style="width: 13%">
+      </colgroup>
       <thead>
         <tr>
-          <th style="width: 35%">Títulos</th>
-          <th style="width: 9%">Pont. Unit.</th>
-          <th style="width: 9%">Limite</th>
-          <th style="width: 7%">Qtd</th>
-          <th style="width: 9%">Pts Base</th>
-          <th style="width: 9%" class="bg-blue-100">Meses</th>
-          <th style="width: 10%" class="bg-blue-100">Multip.</th>
-          <th style="width: 12%" class="bg-green-100">Total</th>
+          <th>Títulos</th>
+          <th>Pont.</th>
+          <th>Lim.</th>
+          <th>Qtd</th>
+          <th>Base</th>
+          <th class="bg-blue">Meses</th>
+          <th class="bg-blue">Mult.</th>
+          <th class="bg-green">Total</th>
         </tr>
       </thead>
       <tbody>
-        
-            <tr>
-              <td style="text-align: left">Graduação ou Tecnólogo - Em qualquer área</td>
-              <td>10.0</td>
-              <td>10.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Graduação ou Tecnólogo - Na área de atuação</td>
-              <td>15.0</td>
-              <td>15.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Cursos de Extensão - Em qualquer área</td>
-              <td>0.5</td>
-              <td>10.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Cursos de Extensão - Na área de atuação</td>
-              <td>1.0</td>
-              <td>10.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Especialização - Em qualquer área</td>
-              <td>7.5</td>
-              <td>7.5</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Especialização - Na área de atuação</td>
-              <td>10.0</td>
-              <td>10.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Mestrado - Em qualquer área</td>
-              <td>15.0</td>
-              <td>15.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Mestrado - Na área de atuação</td>
-              <td>22.0</td>
-              <td>22.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Doutorado - Em qualquer área</td>
-              <td>25.0</td>
-              <td>25.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-            <tr>
-              <td style="text-align: left">Doutorado - Na área de atuação</td>
-              <td>33.0</td>
-              <td>33.0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td class="bg-blue-100">0</td>
-              <td class="bg-blue-100">0.00</td>
-              <td class="bg-green-100"><strong>0.00</strong></td>
-            </tr>
-          
-        <tr class="subtotal">
-          <td colspan="4" style="text-align: right">Subtotal - Pontos Base:</td>
+        <tr>
+          <td>Graduação - Na área de atuação</td>
+          <td>15.0</td>
+          <td>15.0</td>
+          <td>0</td>
           <td>0.0</td>
-          <td colspan="2" class="bg-blue-100" style="text-align: right">Subtotal - Multiplicador:</td>
-          <td class="bg-blue-100">+0.00</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Cursos de Extensão - Na área de atuação</td>
+          <td>1.0</td>
+          <td>10.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Especialização - Na área de atuação</td>
+          <td>10.0</td>
+          <td>30.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Mestrado - Na área de atuação</td>
+          <td>22.0</td>
+          <td>22.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Doutorado - Na área de atuação</td>
+          <td>33.0</td>
+          <td>33.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
         </tr>
         <tr class="total">
-          <td colspan="7" style="text-align: right"><strong>Total Quadro A (Base + Multiplicador):</strong></td>
-          <td><strong>0.00</strong></td>
+          <td colspan="7" style="text-align: right"><b>Subtotal A:</b></td>
+          <td><b>0.00</b></td>
         </tr>
       </tbody>
     </table>
-  </div>
 
-  <div class="quadro">
-    <div class="quadro-titulo">QUADRO B - PROGRAMAS DE ENSINO (Limite: 8,0 pontos)</div>
+    <div class="quadro-titulo">QUADRO B - ESCOLARIZAÇÃO FORMAL (EM QUALQUER ÁREA - COMPLEMENTAR)</div>
+    
     <table>
+      <colgroup>
+        <col style="width: 35%">
+        <col style="width: 8%">
+        <col style="width: 8%">
+        <col style="width: 8%">
+        <col style="width: 9%">
+        <col style="width: 9%">
+        <col style="width: 10%">
+        <col style="width: 13%">
+      </colgroup>
       <thead>
         <tr>
-          <th style="width: 50%">Participação e Produção</th>
-          <th style="width: 15%">Pont. Unitária</th>
-          <th style="width: 15%">Limite</th>
-          <th style="width: 10%">Qtd</th>
-          <th style="width: 10%">Total</th>
+          <th>Títulos</th>
+          <th>Pont.</th>
+          <th>Lim.</th>
+          <th>Qtd</th>
+          <th>Base</th>
+          <th class="bg-blue">Meses</th>
+          <th class="bg-blue">Mult.</th>
+          <th class="bg-green">Total</th>
         </tr>
       </thead>
       <tbody>
-        
-            <tr>
-              <td style="text-align: left">1) Participação como docente, palestrante ou instrutor</td>
-              <td>1.0</td>
-              <td>8.0</td>
-              <td>0</td>
-              <td><strong>0.0</strong></td>
-            </tr>
-          
+        <tr>
+          <td>Graduação - Em qualquer área</td>
+          <td>10.0</td>
+          <td>15.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Cursos de Extensão - Em qualquer área</td>
+          <td>0.5</td>
+          <td>10.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Especialização - Em qualquer área</td>
+          <td>7.5</td>
+          <td>30.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Mestrado - Em qualquer área</td>
+          <td>15.0</td>
+          <td>22.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
+        <tr>
+          <td>Doutorado - Em qualquer área</td>
+          <td>25.0</td>
+          <td>33.0</td>
+          <td>0</td>
+          <td>0.0</td>
+          <td class="bg-blue">0</td>
+          <td class="bg-blue">0.00</td>
+          <td class="bg-green"><b>0.00</b></td>
+        </tr>
         <tr class="total">
-          <td colspan="4" style="text-align: right"><strong>Total Quadro B:</strong></td>
-          <td><strong>0.0</strong></td>
+          <td colspan="7" style="text-align: right"><b>Subtotal B:</b></td>
+          <td><b>0.00</b></td>
         </tr>
       </tbody>
     </table>
-  </div>
 
-  <div class="quadro">
-    <div class="quadro-titulo">QUADRO C - VIDA FUNCIONAL (Limite: 12,0 pontos)</div>
     <table>
+      <tbody>
+        <tr class="total-combinado">
+          <td colspan="7" style="text-align: right; padding: 8px">
+            <b>TOTAL QUADROS A + B (A: 0.00 + B: 0.00 = 0.00 / Limite: 60,0):</b>
+          </td>
+          <td style="padding: 8px"><b>0.00</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="quadro-titulo">QUADRO C - VIDA FUNCIONAL</div>
+    
+    <table>
+      <colgroup>
+        <col style="width: 50%">
+        <col style="width: 12%">
+        <col style="width: 12%">
+        <col style="width: 13%">
+        <col style="width: 13%">
+      </colgroup>
       <thead>
         <tr>
-          <th style="width: 50%">Responsabilidade Carreira</th>
-          <th style="width: 15%">Pont. por Ano</th>
-          <th style="width: 15%">Limite</th>
-          <th style="width: 10%">Qtd (anos)</th>
-          <th style="width: 10%">Total</th>
+          <th>Responsabilidade Carreira</th>
+          <th>Pont. por Ano</th>
+          <th>Limite</th>
+          <th>Qtd (anos)</th>
+          <th>Total</th>
         </tr>
       </thead>
       <tbody>
-        
-            <tr>
-              <td style="text-align: left">1) Tempo de efetivo exercício no cargo, em anos</td>
-              <td>0.4</td>
-              <td>12.0</td>
-              <td>0</td>
-              <td><strong>0.0</strong></td>
-            </tr>
-          
+        <tr>
+          <td>1) Tempo de efetivo exercício no cargo, em anos</td>
+          <td>0.4</td>
+          <td>12.0</td>
+          <td>0</td>
+          <td><b>0.0</b></td>
+        </tr>
+        <tr>
+          <td>2) Tempo de efetivo gerenciamento de equipes, em anos</td>
+          <td>0.4</td>
+          <td>12.0</td>
+          <td>0</td>
+          <td><b>0.0</b></td>
+        </tr>
         <tr class="total">
-          <td colspan="4" style="text-align: right"><strong>Total Quadro C:</strong></td>
-          <td><strong>0.0</strong></td>
+          <td colspan="4" style="text-align: right"><b>Total C (Lim: 12,0):</b></td>
+          <td><b>0.0</b></td>
         </tr>
       </tbody>
     </table>
-  </div>
 
-  <div class="quadro">
-    <div class="quadro-titulo">QUADRO D - DEDUÇÕES (Limite: -3,0 pontos)</div>
+    <div class="quadro-titulo">QUADRO D - OUTROS CRITÉRIOS OBJETIVOS</div>
+    
     <table>
+      <colgroup>
+        <col style="width: 50%">
+        <col style="width: 12%">
+        <col style="width: 12%">
+        <col style="width: 13%">
+        <col style="width: 13%">
+      </colgroup>
       <thead>
         <tr>
-          <th style="width: 50%">Deduções</th>
-          <th style="width: 15%">Pont. Unitária</th>
-          <th style="width: 15%">Limite</th>
-          <th style="width: 10%">Qtd</th>
-          <th style="width: 10%">Total</th>
+          <th>Participação e Produção</th>
+          <th>Pont. Unitária</th>
+          <th>Limite</th>
+          <th>Qtd</th>
+          <th>Total</th>
         </tr>
       </thead>
       <tbody>
-        
-            <tr>
-              <td style="text-align: left">Faltas</td>
-              <td>-1.0</td>
-              <td>-3.0</td>
-              <td>0</td>
-              <td style="color: red"><strong>0.0</strong></td>
-            </tr>
-          
+        <tr>
+          <td>1) Participação como docente, palestrante ou instrutor</td>
+          <td>1.0</td>
+          <td>8.0</td>
+          <td>0</td>
+          <td><b>0.0</b></td>
+        </tr>
         <tr class="total">
-          <td colspan="4" style="text-align: right"><strong>Total Quadro D:</strong></td>
-          <td style="color: red"><strong>0.0</strong></td>
+          <td colspan="4" style="text-align: right"><b>Total D (Lim: 8,0):</b></td>
+          <td><b>0.0</b></td>
         </tr>
       </tbody>
     </table>
-  </div>
 
-  <div class="pontuacao-final">
-    PONTUAÇÃO FINAL DO CRESCIMENTO VERTICAL 2025: 0.00 pontos
-    <div class="formula">
-      (Quadro A + Quadro B + Quadro C) - Quadro D = (0.00 + 0.0 + 0.0) + 0.0
+    <div class="quadro-titulo">QUADRO E - DEDUÇÕES</div>
+    
+    <table>
+      <colgroup>
+        <col style="width: 50%">
+        <col style="width: 12%">
+        <col style="width: 12%">
+        <col style="width: 13%">
+        <col style="width: 13%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Deduções</th>
+          <th>Pont. Unitária</th>
+          <th>Limite</th>
+          <th>Qtd</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1) Faltas</td>
+          <td>-1.0</td>
+          <td>-3.0</td>
+          <td>0</td>
+          <td style="color: red"><b>0.0</b></td>
+        </tr>
+        <tr class="total">
+          <td colspan="4" style="text-align: right"><b>Total E (Lim: -3,0):</b></td>
+          <td style="color: red"><b>0.0</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="final">
+      PONTUAÇÃO FINAL: 0.00 pontos<br>
+      <small style="font-size: 9pt; font-weight: normal">
+        (A+B + C + D) - E = (0.00 + 0.0 + 0.0) - 0.0
+      </small>
     </div>
-  </div>
-</body>
+
+  </body>
 </html>
-      
