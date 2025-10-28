@@ -1,1 +1,1056 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Formulário - Crescimento Vertical 2025</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
 
+    <script type="text/babel">
+const { useState, useEffect } = React;
+
+// Ícones SVG inline
+const Icons = {
+  Download: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+  ),
+  Edit2: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+    </svg>
+  ),
+  Save: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+      <polyline points="17 21 17 13 7 13 7 21"></polyline>
+      <polyline points="7 3 7 8 15 8"></polyline>
+    </svg>
+  ),
+  Plus: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  ),
+  Trash2: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6"></polyline>
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      <line x1="10" y1="11" x2="10" y2="17"></line>
+      <line x1="14" y1="11" x2="14" y2="17"></line>
+    </svg>
+  ),
+  Info: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+  ),
+  FileText: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+  ),
+  Printer: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"></polyline>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+      <rect x="6" y="14" width="12" height="8"></rect>
+    </svg>
+  )
+};
+
+function FormularioCV() {
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [mostrarInfoA, setMostrarInfoA] = useState(true);
+  const [mostrarInfoB, setMostrarInfoB] = useState(true);
+  
+  const [config, setConfig] = useState({
+    lei: '16.198/2023',
+    grupoOcupacional: 'BÁSICO',
+    requisitoMinimo: 5.0,
+    tituloPrincipal: 'PREFEITURA MUNICIPAL DE CURITIBA',
+    tituloFormulario: 'FORMULÁRIO DO CRESCIMENTO VERTICAL 2025',
+    ingressoLei16201: ''
+  });
+  
+  const [dados, setDados] = useState({
+    servidor: '',
+    matricula: '',
+    cargo: '',
+    unidade: '',
+    lotacao: '',
+    intersticio: ''
+  });
+
+  const [porNivel, setPorNivel] = useState(false);
+  const [nivelSelecionado, setNivelSelecionado] = useState('Nível I');
+
+  const [multiplicador] = useState({
+    pontosPorMes: 0.0556,
+    limiteMax: 10.0
+  });
+
+  const leisDisponiveis = [
+    { valor: '16.198/2023', cargo: '' },
+    { valor: '16.199/2023', cargo: 'Auditor Fiscal' },
+    { valor: '16.200/2023', cargo: 'Procurador Municipal' },
+    { valor: '16.201/2023', cargo: 'Professor de Educação Infantil' },
+    { valor: '16.202/2023', cargo: 'Profissional do Magistério' },
+    { valor: '16.203/2023', cargo: 'Guarda Municipal' }
+  ];
+
+  const handleLeiChange = (novaLei) => {
+    const leiSelecionada = leisDisponiveis.find(l => l.valor === novaLei);
+    const novoConfig = {...config, lei: novaLei};
+    
+    if (novaLei !== '16.201/2023') {
+      novoConfig.ingressoLei16201 = '';
+    }
+    
+    setConfig(novoConfig);
+    if (leiSelecionada) {
+      setDados({...dados, cargo: leiSelecionada.cargo});
+    }
+  };
+
+  const pareamentoAB = {
+    'medio-tecnico': { quadroA: 2, quadroB: 1, nome: 'Médio-Técnico' },
+    'graduacao': { quadroA: 3, quadroB: 2, nome: 'Graduação' },
+    'extensao': { quadroA: 4, quadroB: 3, nome: 'Extensão' },
+    'especializacao': { quadroA: 5, quadroB: 4, nome: 'Especialização' },
+    'mestrado': { quadroA: 6, quadroB: 5, nome: 'Mestrado' },
+    'doutorado': { quadroA: 7, quadroB: 6, nome: 'Doutorado' }
+  };
+
+  const [quadroA, setQuadroA] = useState([
+    { id: 1, titulo: 'Cursos de Educação formal de nível médio', pont: 5.0, lim: 5.0, qtd: 0, meses: 0 },
+    { id: 2, titulo: 'Cursos de Educação formal de nível médio-técnico - Na área de atuação', pont: 7.5, lim: 15.0, qtd: 0, meses: 0 },
+    { id: 3, titulo: 'Graduação - Na área de atuação', pont: 15.0, lim: 15.0, qtd: 0, meses: 0 },
+    { id: 4, titulo: 'Cursos de Extensão - Na área de atuação', pont: 1.0, lim: 10.0, qtd: 0, meses: 0 },
+    { id: 5, titulo: 'Especialização - Na área de atuação', pont: 10.0, lim: 30.0, qtd: 0, meses: 0 },
+    { id: 6, titulo: 'Mestrado - Na área de atuação', pont: 22.0, lim: 22.0, qtd: 0, meses: 0 },
+    { id: 7, titulo: 'Doutorado - Na área de atuação', pont: 33.0, lim: 33.0, qtd: 0, meses: 0 }
+  ]);
+
+  const [quadroB, setQuadroB] = useState([
+    { id: 1, titulo: 'Cursos de Educação formal de nível médio-técnico - Em qualquer área', pont: 5.5, lim: 15.0, qtd: 0, meses: 0 },
+    { id: 2, titulo: 'Graduação - Em qualquer área', pont: 10.0, lim: 15.0, qtd: 0, meses: 0 },
+    { id: 3, titulo: 'Cursos de Extensão - Em qualquer área', pont: 0.5, lim: 10.0, qtd: 0, meses: 0 },
+    { id: 4, titulo: 'Especialização - Em qualquer área', pont: 7.5, lim: 30.0, qtd: 0, meses: 0 },
+    { id: 5, titulo: 'Mestrado - Em qualquer área', pont: 15.0, lim: 22.0, qtd: 0, meses: 0 },
+    { id: 6, titulo: 'Doutorado - Em qualquer área', pont: 25.0, lim: 33.0, qtd: 0, meses: 0 }
+  ]);
+
+  const [opcaoQuadroC1, setOpcaoQuadroC1] = useState('padrao');
+  
+  const textoQuadroC1 = {
+    'padrao': 'Tempo de efetivo exercício no cargo, em anos',
+    'pedagogico': 'Tempo de efetivo exercício em atividades pedagógicas de docência, planejamento e regência de classe, em anos'
+  };
+
+  const [quadroC, setQuadroC] = useState([
+    { id: 1, titulo: textoQuadroC1['padrao'], pont: 0.4, lim: 12.0, qtd: 0 },
+    { id: 2, titulo: 'Tempo de efetivo gerenciamento de equipes, em anos', pont: 0.4, lim: 12.0, qtd: 0 }
+  ]);
+
+  useEffect(() => {
+    setQuadroC(prev => prev.map(item => 
+      item.id === 1 ? { ...item, titulo: textoQuadroC1[opcaoQuadroC1] } : item
+    ));
+  }, [opcaoQuadroC1]);
+
+  const [quadroD, setQuadroD] = useState([
+    { id: 1, titulo: 'Participação como docente, palestrante ou instrutor - No âmbito da prefeitura', pont: 1.0, lim: 8.0, qtd: 0 },
+    { id: 2, titulo: 'Participação como docente, palestrante ou instrutor - No âmbito externo', pont: 0.5, lim: 8.0, qtd: 0 }
+  ]);
+
+  const [quadroE, setQuadroE] = useState([
+    { id: 1, titulo: 'Faltas', pont: -1.0, lim: -3.0, qtd: 0 }
+  ]);
+
+  const calcMultiplicador = (meses) => {
+    const pts = meses * multiplicador.pontosPorMes;
+    return Math.min(pts, multiplicador.limiteMax);
+  };
+
+  const calcularTotaisPareados = () => {
+    const pares = {};
+    
+    Object.keys(pareamentoAB).forEach(tipo => {
+      const map = pareamentoAB[tipo];
+      const itemA = quadroA.find(i => i.id === map.quadroA);
+      const itemB = quadroB.find(i => i.id === map.quadroB);
+      
+      if (itemA && itemB) {
+        const baseA = Math.min(itemA.pont * itemA.qtd, itemA.lim);
+        const multA = itemA.qtd > 0 && itemA.meses > 0 ? calcMultiplicador(itemA.meses) : 0;
+        const totalA = baseA + multA;
+        
+        const baseB = Math.min(itemB.pont * itemB.qtd, itemB.lim);
+        const multB = itemB.qtd > 0 && itemB.meses > 0 ? calcMultiplicador(itemB.meses) : 0;
+        const totalB_bruto = baseB + multB;
+        
+        const limitePar = itemA.lim;
+        const totalB_valido = Math.max(0, Math.min(totalB_bruto, limitePar - totalA));
+        const descartePar = Math.max(0, totalB_bruto - totalB_valido);
+        
+        pares[tipo] = {
+          totalA: totalA,
+          totalB_bruto: totalB_bruto,
+          totalB_valido: totalB_valido,
+          limitePar: limitePar,
+          descartePar: descartePar,
+          bloqueado: totalA >= limitePar,
+          nome: map.nome
+        };
+      }
+    });
+    
+    return pares;
+  };
+
+  const calcTotalComMultiplicador = (lista) => {
+    let base = 0;
+    let mult = 0;
+    
+    lista.forEach(i => {
+      const ptsBase = Math.min(i.pont * i.qtd, i.lim);
+      base += ptsBase;
+      if (i.qtd > 0 && i.meses > 0) {
+        mult += calcMultiplicador(i.meses);
+      }
+    });
+    
+    return { base, mult, total: base + mult };
+  };
+
+  const calcTotal = (lista, limiteQuadro) => {
+    const soma = lista.reduce((acc, i) => acc + Math.min(i.pont * i.qtd, i.lim), 0);
+    return Math.min(soma, limiteQuadro);
+  };
+
+  const calcTotalE = () => {
+    return quadroE.reduce((acc, i) => acc + (i.pont * i.qtd), 0);
+  };
+
+  const resultA = calcTotalComMultiplicador(quadroA);
+  const totaisPareados = calcularTotaisPareados();
+  
+  const totalB_ComPareamento = Object.values(totaisPareados).reduce((acc, par) => acc + par.totalB_valido, 0);
+  
+  const itensNaoPareadosB = quadroB.filter(item => 
+    !Object.values(pareamentoAB).some(p => p.quadroB === item.id)
+  );
+  const totalB_NaoPareados = itensNaoPareadosB.reduce((acc, i) => {
+    const base = Math.min(i.pont * i.qtd, i.lim);
+    const mult = i.qtd > 0 && i.meses > 0 ? calcMultiplicador(i.meses) : 0;
+    return acc + base + mult;
+  }, 0);
+  
+  const totalB_Real = totalB_ComPareamento + totalB_NaoPareados;
+  const totalAB_SemLimite = resultA.total + totalB_Real;
+  const totalAB_ComLimite = Math.min(totalAB_SemLimite, 60.0);
+  const descarteAB_Global = Math.max(0, totalAB_SemLimite - 60.0);
+  const totalC = calcTotal(quadroC, 12.0);
+  const totalD = calcTotal(quadroD, 8.0);
+  const totalE = calcTotalE();
+  const pontuacaoFinal = totalAB_ComLimite + totalC + totalD + totalE;
+
+  const atualizar = (lista, setLista, id, campo, val) => {
+    setLista(lista.map(i => i.id === id ? { ...i, [campo]: parseFloat(val) || 0 } : i));
+  };
+
+  const addApos = (lista, setLista, id, temMeses) => {
+    const idx = lista.findIndex(i => i.id === id);
+    const novoId = Math.max(...lista.map(i => i.id)) + 1;
+    const novo = { id: novoId, titulo: 'Novo', pont: 0, lim: 0, qtd: 0 };
+    if (temMeses) novo.meses = 0;
+    const arr = [...lista];
+    arr.splice(idx + 1, 0, novo);
+    setLista(arr);
+  };
+
+  const addFinal = (lista, setLista, temMeses) => {
+    const novoId = Math.max(...lista.map(i => i.id), 0) + 1;
+    const novo = { id: novoId, titulo: 'Novo', pont: 0, lim: 0, qtd: 0 };
+    if (temMeses) novo.meses = 0;
+    setLista([...lista, novo]);
+  };
+
+  const mover = (lista, setLista, id, dir) => {
+    const idx = lista.findIndex(i => i.id === id);
+    if ((dir === 'c' && idx === 0) || (dir === 'b' && idx === lista.length - 1)) return;
+    const arr = [...lista];
+    const novoIdx = dir === 'c' ? idx - 1 : idx + 1;
+    [arr[idx], arr[novoIdx]] = [arr[novoIdx], arr[idx]];
+    setLista(arr);
+  };
+
+  const remover = (lista, setLista, id) => {
+    setLista(lista.filter(i => i.id !== id));
+  };
+
+  const editTit = (lista, setLista, id, tit) => {
+    setLista(lista.map(i => i.id === id ? { ...i, titulo: tit } : i));
+  };
+
+  const imprimir = () => {
+    window.print();
+  };
+
+  const salvarHTML = () => {
+    alert('Função de exportação HTML disponível - Pressione Ctrl+P para imprimir como PDF');
+    window.print();
+  };
+
+  const salvarJSON = () => {
+    const obj = { 
+      config: config,
+      dados: dados,
+      porNivel: porNivel,
+      nivelSelecionado: nivelSelecionado,
+      pontuacaoFinal: pontuacaoFinal,
+      quadroA: resultA.total,
+      quadroB: totalB_Real,
+      totalAB: totalAB_ComLimite,
+      quadroC: totalC,
+      quadroD: totalD,
+      quadroE: totalE,
+      atendeRequisito: resultA.total >= config.requisitoMinimo
+    };
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dados_cv.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const copiarTexto = () => {
+    const t = 'PONTUAÇÃO FINAL: ' + pontuacaoFinal.toFixed(2) + ' pontos';
+    navigator.clipboard.writeText(t).then(() => alert('Copiado!')).catch(() => alert('Erro ao copiar'));
+  };
+
+  const LinhaComMultiplicador = ({ item, lista, setLista, quadro }) => {
+    const ptsBase = Math.min(item.pont * item.qtd, item.lim);
+    const ptsBaseTotal = item.pont * item.qtd;
+    const descartadoBase = Math.max(0, ptsBaseTotal - item.lim);
+    const ptsMult = item.qtd > 0 && item.meses > 0 ? calcMultiplicador(item.meses) : 0;
+    const tot = ptsBase + ptsMult;
+
+    let parInfo = null;
+    let itemBloqueado = false;
+    let descartePareamento = 0;
+
+    if (quadro === 'B') {
+      const parEncontrado = Object.entries(pareamentoAB).find(
+        ([_, map]) => map.quadroB === item.id
+      );
+      
+      if (parEncontrado) {
+        const [tipo, _] = parEncontrado;
+        parInfo = totaisPareados[tipo];
+        itemBloqueado = parInfo?.bloqueado || false;
+        descartePareamento = parInfo?.descartePar || 0;
+      }
+    }
+
+    return (
+      <tr className={`border-b hover:bg-gray-50 ${itemBloqueado ? 'bg-red-50' : ''}`}>
+        <td className="p-2 text-sm">
+          {modoEdicao ? (
+            <input type="text" value={item.titulo} onChange={(e) => editTit(lista, setLista, item.id, e.target.value)} className="w-full p-1 border rounded text-xs" />
+          ) : item.titulo}
+        </td>
+        <td className="p-2 text-center">
+          {modoEdicao ? (
+            <input type="number" step="0.1" value={item.pont} onChange={(e) => atualizar(lista, setLista, item.id, 'pont', e.target.value)} className="w-20 p-1 border rounded text-center" />
+          ) : item.pont.toFixed(1)}
+        </td>
+        <td className="p-2 text-center">
+          {modoEdicao ? (
+            <input type="number" step="0.1" value={item.lim} onChange={(e) => atualizar(lista, setLista, item.id, 'lim', e.target.value)} className="w-20 p-1 border rounded text-center" />
+          ) : item.lim.toFixed(1)}
+        </td>
+        <td className="p-2 text-center">
+          <input 
+            type="number" 
+            value={item.qtd} 
+            onChange={(e) => atualizar(lista, setLista, item.id, 'qtd', e.target.value)} 
+            className={`w-16 p-1 border rounded text-center ${itemBloqueado ? 'border-red-500 border-2 bg-red-50' : ''}`}
+            disabled={itemBloqueado}
+          />
+        </td>
+        <td className="p-2 text-center">
+          <div className="font-semibold">{ptsBase.toFixed(1)}</div>
+          {descartadoBase > 0 && (
+            <div className="text-xs text-red-600 font-bold">
+              -{descartadoBase.toFixed(1)} descartado
+            </div>
+          )}
+        </td>
+        <td className="p-2 text-center bg-blue-50">
+          <input 
+            type="number" 
+            value={item.meses} 
+            onChange={(e) => atualizar(lista, setLista, item.id, 'meses', e.target.value)} 
+            className={`w-16 p-1 border rounded text-center ${itemBloqueado ? 'border-red-500 border-2 bg-red-50' : ''}`}
+            disabled={itemBloqueado}
+          />
+        </td>
+        <td className="p-2 text-center font-semibold text-blue-700 bg-blue-50">
+          {ptsMult > 0 ? '+' + ptsMult.toFixed(2) : '0.00'}
+        </td>
+        <td className="p-2 text-center font-bold text-green-700 bg-green-50">
+          <div>{tot.toFixed(2)}</div>
+          {itemBloqueado && (
+            <div className="text-xs text-red-600 font-bold mt-1">
+              🚫 BLOQUEADO
+            </div>
+          )}
+          {descartePareamento > 0 && !itemBloqueado && (
+            <div className="text-xs text-red-600 font-bold mt-1">
+              -{descartePareamento.toFixed(2)} desc.
+            </div>
+          )}
+        </td>
+        {modoEdicao && (
+          <td className="p-2 text-center">
+            <div className="flex gap-1 justify-center flex-wrap">
+              <button onClick={() => mover(lista, setLista, item.id, 'c')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▲</button>
+              <button onClick={() => mover(lista, setLista, item.id, 'b')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▼</button>
+              <button onClick={() => addApos(lista, setLista, item.id, true)} className="text-green-600 hover:bg-green-100 rounded p-1"><Icons.Plus /></button>
+              <button onClick={() => remover(lista, setLista, item.id)} className="text-red-600 hover:bg-red-100 rounded p-1"><Icons.Trash2 /></button>
+            </div>
+          </td>
+        )}
+      </tr>
+    );
+  };
+
+  const Linha = ({ item, lista, setLista, indice, mostrarDescartado = true }) => {
+    const tot = Math.min(item.pont * item.qtd, item.lim);
+    const totTotal = item.pont * item.qtd;
+    const descartado = Math.max(0, totTotal - item.lim);
+    return (
+      <tr className="border-b hover:bg-gray-50">
+        <td className="p-2 text-sm">
+          {modoEdicao ? (
+            <input type="text" value={item.titulo} onChange={(e) => editTit(lista, setLista, item.id, e.target.value)} className="w-full p-1 border rounded text-xs" />
+          ) : (indice ? indice + ') ' : '') + item.titulo}
+        </td>
+        <td className="p-2 text-center">
+          {modoEdicao ? (
+            <input type="number" step="0.1" value={item.pont} onChange={(e) => atualizar(lista, setLista, item.id, 'pont', e.target.value)} className="w-20 p-1 border rounded text-center" />
+          ) : item.pont.toFixed(1)}
+        </td>
+        <td className="p-2 text-center">
+          {modoEdicao ? (
+            <input type="number" step="0.1" value={item.lim} onChange={(e) => atualizar(lista, setLista, item.id, 'lim', e.target.value)} className="w-20 p-1 border rounded text-center" />
+          ) : item.lim.toFixed(1)}
+        </td>
+        <td className="p-2 text-center">
+          <input type="number" value={item.qtd} onChange={(e) => atualizar(lista, setLista, item.id, 'qtd', e.target.value)} className="w-20 p-1 border rounded text-center" />
+        </td>
+        <td className="p-2 text-center">
+          <div className="font-bold">{tot.toFixed(1)}</div>
+          {mostrarDescartado && descartado > 0 && (
+            <div className="text-xs text-red-600 font-bold">
+              -{descartado.toFixed(1)} descartado
+            </div>
+          )}
+        </td>
+        {modoEdicao && (
+          <td className="p-2 text-center">
+            <div className="flex gap-1 justify-center flex-wrap">
+              <button onClick={() => mover(lista, setLista, item.id, 'c')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▲</button>
+              <button onClick={() => mover(lista, setLista, item.id, 'b')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▼</button>
+              <button onClick={() => addApos(lista, setLista, item.id, false)} className="text-green-600 hover:bg-green-100 rounded p-1"><Icons.Plus /></button>
+              <button onClick={() => remover(lista, setLista, item.id)} className="text-red-600 hover:bg-red-100 rounded p-1"><Icons.Trash2 /></button>
+            </div>
+          </td>
+        )}
+      </tr>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-4">
+      <style>{`
+        @media print {
+          @page { size: A4 portrait; margin: 8mm; }
+          .no-print { display: none !important; }
+          body { background: white; font-size: 7pt; line-height: 1.2; }
+        }
+      `}</style>
+      
+      <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg">
+        <div className="bg-blue-900 text-white p-4 rounded-t-lg no-print">
+          <div className="flex justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1">
+              <h1 className="text-xl font-bold">Formulário - Crescimento Vertical 2025</h1>
+              {modoEdicao && <p className="text-sm mt-2 text-yellow-200">Modo Edição Ativo</p>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <button onClick={() => setModoEdicao(!modoEdicao)} className={'px-4 py-2 rounded flex items-center gap-2 ' + (modoEdicao ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-700 hover:bg-blue-800')}>
+                  {modoEdicao ? <><Icons.Save /> Concluir</> : <><Icons.Edit2 /> Editar</>}
+                </button>
+                <button onClick={imprimir} className="px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded flex items-center gap-2">
+                  <Icons.Printer /> Imprimir
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={salvarHTML} className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded flex items-center gap-2">
+                  <Icons.Download /> HTML
+                </button>
+                <button onClick={salvarJSON} className="px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded flex items-center gap-2">
+                  <Icons.FileText /> JSON
+                </button>
+                <button onClick={copiarTexto} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded">
+                  Copiar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="text-center mb-6 border-b-2 border-blue-900 pb-4">
+            {modoEdicao ? (
+              <>
+                <input 
+                  type="text" 
+                  value={config.tituloPrincipal} 
+                  onChange={(e) => setConfig({...config, tituloPrincipal: e.target.value})} 
+                  className="text-lg font-bold w-full text-center border-b-2 border-blue-300 p-2 mb-2"
+                />
+                <input 
+                  type="text" 
+                  value={config.tituloFormulario} 
+                  onChange={(e) => setConfig({...config, tituloFormulario: e.target.value})} 
+                  className="font-bold w-full text-center border-b-2 border-blue-300 p-2 mb-2"
+                />
+                <div className="flex gap-4 justify-center items-center text-sm flex-wrap">
+                  <div className="flex gap-2 items-center">
+                    <label className="font-semibold">GRUPO:</label>
+                    <select 
+                      value={config.grupoOcupacional} 
+                      onChange={(e) => setConfig({...config, grupoOcupacional: e.target.value})} 
+                      className="border px-2 py-1 w-40 rounded"
+                    >
+                      <option value="BÁSICO">BÁSICO</option>
+                      <option value="MÉDIO">MÉDIO</option>
+                      <option value="MÉDIO-TÉCNICO">MÉDIO-TÉCNICO</option>
+                      <option value="SUPERIOR">SUPERIOR</option>
+                    </select>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <label className="font-semibold">LEI:</label>
+                    <select 
+                      value={config.lei} 
+                      onChange={(e) => handleLeiChange(e.target.value)} 
+                      className="border px-2 py-1 w-40 rounded"
+                    >
+                      {leisDisponiveis.map(lei => (
+                        <option key={lei.valor} value={lei.valor}>{lei.valor}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {config.lei === '16.201/2023' && (
+                  <div className="flex gap-2 justify-center items-center text-sm mt-3 p-3 bg-yellow-50 border-2 border-yellow-500 rounded">
+                    <label className="font-bold text-yellow-900">INGRESSO POR:</label>
+                    <select 
+                      value={config.ingressoLei16201} 
+                      onChange={(e) => setConfig({...config, ingressoLei16201: e.target.value})} 
+                      className="border-2 border-yellow-600 px-3 py-2 rounded font-semibold bg-white"
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="NÍVEL MÉDIO">NÍVEL MÉDIO</option>
+                      <option value="NÍVEL SUPERIOR">NÍVEL SUPERIOR</option>
+                    </select>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold">{config.tituloPrincipal}</h2>
+                <h3 className="font-bold mt-2">{config.tituloFormulario}</h3>
+                <p className="text-sm mt-2">
+                  GRUPO: {config.grupoOcupacional} | LEI: {config.lei}
+                  {porNivel && <span className="ml-2 px-3 py-1 bg-blue-600 text-white rounded font-bold">| {nivelSelecionado}</span>}
+                </p>
+                {config.lei === '16.201/2023' && config.ingressoLei16201 && (
+                  <p className="text-sm mt-2 font-bold bg-yellow-100 inline-block px-4 py-2 rounded border-2 border-yellow-600">
+                    INGRESSO POR: {config.ingressoLei16201}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-6 text-sm">
+            <div>
+              <label className="font-semibold block mb-1">SERVIDOR:</label>
+              <input type="text" value={dados.servidor} onChange={(e) => setDados({...dados, servidor: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
+            </div>
+            <div>
+              <label className="font-semibold block mb-1">MATRÍCULA:</label>
+              <input type="text" value={dados.matricula} onChange={(e) => setDados({...dados, matricula: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
+            </div>
+            <div>
+              <label className="font-semibold block mb-1">CARGO:</label>
+              <input type="text" value={dados.cargo} onChange={(e) => setDados({...dados, cargo: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
+            </div>
+            <div>
+              <label className="font-semibold block mb-1">UNIDADE:</label>
+              <input type="text" value={dados.unidade} onChange={(e) => setDados({...dados, unidade: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
+            </div>
+            <div>
+              <label className="font-semibold block mb-1">LOTAÇÃO:</label>
+              <input type="text" value={dados.lotacao} onChange={(e) => setDados({...dados, lotacao: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
+            </div>
+            <div>
+              <label className="font-semibold block mb-1">INTERSTÍCIO:</label>
+              <input type="text" value={dados.intersticio} onChange={(e) => setDados({...dados, intersticio: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
+            </div>
+            <div className="col-span-2 flex items-center gap-6 mt-2 p-3 bg-gray-50 rounded">
+              <div className="flex items-center gap-3">
+                <label className="font-semibold">É por nível?</label>
+                <button 
+                  onClick={() => setPorNivel(!porNivel)}
+                  className={`px-4 py-2 rounded font-semibold transition ${porNivel ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+                >
+                  {porNivel ? 'SIM' : 'NÃO'}
+                </button>
+              </div>
+              {porNivel && (
+                <div className="flex items-center gap-3">
+                  <label className="font-semibold">Nível:</label>
+                  <select 
+                    value={nivelSelecionado} 
+                    onChange={(e) => setNivelSelecionado(e.target.value)}
+                    className="border px-3 py-2 rounded font-semibold"
+                  >
+                    <option value="Nível I">Nível I</option>
+                    <option value="Nível II">Nível II</option>
+                    <option value="Nível III">Nível III</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded">
+            <h4 className="font-bold text-yellow-900 mb-2">INFORMAÇÃO IMPORTANTE SOBRE LIMITES</h4>
+            <div className="text-sm text-yellow-900 space-y-1">
+              <p><strong>Quadros A e B têm limite conjunto de 60,0 pontos</strong></p>
+              <p>Se A + B ≤ 60,0 então o total será A + B</p>
+              <p>Se A + B &gt; 60,0 então o total será limitado a 60,0 pontos</p>
+              <p><strong>O requisito mínimo de {config.requisitoMinimo.toFixed(1)} pontos é verificado apenas no Quadro A</strong></p>
+              <p>O Quadro B serve como pontuação complementar</p>
+            </div>
+          </div>
+
+          <div className={'p-4 mb-4 rounded-lg shadow border-2 ' + (resultA.total >= config.requisitoMinimo ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600 animate-pulse')}>
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Requisito Mínimo (Quadro A):</span>
+                {modoEdicao ? (
+                  <input type="number" step="0.1" value={config.requisitoMinimo} onChange={(e) => setConfig({...config, requisitoMinimo: parseFloat(e.target.value) || 0})} className="w-24 p-1 border-2 rounded text-center font-semibold" />
+                ) : (
+                  <span className="font-bold text-lg">{config.requisitoMinimo.toFixed(1)}</span>
+                )}
+                <span>pontos</span>
+              </div>
+              <div className={'font-bold text-xl ' + (resultA.total >= config.requisitoMinimo ? 'text-green-700' : 'text-red-700')}>
+                {resultA.total >= config.requisitoMinimo ? '✓ ATENDE' : '✗ NÃO ATENDE'} - Quadro A = {resultA.total.toFixed(2)} pts
+              </div>
+            </div>
+            {resultA.total < config.requisitoMinimo && (
+              <div className="mt-3 p-3 bg-red-200 border-l-4 border-red-700 rounded">
+                <p className="font-bold text-red-900">⚠️ ATENÇÃO: Faltam {(config.requisitoMinimo - resultA.total).toFixed(2)} pontos para atingir o requisito mínimo!</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
+              <span>QUADRO A - ESCOLARIZAÇÃO FORMAL (NA ÁREA DE ATUAÇÃO)</span>
+              <div className="flex gap-2 no-print">
+                <button onClick={() => setMostrarInfoA(!mostrarInfoA)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1">
+                  <Icons.Info /> {mostrarInfoA ? 'Ocultar' : 'Mostrar'}
+                </button>
+                {modoEdicao && (
+                  <button onClick={() => addFinal(quadroA, setQuadroA, true)} className="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-sm flex items-center gap-1">
+                    <Icons.Plus /> Adicionar
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {mostrarInfoA && (
+              <div className="bg-blue-50 border-l-4 border-blue-600 p-3 mb-3 text-sm rounded">
+                <p className="font-bold text-blue-900 mb-1">MULTIPLICADOR POR TEMPO DE FORMAÇÃO</p>
+                <p className="text-xs">Cálculo: {multiplicador.pontosPorMes.toFixed(4)} pontos por mês</p>
+                <p className="text-xs">Limite multiplicador: {multiplicador.limiteMax.toFixed(1)} pontos</p>
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border text-xs">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border p-2" style={{width: '35%'}}>Títulos</th>
+                    <th className="border p-2" style={{width: '8%'}}>Pont.</th>
+                    <th className="border p-2" style={{width: '8%'}}>Lim.</th>
+                    <th className="border p-2" style={{width: '8%'}}>Qtd</th>
+                    <th className="border p-2" style={{width: '9%'}}>Base</th>
+                    <th className="border p-2 bg-blue-100" style={{width: '9%'}}>Meses</th>
+                    <th className="border p-2 bg-blue-100" style={{width: '10%'}}>Mult.</th>
+                    <th className="border p-2 bg-green-100" style={{width: '13%'}}>Total</th>
+                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {quadroA.map(i => <LinhaComMultiplicador key={i.id} item={i} lista={quadroA} setLista={setQuadroA} quadro="A" />)}
+                  <tr className="bg-blue-100 font-bold">
+                    <td colSpan={7} className="p-2 text-right">Total Quadro A:</td>
+                    <td className="p-2 text-center text-lg">{resultA.total.toFixed(2)}</td>
+                    {modoEdicao && <td className="no-print"></td>}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-purple-700">
+            <div className="bg-purple-700 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
+              <span>QUADRO B - ESCOLARIZAÇÃO FORMAL (EM QUALQUER ÁREA - COMPLEMENTAR)</span>
+              <div className="flex gap-2 no-print">
+                <button onClick={() => setMostrarInfoB(!mostrarInfoB)} className="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded text-sm flex items-center gap-1">
+                  <Icons.Info /> {mostrarInfoB ? 'Ocultar' : 'Mostrar'}
+                </button>
+                {modoEdicao && (
+                  <button onClick={() => addFinal(quadroB, setQuadroB, true)} className="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-sm flex items-center gap-1">
+                    <Icons.Plus /> Adicionar
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {mostrarInfoB && (
+              <div className="bg-purple-50 border-l-4 border-purple-600 p-3 mb-3 text-sm rounded">
+                <p className="font-bold text-purple-900 mb-1">PONTUAÇÃO COMPLEMENTAR</p>
+                <p className="text-xs">Formações em qualquer área somam com o Quadro A até o limite conjunto de 60,0 pontos</p>
+              </div>
+            )}
+
+            {Object.entries(totaisPareados).map(([tipo, par]) => {
+              if (par.bloqueado || par.descartePar > 0) {
+                return (
+                  <div key={tipo} className={`p-3 mb-2 rounded border-l-4 ${par.bloqueado ? 'bg-red-50 border-red-600' : 'bg-orange-50 border-orange-600'}`}>
+                    <p className="font-bold text-sm">
+                      {par.bloqueado ? '🚫' : '⚠️'} {par.nome}
+                    </p>
+                    <p className="text-xs mt-1">
+                      {par.bloqueado ? (
+                        <>Limite já atingido no Quadro A ({par.totalA.toFixed(2)}/{par.limitePar.toFixed(1)}). Pontuação adicional não será considerada.</>
+                      ) : (
+                        <>Descarte de {par.descartePar.toFixed(2)} pontos (A: {par.totalA.toFixed(2)} + B: {par.totalB_bruto.toFixed(2)} = {(par.totalA + par.totalB_bruto).toFixed(2)} / Limite: {par.limitePar.toFixed(1)})</>
+                      )}
+                    </p>
+                  </div>
+                );
+              }
+              return null;
+            })}
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border text-xs">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border p-2" style={{width: '35%'}}>Títulos</th>
+                    <th className="border p-2" style={{width: '8%'}}>Pont.</th>
+                    <th className="border p-2" style={{width: '8%'}}>Lim.</th>
+                    <th className="border p-2" style={{width: '8%'}}>Qtd</th>
+                    <th className="border p-2" style={{width: '9%'}}>Base</th>
+                    <th className="border p-2 bg-blue-100" style={{width: '9%'}}>Meses</th>
+                    <th className="border p-2 bg-blue-100" style={{width: '10%'}}>Mult.</th>
+                    <th className="border p-2 bg-green-100" style={{width: '13%'}}>Total</th>
+                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {quadroB.map(i => <LinhaComMultiplicador key={i.id} item={i} lista={quadroB} setLista={setQuadroB} quadro="B" />)}
+                  <tr className="bg-purple-100 font-bold">
+                    <td colSpan={7} className="p-2 text-right">
+                      Total Quadro B (considerando pareamento):
+                      <div className="text-xs font-normal">
+                        Pareados: {totalB_ComPareamento.toFixed(2)} | Não pareados: {totalB_NaoPareados.toFixed(2)}
+                      </div>
+                    </td>
+                    <td className="p-2 text-center text-lg">{totalB_Real.toFixed(2)}</td>
+                    {modoEdicao && <td className="no-print"></td>}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className={'p-4 rounded-lg shadow-lg font-bold text-center text-white text-lg mb-6 ' + (descarteAB_Global > 0 ? 'bg-orange-600' : 'bg-green-600')}>
+            <div className="text-2xl mb-2">
+              TOTAL QUADROS A + B: {totalAB_ComLimite.toFixed(2)} pontos
+            </div>
+            <div className="text-sm font-normal bg-white bg-opacity-20 p-3 rounded">
+              <div>Quadro A ({resultA.total.toFixed(2)}) + Quadro B ({totalB_Real.toFixed(2)}) = {totalAB_SemLimite.toFixed(2)}</div>
+              {descarteAB_Global > 0 && (
+                <div className="mt-3 p-3 bg-red-600 rounded font-bold text-lg border-2 border-yellow-400">
+                  ⚠️ LIMITE ULTRAPASSADO: {descarteAB_Global.toFixed(2)} pontos serão descartados!
+                  <div className="text-xs mt-1">(Limite máximo: 60,0 pontos)</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
+              <span>QUADRO C - VIDA FUNCIONAL</span>
+              {modoEdicao && (
+                <button onClick={() => addFinal(quadroC, setQuadroC, false)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1 no-print">
+                  <Icons.Plus /> Adicionar
+                </button>
+              )}
+            </div>
+
+            <div className="mb-3 p-3 bg-blue-50 border-l-4 border-blue-600 rounded">
+              <label className="font-bold text-blue-900 block mb-2">📋 Opção para Item 1 (Leis 16.201/16.202 - Magistério):</label>
+              <div className="flex gap-3 flex-wrap">
+                <button
+                  onClick={() => setOpcaoQuadroC1('padrao')}
+                  className={`px-4 py-2 rounded font-semibold transition ${opcaoQuadroC1 === 'padrao' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                  Padrão - Exercício no cargo
+                </button>
+                <button
+                  onClick={() => setOpcaoQuadroC1('pedagogico')}
+                  className={`px-4 py-2 rounded font-semibold transition ${opcaoQuadroC1 === 'pedagogico' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                  Pedagógico - Docência e regência
+                </button>
+              </div>
+              <p className="text-xs text-blue-800 mt-2">
+                {opcaoQuadroC1 === 'padrao' 
+                  ? '✓ Tempo de efetivo exercício no cargo, em anos'
+                  : '✓ Tempo de efetivo exercício em atividades pedagógicas de docência, planejamento e regência de classe, em anos'
+                }
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border text-xs">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border p-2" style={{width: '50%'}}>Responsabilidade Carreira</th>
+                    <th className="border p-2" style={{width: '12%'}}>Pont. por Ano</th>
+                    <th className="border p-2" style={{width: '12%'}}>Limite</th>
+                    <th className="border p-2" style={{width: '13%'}}>Qtd (anos)</th>
+                    <th className="border p-2" style={{width: '13%'}}>Total</th>
+                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {quadroC.map((i, idx) => <Linha key={i.id} item={i} lista={quadroC} setLista={setQuadroC} indice={idx + 1} />)}
+                  <tr className="bg-yellow-100 font-bold">
+                    <td colSpan={4} className="p-2 text-right">Total Quadro C (Limite: 12,0 pts):</td>
+                    <td className="p-2 text-center text-lg">{totalC.toFixed(1)}</td>
+                    {modoEdicao && <td className="no-print"></td>}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
+              <span>QUADRO D - OUTROS CRITÉRIOS OBJETIVOS</span>
+              {modoEdicao && (
+                <button onClick={() => addFinal(quadroD, setQuadroD, false)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1 no-print">
+                  <Icons.Plus /> Adicionar
+                </button>
+              )}
+            </div>
+
+            <div className="mb-3 p-3 bg-yellow-50 border-l-4 border-yellow-600 rounded">
+              <p className="font-bold text-yellow-900 mb-2">⚙️ Itens Específicos por Lei/Grupo:</p>
+              
+              {config.lei === '16.200/2023' && (
+                <div className="mb-3 p-2 bg-white rounded border border-yellow-400">
+                  <label className="font-semibold text-sm block mb-2">Lei 16.200 - Procurador Municipal</label>
+                  <button
+                    onClick={() => {
+                      const existe = quadroD.some(item => item.titulo.includes('Sustentação oral'));
+                      if (existe) {
+                        setQuadroD(quadroD.filter(item => !item.titulo.includes('Sustentação oral')));
+                      } else {
+                        const novoId = Math.max(...quadroD.map(i => i.id), 0) + 1;
+                        setQuadroD([...quadroD, {
+                          id: novoId,
+                          titulo: 'Sustentação oral perante os tribunais',
+                          pont: 0.5,
+                          lim: 8.0,
+                          qtd: 0
+                        }]);
+                      }
+                    }}
+                    className={`px-3 py-2 rounded text-sm font-semibold transition ${
+                      quadroD.some(item => item.titulo.includes('Sustentação oral'))
+                        ? 'bg-green-600 text-white hover:bg-red-600'
+                        : 'bg-gray-300 text-gray-700 hover:bg-green-600 hover:text-white'
+                    }`}
+                  >
+                    {quadroD.some(item => item.titulo.includes('Sustentação oral')) 
+                      ? '✓ Remover: Sustentação oral (0,5 pts / Lim: 8,0)'
+                      : '+ Adicionar: Sustentação oral (0,5 pts / Lim: 8,0)'
+                    }
+                  </button>
+                </div>
+              )}
+
+              {config.lei === '16.198/2023' && config.grupoOcupacional === 'SUPERIOR' && (
+                <div className="mb-3 p-2 bg-white rounded border border-yellow-400">
+                  <label className="font-semibold text-sm block mb-2">Lei 16.198 - Grupo SUPERIOR</label>
+                  <button
+                    onClick={() => {
+                      const existe = quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'));
+                      if (existe) {
+                        setQuadroD(quadroD.filter(item => !(item.titulo.includes('ART') || item.titulo.includes('RRT'))));
+                      } else {
+                        const novoId = Math.max(...quadroD.map(i => i.id), 0) + 1;
+                        setQuadroD([...quadroD, {
+                          id: novoId,
+                          titulo: 'Emissão de ART (Anotação de Responsabilidade Técnica) ou RRT (Registro de Responsabilidade Técnica), vinculadas a atividades desempenhadas no âmbito da PMC',
+                          pont: 0.2,
+                          lim: 8.0,
+                          qtd: 0
+                        }]);
+                      }
+                    }}
+                    className={`px-3 py-2 rounded text-sm font-semibold transition ${
+                      quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'))
+                        ? 'bg-green-600 text-white hover:bg-red-600'
+                        : 'bg-gray-300 text-gray-700 hover:bg-green-600 hover:text-white'
+                    }`}
+                  >
+                    {quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'))
+                      ? '✓ Remover: ART/RRT (0,2 pts / Lim: 8,0)'
+                      : '+ Adicionar: ART/RRT (0,2 pts / Lim: 8,0)'
+                    }
+                  </button>
+                </div>
+              )}
+
+              {config.lei !== '16.200/2023' && !(config.lei === '16.198/2023' && config.grupoOcupacional === 'SUPERIOR') && (
+                <p className="text-sm text-gray-600 italic">Nenhum item específico disponível para esta lei/grupo</p>
+              )}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border text-xs">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border p-2" style={{width: '50%'}}>Participação e Produção</th>
+                    <th className="border p-2" style={{width: '12%'}}>Pont. Unitária</th>
+                    <th className="border p-2" style={{width: '12%'}}>Limite</th>
+                    <th className="border p-2" style={{width: '13%'}}>Qtd</th>
+                    <th className="border p-2" style={{width: '13%'}}>Total</th>
+                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {quadroD.map((i, idx) => <Linha key={i.id} item={i} lista={quadroD} setLista={setQuadroD} indice={idx + 1} />)}
+                  <tr className="bg-yellow-100 font-bold">
+                    <td colSpan={4} className="p-2 text-right">Total Quadro D (Limite: 8,0 pts):</td>
+                    <td className="p-2 text-center text-lg">{totalD.toFixed(1)}</td>
+                    {modoEdicao && <td className="no-print"></td>}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between rounded-lg mb-2">
+              <span>QUADRO E - DEDUÇÕES</span>
+              {modoEdicao && (
+                <button onClick={() => addFinal(quadroE, setQuadroE, false)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1 no-print">
+                  <Icons.Plus /> Adicionar
+                </button>
+              )}
+            </div>
+            <div className="bg-red-50 border-l-4 border-red-600 p-3 mb-3 text-sm rounded">
+              <p className="font-bold text-red-900">⚠️ ATENÇÃO - Lógica de Deduções:</p>
+              <p className="text-xs mt-1">Cada falta desconta 1 ponto. Limite máximo de 3 faltas (-3 pontos).</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border text-xs">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border p-2" style={{width: '50%'}}>Deduções</th>
+                    <th className="border p-2" style={{width: '12%'}}>Pont. Unitária</th>
+                    <th className="border p-2" style={{width: '12%'}}>Limite</th>
+                    <th className="border p-2" style={{width: '13%'}}>Qtd</th>
+                    <th className="border p-2" style={{width: '13%'}}>Total</th>
+                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {quadroE.map((i, idx) => <Linha key={i.id} item={i} lista={quadroE} setLista={setQuadroE} indice={idx + 1} mostrarDescartado={false} />)}
+                  <tr className="bg-yellow-100 font-bold">
+                    <td colSpan={4} className="p-2 text-right">Total Quadro E (Limite: -3,0 pts):</td>
+                    <td className="p-2 text-center text-red-600 text-lg">{totalE.toFixed(1)}</td>
+                    {modoEdicao && <td className="no-print"></td>}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 text-center font-bold rounded-lg shadow-xl">
+            <div className="text-3xl mb-3">
+              PONTUAÇÃO FINAL: {pontuacaoFinal.toFixed(2)} pontos
+            </div>
+            <div className="text-sm font-normal bg-white bg-opacity-20 p-3 rounded">
+              <div className="mb-1">(A+B + C + D) - E</div>
+              <div>({totalAB_ComLimite.toFixed(2)} + {totalC.toFixed(1)} + {totalD.toFixed(1)}) - {Math.abs(totalE).toFixed(1)} = {pontuacaoFinal.toFixed(2)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<FormularioCV />);
+    </script>
+</body>
+</html>
