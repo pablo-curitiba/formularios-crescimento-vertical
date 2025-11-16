@@ -375,13 +375,18 @@ const htmlCompleto = `
       padding-top: 2mm;
     }
 
-    /* Tira cara de “card/app”: sem sombras e sem cantos arredondados (mantendo cores) */
+        /* Tira cara de “card/app”: sem sombras e sem cantos arredondados (mantendo cores) */
     .print-area [class*="shadow"] {
       box-shadow: none !important;
     }
 
     .print-area [class*="rounded"] {
       border-radius: 0 !important;
+    }
+
+    /* Garante que textos que usam text-white apareçam no papel */
+    .print-area [class*="text-white"] {
+      color: #000000 !important;
     }
 
     /* Mantém só bordas essenciais (como de tabelas, se houver) */
