@@ -813,7 +813,7 @@ function FormularioCV() {
             </div>
           </div>
 
-          <div className={'p-4 mb-4 rounded-lg shadow border-2 ' + (resultA.total >= config.requisitoMinimo ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600 animate-pulse')}>
+          <div className={'p-4 mb-4 rounded-lg shadow border-2 hide-on-export' + (resultA.total >= config.requisitoMinimo ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600 animate-pulse')}>
             <div className="flex justify-between items-center flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <span className="font-semibold">Requisito Mínimo (Quadro A):</span>
@@ -1042,7 +1042,7 @@ function FormularioCV() {
               )}
             </div>
 
-            <div className="mb-3 p-3 bg-yellow-50 border-l-4 border-yellow-600 roundedhide-on-export">
+            <div className="mb-3 p-3 bg-yellow-50 border-l-4 border-yellow-600 rounded hide-on-export">
               <p className="font-bold text-yellow-900 mb-2">⚙️ Itens Específicos por Lei/Grupo:</p>
               
               {config.lei === '16.200/2023' && (
