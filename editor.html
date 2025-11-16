@@ -348,9 +348,10 @@ function FormularioCV() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${tailwindScriptTag}
   <style>
+    /* Página A4 mais “cheia” */
     @page {
       size: A4 portrait;
-      margin: 10mm;
+      margin: 6mm 8mm; /* topo/fundo 6mm, lados 8mm */
     }
 
     html, body {
@@ -361,13 +362,46 @@ function FormularioCV() {
     body {
       background: #ffffff;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 10pt;
-      line-height: 1.25;
+      font-size: 8.5pt;   /* um pouco menor que antes */
+      line-height: 1.15;  /* linhas mais juntas, mas ainda legíveis */
     }
 
+    /* Usa quase toda a largura da folha */
     .print-area {
-      max-width: 190mm;
+      max-width: 200mm;   /* A4 tem ~210mm de largura total */
       margin: 0 auto;
+      padding-top: 2mm;
+    }
+
+    /* Compactar margens/paddings padrão do Tailwind no export */
+    .print-area .p-6 { padding: 8px !important; }
+    .print-area .p-5 { padding: 7px !important; }
+    .print-area .p-4 { padding: 6px !important; }
+    .print-area .p-3 { padding: 4px !important; }
+
+    .print-area .py-6 { padding-top: 8px !important; padding-bottom: 8px !important; }
+    .print-area .py-4 { padding-top: 6px !important; padding-bottom: 6px !important; }
+    .print-area .px-6 { padding-left: 8px !important; padding-right: 8px !important; }
+    .print-area .px-4 { padding-left: 6px !important; padding-right: 6px !important; }
+
+    .print-area .mb-8 { margin-bottom: 10px !important; }
+    .print-area .mb-6 { margin-bottom: 8px !important; }
+    .print-area .mb-4 { margin-bottom: 6px !important; }
+
+    .print-area .gap-6 { gap: 8px !important; }
+    .print-area .gap-4 { gap: 6px !important; }
+    .print-area .gap-3 { gap: 4px !important; }
+
+    /* Tabelas mais compactas */
+    .print-area table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt !important;
+    }
+
+    .print-area th,
+    .print-area td {
+      padding: 2px 4px !important;
     }
   </style>
 </head>
