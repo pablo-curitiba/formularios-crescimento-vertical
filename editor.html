@@ -339,38 +339,32 @@ function FormularioCV() {
     '<script src="https://cdn.tailwindcss.com"></' + 'script>';
 
   // Monta o HTML COMPLETO, com Tailwind e CSS de página A4
+  const salvarHTML = () => {
+  // Pega a área completa do formulário
+  const areaOriginal = document.getElementById("print-area");
+
+  if (!areaOriginal) {
+    alert("Área de impressão não encontrada.");
+    return;
+  }
+
+  // Clona a área para poder mexer sem alterar o que está na tela
+  const clone = areaOriginal.cloneNode(true);
+
+  // Remove tudo que tiver .no-print (botões, cabeçalho, etc.) e .hide-on-export (avisos, lógicas, etc.)
+  clone.querySelectorAll(".no-print").forEach((el) => el.remove());
+  clone.querySelectorAll(".hide-on-export").forEach((el) => el.remove());
+
+  // Conteúdo final que vamos colocar no HTML exportado
+  const conteudo = clone.innerHTML;
+
+  // Truque: montamos a tag <script> do Tailwind em pedaços
+  // pra NÃO quebrar o <script type="text/babel"> desta página
+  const tailwindScriptTag =
+    '<script src="https://cdn.tailwindcss.com"></' + 'script>';
+
+  // Monta o HTML COMPLETO, com Tailwind e CSS bem compacto (estilo basico.html)
   const htmlCompleto = `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>Formulário - Crescimento Vertical 2025</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  ${tailwindScriptTag}
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 10mm;
-    }
-
-    html, body {
-      padding: 0;
-      margin: 0;
-    }
-
-    body {
-      background: #ffffff;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 10pt;
-      line-height: 1.25;
-    }
-
-    .print-area {
-      max-width: 190mm;
-      margin: 0 auto;
-    }
-  </style>
-const htmlCompleto = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -405,7 +399,7 @@ const htmlCompleto = `
       padding-top: 2mm;
     }
 
-    /* Tira cara de “card”/app: sem sombras, sem bordas arredondadas, sem fundos coloridos */
+    /* Tira cara de “card/app”: sem sombras, sem bordas arredondadas, sem fundos coloridos */
     .print-area [class*="shadow"] {
       box-shadow: none !important;
     }
@@ -428,10 +422,10 @@ const htmlCompleto = `
     .print-area th,
     .print-area td {
       padding: 2px 3px !important;
-      border-width: 0 !important;  /* sem grade pesada de tabela */
+      border-width: 0 !important;
     }
 
-    /* Margens e espaços mais compactos, similar ao basico.html */
+    /* Margens e espaços mais compactos */
     .print-area .p-6 { padding: 6px !important; }
     .print-area .p-5 { padding: 5px !important; }
     .print-area .p-4 { padding: 4px !important; }
@@ -455,7 +449,7 @@ const htmlCompleto = `
     .print-area .gap-3 { gap: 3px !important; }
     .print-area .gap-2 { gap: 2px !important; }
 
-    /* Títulos um pouco mais discretos (sem ocupar tanta altura) */
+    /* Títulos discretos */
     .print-area h1,
     .print-area h2,
     .print-area h3 {
@@ -482,7 +476,6 @@ const htmlCompleto = `
       text-align: left;
     }
 
-    /* Parágrafos e textos explicativos enxutos */
     .print-area p {
       margin: 0 0 2px 0;
     }
@@ -495,7 +488,7 @@ const htmlCompleto = `
 </body>
 </html>`;
 
-  // Gera o arquivo HTML para download
+  // Download
   const blob = new Blob([htmlCompleto], { type: "text/html" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
