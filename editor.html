@@ -348,7 +348,38 @@ function FormularioCV() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${tailwindScriptTag}
   <style>
-    /* Página A4 mais “cheia” */
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+
+    html, body {
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      background: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 10pt;
+      line-height: 1.25;
+    }
+
+    .print-area {
+      max-width: 190mm;
+      margin: 0 auto;
+    }
+  </style>
+const htmlCompleto = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulário - Crescimento Vertical 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${tailwindScriptTag}
+  <style>
+    /* A4 bem aproveitado, como no exemplo basico.html */
     @page {
       size: A4 portrait;
       margin: 6mm 8mm; /* topo/fundo 6mm, lados 8mm */
@@ -362,46 +393,98 @@ function FormularioCV() {
     body {
       background: #ffffff;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 8.5pt;   /* um pouco menor que antes */
-      line-height: 1.15;  /* linhas mais juntas, mas ainda legíveis */
+      font-size: 8pt;    /* menor pra caber mais em 1 página */
+      line-height: 1.1;  /* linhas mais próximas, ainda legíveis */
+      color: #000000;
     }
 
-    /* Usa quase toda a largura da folha */
+    /* Área principal bem larga, quase toda a folha */
     .print-area {
-      max-width: 200mm;   /* A4 tem ~210mm de largura total */
+      max-width: 200mm;  /* A4 ≈ 210mm */
       margin: 0 auto;
       padding-top: 2mm;
     }
 
-    /* Compactar margens/paddings padrão do Tailwind no export */
-    .print-area .p-6 { padding: 8px !important; }
-    .print-area .p-5 { padding: 7px !important; }
-    .print-area .p-4 { padding: 6px !important; }
-    .print-area .p-3 { padding: 4px !important; }
+    /* Tira cara de “card”/app: sem sombras, sem bordas arredondadas, sem fundos coloridos */
+    .print-area [class*="shadow"] {
+      box-shadow: none !important;
+    }
 
-    .print-area .py-6 { padding-top: 8px !important; padding-bottom: 8px !important; }
-    .print-area .py-4 { padding-top: 6px !important; padding-bottom: 6px !important; }
-    .print-area .px-6 { padding-left: 8px !important; padding-right: 8px !important; }
-    .print-area .px-4 { padding-left: 6px !important; padding-right: 6px !important; }
+    .print-area [class*="rounded"] {
+      border-radius: 0 !important;
+    }
 
-    .print-area .mb-8 { margin-bottom: 10px !important; }
-    .print-area .mb-6 { margin-bottom: 8px !important; }
-    .print-area .mb-4 { margin-bottom: 6px !important; }
+    .print-area [class*="bg-"] {
+      background-color: transparent !important;
+    }
 
-    .print-area .gap-6 { gap: 8px !important; }
-    .print-area .gap-4 { gap: 6px !important; }
-    .print-area .gap-3 { gap: 4px !important; }
-
-    /* Tabelas mais compactas */
+    /* Mantém só bordas essenciais (como de tabelas, se houver) */
     .print-area table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 8pt !important;
+      font-size: 7.5pt !important;
     }
 
     .print-area th,
     .print-area td {
-      padding: 2px 4px !important;
+      padding: 2px 3px !important;
+      border-width: 0 !important;  /* sem grade pesada de tabela */
+    }
+
+    /* Margens e espaços mais compactos, similar ao basico.html */
+    .print-area .p-6 { padding: 6px !important; }
+    .print-area .p-5 { padding: 5px !important; }
+    .print-area .p-4 { padding: 4px !important; }
+    .print-area .p-3 { padding: 3px !important; }
+    .print-area .p-2 { padding: 2px !important; }
+
+    .print-area .py-6 { padding-top: 4px !important; padding-bottom: 4px !important; }
+    .print-area .py-4 { padding-top: 3px !important; padding-bottom: 3px !important; }
+
+    .print-area .px-6 { padding-left: 4px !important; padding-right: 4px !important; }
+    .print-area .px-4 { padding-left: 3px !important; padding-right: 3px !important; }
+
+    .print-area .mb-10 { margin-bottom: 10px !important; }
+    .print-area .mb-8  { margin-bottom: 8px !important; }
+    .print-area .mb-6  { margin-bottom: 6px !important; }
+    .print-area .mb-4  { margin-bottom: 4px !important; }
+    .print-area .mb-3  { margin-bottom: 3px !important; }
+
+    .print-area .gap-6 { gap: 6px !important; }
+    .print-area .gap-4 { gap: 4px !important; }
+    .print-area .gap-3 { gap: 3px !important; }
+    .print-area .gap-2 { gap: 2px !important; }
+
+    /* Títulos um pouco mais discretos (sem ocupar tanta altura) */
+    .print-area h1,
+    .print-area h2,
+    .print-area h3 {
+      margin-top: 0;
+      margin-bottom: 4px;
+      line-height: 1.1;
+    }
+
+    .print-area h1 {
+      font-size: 12pt;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .print-area h2 {
+      font-size: 10pt;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .print-area h3 {
+      font-size: 9pt;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    /* Parágrafos e textos explicativos enxutos */
+    .print-area p {
+      margin: 0 0 2px 0;
     }
   </style>
 </head>
