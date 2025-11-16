@@ -339,8 +339,8 @@ const salvarHTML = () => {
   const tailwindScriptTag =
     '<script src="https://cdn.tailwindcss.com"></' + 'script>';
 
-  // Monta o HTML COMPLETO, com Tailwind e CSS bem compacto (estilo basico.html)
-  const htmlCompleto = `
+// Monta o HTML COMPLETO, com Tailwind e CSS bem compacto (estilo basico.html)
+const htmlCompleto = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -375,17 +375,13 @@ const salvarHTML = () => {
       padding-top: 2mm;
     }
 
-    /* Tira cara de “card/app”: sem sombras, sem bordas arredondadas, sem fundos coloridos */
+    /* Tira cara de “card/app”: sem sombras e sem cantos arredondados (mantendo cores) */
     .print-area [class*="shadow"] {
       box-shadow: none !important;
     }
 
     .print-area [class*="rounded"] {
       border-radius: 0 !important;
-    }
-
-    .print-area [class*="bg-"] {
-      background-color: transparent !important;
     }
 
     /* Mantém só bordas essenciais (como de tabelas, se houver) */
