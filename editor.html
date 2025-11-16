@@ -315,51 +315,56 @@ function FormularioCV() {
   };
 
   const salvarHTML = () => {
-  const area = document.getElementById("print-area");
-  
-  if (!area) {
+  // Pega a área completa do formulário
+  const areaOriginal = document.getElementById("print-area");
+
+  if (!areaOriginal) {
     alert("Área de impressão não encontrada.");
     return;
   }
 
-  // Pega só o conteúdo da área de impressão
-  const conteudo = area.innerHTML;
+  // Clona a área para poder mexer sem alterar o que está na tela
+  const clone = areaOriginal.cloneNode(true);
 
-  // Monta um HTML completo, pronto para abrir e mandar imprimir em A4
+  // Remove tudo que tiver classe .no-print (botões, cabeçalho azul, etc.)
+  clone.querySelectorAll(".no-print").forEach((el) => el.remove());
+
+  // Conteúdo final que vamos colocar no HTML
+  const conteudo = clone.innerHTML;
+
+  // Monta o HTML COMPLETO, com Tailwind e CSS de página A4
   const htmlCompleto = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <title>Formulário - Crescimento Vertical 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind CDN para manter a mesma cara da tela -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     @page {
       size: A4 portrait;
-      margin: 8mm;
+      margin: 10mm;
+    }
+
+    html, body {
+      padding: 0;
+      margin: 0;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 8pt;
-      line-height: 1.1;
       background: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 10pt;
+      line-height: 1.25;
     }
 
     .print-area {
       max-width: 190mm;
       margin: 0 auto;
-      padding: 4mm;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 7pt;
-    }
-
-    th, td {
-      border: 1px solid #000;
-      padding: 2px 4px;
     }
   </style>
 </head>
@@ -370,7 +375,7 @@ function FormularioCV() {
 </body>
 </html>`;
 
-  // Cria o arquivo HTML para download
+  // Gera o arquivo HTML para download
   const blob = new Blob([htmlCompleto], { type: "text/html" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
