@@ -314,7 +314,8 @@ function FormularioCV() {
     window.print();
   };
 
-  const salvarHTML = () => {
+ // Monta o HTML COMPLETO, com Tailwind e CSS de página A4
+const salvarHTML = () => {
   // Pega a área completa do formulário
   const areaOriginal = document.getElementById("print-area");
 
@@ -328,38 +329,13 @@ function FormularioCV() {
 
   // Remove tudo que tiver classe .no-print (botões, cabeçalho azul, etc.)
   clone.querySelectorAll(".no-print").forEach((el) => el.remove());
-  clone.querySelectorAll(".hide-on-export").forEach((el) => el.remove());    
-
-  // Conteúdo final que vamos colocar no HTML
-  const conteudo = clone.innerHTML;
-
-  // Truque: montamos a tag <script> do Tailwind em pedaços
-  // para NÃO quebrar o <script type="text/babel"> da própria página
-  const tailwindScriptTag =
-    '<script src="https://cdn.tailwindcss.com"></' + 'script>';
-
-  // Monta o HTML COMPLETO, com Tailwind e CSS de página A4
-  const salvarHTML = () => {
-  // Pega a área completa do formulário
-  const areaOriginal = document.getElementById("print-area");
-
-  if (!areaOriginal) {
-    alert("Área de impressão não encontrada.");
-    return;
-  }
-
-  // Clona a área para poder mexer sem alterar o que está na tela
-  const clone = areaOriginal.cloneNode(true);
-
-  // Remove tudo que tiver .no-print (botões, cabeçalho, etc.) e .hide-on-export (avisos, lógicas, etc.)
-  clone.querySelectorAll(".no-print").forEach((el) => el.remove());
   clone.querySelectorAll(".hide-on-export").forEach((el) => el.remove());
 
   // Conteúdo final que vamos colocar no HTML exportado
   const conteudo = clone.innerHTML;
 
   // Truque: montamos a tag <script> do Tailwind em pedaços
-  // pra NÃO quebrar o <script type="text/babel"> desta página
+  // para NÃO quebrar o <script type="text/babel"> da própria página
   const tailwindScriptTag =
     '<script src="https://cdn.tailwindcss.com"></' + 'script>';
 
@@ -500,29 +476,30 @@ function FormularioCV() {
   URL.revokeObjectURL(url);
 };
 
-  const salvarJSON = () => {
-    const obj = { 
-      config: config,
-      dados: dados,
-      porNivel: porNivel,
-      nivelSelecionado: nivelSelecionado,
-      pontuacaoFinal: pontuacaoFinal,
-      quadroA: resultA.total,
-      quadroB: totalB_Real,
-      totalAB: totalAB_ComLimite,
-      quadroC: totalC,
-      quadroD: totalD,
-      quadroE: totalE,
-      atendeRequisito: resultA.total >= config.requisitoMinimo
-    };
-    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'dados_cv.json';
-    a.click();
-    URL.revokeObjectURL(url);
+const salvarJSON = () => {
+  const obj = { 
+    config: config,
+    dados: dados,
+    porNivel: porNivel,
+    nivelSelecionado: nivelSelecionado,
+    pontuacaoFinal: pontuacaoFinal,
+    quadroA: resultA.total,
+    quadroB: totalB_Real,
+    totalAB: totalAB_ComLimite,
+    quadroC: totalC,
+    quadroD: totalD,
+    quadroE: totalE,
+    atendeRequisito: resultA.total >= config.requisitoMinimo
   };
+
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dados_cv.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
   const copiarTexto = () => {
     const t = 'PONTUAÇÃO FINAL: ' + pontuacaoFinal.toFixed(2) + ' pontos';
