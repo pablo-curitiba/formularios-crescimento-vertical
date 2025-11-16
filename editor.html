@@ -332,6 +332,11 @@ function FormularioCV() {
   // Conteúdo final que vamos colocar no HTML
   const conteudo = clone.innerHTML;
 
+  // Truque: montamos a tag <script> do Tailwind em pedaços
+  // para NÃO quebrar o <script type="text/babel"> da própria página
+  const tailwindScriptTag =
+    '<script src="https://cdn.tailwindcss.com"></' + 'script>';
+
   // Monta o HTML COMPLETO, com Tailwind e CSS de página A4
   const htmlCompleto = `
 <!DOCTYPE html>
@@ -340,10 +345,7 @@ function FormularioCV() {
   <meta charset="UTF-8" />
   <title>Formulário - Crescimento Vertical 2025</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Tailwind CDN para manter a mesma cara da tela -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
+  ${tailwindScriptTag}
   <style>
     @page {
       size: A4 portrait;
