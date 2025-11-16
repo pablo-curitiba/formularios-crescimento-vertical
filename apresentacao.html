@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crescimento Vertical 2025 – Metodologia | PMC</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --azul-inst: #003d82; --azul-esc: #002855; --azul-claro: #4a90e2;
+            --cinza-cl: #f5f7fa; --cinza-med: #e8ecf1; --cinza-txt: #555;
+            --branco: #fff; --verde: #28a745; --verde-destaque: #28a745; --laranja: #ff9800; --laranja-destaque: #ff9800; 
+            --roxo: #7c3aed; --roxo-destaque: #7c3aed; --vermelho: #dc2626; --vermelho-destaque: #dc2626;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--cinza-cl); color: var(--cinza-txt); line-height: 1.6; }
+        .editavel { outline: none; }
+        .editavel:focus { background: rgba(255,255,0,0.1); outline: 2px dashed #ffc107; outline-offset: 2px; }
+        
+        /* ==================== CABEÇALHO ==================== */
+        .header {
+            background: linear-gradient(135deg, var(--azul-inst), var(--azul-esc));
+            color: var(--branco); padding: 30px 20px; text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .header-buttons { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .header-buttons button {
+            padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;
+            font-weight: 600; font-size: 13px; transition: all 0.3s;
+        }
+        .header-buttons button:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .btn-salvar { background: #28a745; color: white; }
+        .btn-carregar { background: #17a2b8; color: white; }
+        .btn-limpar { background: #dc3545; color: white; }
+        .btn-modo-edicao { background: #ffc107; color: #333; }
+        .btn-modo-edicao.ativo { background: #ff9800; color: white; }
+        .btn-fluxo { background: var(--azul-claro); color: white; }
+
+        /* ==================== CONTROLE DE MODO EDIÇÃO ==================== */
+        .btn-adicionar-criterio,
+        .btn-excluir-criterio,
+        .btn-mover-cima,
+        .btn-mover-baixo {
+            display: none;
+        }
+        body.modo-edicao .btn-adicionar-criterio,
+        body.modo-edicao .btn-excluir-criterio,
+        body.modo-edicao .btn-mover-cima,
+        body.modo-edicao .btn-mover-baixo {
+            display: inline-block;
+        }
+
+        /* ==================== FLUXO SIMPLIFICADO (OCULTÁVEL) ==================== */
+        .fluxo-container {
+            background: var(--branco); padding: 30px 20px; margin: 30px auto;
+            max-width: 1200px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .fluxo-content { display: none; margin-top: 20px; }
+        .fluxo-content.show { display: block; }
+        .fluxo-title { font-size: 20px; color: var(--azul-inst); margin-bottom: 20px; font-weight: 600; }
+        .fluxo-steps {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px; margin-top: 20px; text-align: left;
+        }
+        .fluxo-step {
+            background: var(--cinza-cl); padding: 15px; border-radius: 5px;
+            border-left: 4px solid var(--azul-inst);
+        }
+        .fluxo-step-number {
+            display: inline-block; width: 30px; height: 30px; background: var(--azul-inst);
+            color: white; border-radius: 50%; text-align: center; line-height: 30px;
+            font-weight: bold; margin-right: 10px;
+        }
+
+        /* ==================== ABAS ==================== */
+        .tabs { display: flex; max-width: 1200px; margin: 30px auto 0; background: var(--branco); border-radius: 10px 10px 0 0; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-wrap: wrap; }
+        .tab-button {
+            flex: 1; padding: 15px 10px; background: var(--cinza-med); border: none;
+            border-right: 1px solid #ddd; cursor: pointer; font-size: 13px; font-weight: 600;
+            color: var(--cinza-txt); transition: all 0.3s; text-align: center; min-width: 120px;
+        }
+        .tab-button:last-child { border-right: none; }
+        .tab-button:hover { background: var(--azul-claro); color: var(--branco); }
+        .tab-button.active { background: var(--azul-inst); color: var(--branco); }
+
+        /* ==================== CONTEÚDO DAS ABAS ==================== */
+        .tab-content {
+            display: none; max-width: 1200px; margin: 0 auto;
+            background: var(--branco); padding: 30px; border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .tab-content.active { display: block; }
+        .tab-content h2 {
+            color: var(--azul-inst); font-size: 24px; margin-bottom: 10px;
+            border-bottom: 3px solid var(--azul-inst); padding-bottom: 10px;
+        }
+        .tab-content > p { margin-bottom: 20px; color: var(--cinza-txt); font-size: 14px; line-height: 1.8; }
+        .carreira-intro {
+            background: #e3f2fd; padding: 15px 20px; border-radius: 8px;
+            margin-bottom: 30px; border-left: 4px solid var(--azul-inst);
+            font-size: 14px; line-height: 1.8;
+        }
+
+        /* ==================== CARDS DOS QUADROS ==================== */
+        .card {
+            background: var(--branco); border-left: 5px solid; padding: 25px;
+            margin-bottom: 25px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+        .card.quadro-a { border-left-color: var(--azul-inst); }
+        .card.quadro-b { border-left-color: var(--roxo-destaque); }
+        .card.quadro-c { border-left-color: var(--laranja-destaque); }
+        .card.quadro-d { border-left-color: var(--verde-destaque); }
+        .card.quadro-e { border-left-color: var(--vermelho-destaque); }
+        
+        .card-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .card-icon {
+            width: 45px; height: 45px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; margin-right: 15px;
+            font-size: 20px; color: var(--branco); font-weight: bold;
+        }
+        .quadro-a .card-icon { background: var(--azul-inst); }
+        .quadro-b .card-icon { background: var(--roxo-destaque); }
+        .quadro-c .card-icon { background: var(--laranja-destaque); }
+        .quadro-d .card-icon { background: var(--verde-destaque); }
+        .quadro-e .card-icon { background: var(--vermelho-destaque); }
+        .card-title { font-size: 18px; font-weight: 600; color: var(--azul-esc); }
+        .card-intro { margin-bottom: 20px; font-style: italic; color: #666; line-height: 1.7; }
+        .card-obs { margin-top: 20px; padding: 12px; background: #fff9e6; border-left: 3px solid #ffc107; font-size: 13px; line-height: 1.6; }
+        .card-list {
+            list-style: none; padding-left: 0;
+        }
+        .card-list > li {
+            margin-bottom: 12px; position: relative;
+        }
+
+        /* ==================== CRITÉRIOS EXPANSÍVEIS ==================== */
+        .item-container { margin-bottom: 10px; }
+        .item-toggle {
+            background: var(--cinza-cl); padding: 12px 15px; border-radius: 5px;
+            cursor: pointer; transition: all 0.3s; display: flex;
+            justify-content: space-between; align-items: center; border: 1px solid var(--cinza-med);
+        }
+        .item-toggle:hover { background: var(--cinza-med); }
+        .item-toggle.active { background: var(--azul-claro); color: var(--branco); border-color: var(--azul-inst); }
+        .item-title { font-weight: 600; flex: 1; }
+        .item-icon { font-size: 18px; transition: transform 0.3s; }
+        .item-toggle.active .item-icon { transform: rotate(180deg); }
+        .item-content {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+            background: var(--branco); border-left: 3px solid var(--azul-claro);
+            padding: 0 15px; margin-top: 5px; border-radius: 0 5px 5px 0;
+        }
+        .item-content.show { max-height: 500px; padding: 15px; }
+        .item-description {
+            color: var(--cinza-txt); line-height: 1.6; font-size: 14px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .item-description:hover {
+            background: rgba(74, 144, 226, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        /* ==================== BOTÕES DE AÇÃO ==================== */
+        .btn-adicionar-criterio {
+            background: var(--verde-destaque); color: white; border: none;
+            padding: 12px 20px; border-radius: 5px; cursor: pointer;
+            font-weight: 600; font-size: 13px; margin-top: 15px;
+            transition: all 0.3s; width: 100%;
+        }
+        .btn-adicionar-criterio:hover { background: #218838; transform: scale(1.02); }
+        
+        .btn-excluir-criterio {
+            background: var(--vermelho-destaque); color: white; border: none;
+            padding: 8px 15px; border-radius: 5px; cursor: pointer;
+            font-weight: 600; font-size: 12px; margin-left: 10px;
+            transition: all 0.3s;
+        }
+        .btn-excluir-criterio:hover { background: #c82333; transform: scale(1.05); }
+        
+        .btn-mover-cima,
+        .btn-mover-baixo {
+            background: var(--azul-claro); color: white; border: none;
+            padding: 6px 10px; border-radius: 3px; cursor: pointer;
+            font-weight: bold; font-size: 14px; margin-left: 5px;
+            transition: all 0.3s;
+        }
+        .btn-mover-cima:hover { background: var(--azul-inst); transform: scale(1.1); }
+        .btn-mover-baixo:hover { background: var(--azul-inst); transform: scale(1.1); }
+
+        /* ==================== MODAL PARA DESCRIÇÃO ==================== */
+        .modal-criterio {
+            display: none; position: fixed; z-index: 9999; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6);
+            align-items: center; justify-content: center;
+        }
+        .modal-criterio.show { display: flex; }
+        .modal-content-criterio {
+            background: var(--branco); padding: 30px; border-radius: 10px;
+            max-width: 700px; width: 90%; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative; animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header-criterio {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--azul-inst);
+        }
+        .modal-title-criterio {
+            font-size: 22px; color: var(--azul-inst); font-weight: 600;
+        }
+        .modal-close {
+            background: var(--vermelho-destaque); color: white; border: none;
+            width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
+            font-size: 20px; font-weight: bold; transition: all 0.3s;
+        }
+        .modal-close:hover { background: #c82333; transform: rotate(90deg); }
+        .modal-body-criterio {
+            font-size: 16px; line-height: 1.8; color: var(--cinza-txt);
+            max-height: 400px; overflow-y: auto; padding-right: 10px;
+        }
+
+        /* ==================== RODAPÉ ==================== */
+        .footer {
+            background: var(--azul-esc); color: var(--branco); text-align: center;
+            padding: 20px; margin-top: 50px; font-size: 13px;
+        }
+        .footer p { margin: 5px 0; }
+
+        /* ==================== BOTÃO VOLTAR AO TOPO ==================== */
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; background: var(--azul-inst);
+            color: var(--branco); width: 50px; height: 50px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: all 0.3s; z-index: 999;
+        }
+        .back-to-top:hover { background: var(--azul-claro); transform: scale(1.1); }
+        .back-to-top.show { display: flex; }
+
+        /* ==================== RESPONSIVO ==================== */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 22px; }
+            .fluxo-steps { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+            .tab-button { width: 100%; border-right: none; border-bottom: 1px solid #ddd; }
+            .tab-content { padding: 20px 15px; }
+            .card { padding: 20px; }
+            .back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
+            .modal-content-criterio { width: 95%; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1 class="editavel" contenteditable="true">Crescimento Vertical 2025 – Metodologia dos Formulários</h1>
+        <p class="editavel" contenteditable="true">Apresentação por quadro e por carreira</p>
+        <div class="header-buttons">
+            <button class="btn-fluxo" onclick="toggleFluxo()">📋 Mostrar Fluxo</button>
+            <button class="btn-modo-edicao" onclick="toggleModoEdicao()">✏️ Ativar Modo Edição</button>
+            <button class="btn-salvar" onclick="salvarAlteracoes()">💾 Salvar alterações</button>
+            <button class="btn-carregar" onclick="carregarAlteracoes()">📂 Carregar alterações</button>
+            <button class="btn-limpar" onclick="limparAlteracoes()">🗑️ Limpar alterações</button>
+        </div>
+    </header>
+
+    <!-- ==================== FLUXO SIMPLIFICADO (OCULTÁVEL) ==================== -->
+    <div class="fluxo-container">
+        <div class="fluxo-content" id="fluxo-content">
+            <h2 class="fluxo-title editavel" contenteditable="true">Fluxo simplificado do procedimento de Crescimento Vertical</h2>
+            <div class="fluxo-steps">
+                <div class="fluxo-step">
+                    <span class="fluxo-step-number">1</span>
+                    <span class="editavel" contenteditable="true">Cadastros dos itens – PortalRH</span>
+                </div>
+                <div class="fluxo-step">
+                    <span class="fluxo-step-number">2</span>
+                    <span class="editavel" contenteditable="true">Inscrição</span>
+                </div>
+                <div class="fluxo-step">
+                    <span class="fluxo-step-number">3</span>
+                    <span class="editavel" contenteditable="true">Recurso (se houver)</span>
+                </div>
+                <div class="fluxo-step">
+                    <span class="fluxo-step-number">4</span>
+                    <span class="editavel" contenteditable="true">Seleção do Formulário</span>
+                </div>
+                <div class="fluxo-step">
+                    <span class="fluxo-step-number">5</span>
+                    <span class="editavel" contenteditable="true">Análise de conformidade pela comissão</span>
+                </div>
+                <div class="fluxo-step">
+                    <span class="fluxo-step-number">6</span>
+                    <span class="editavel" contenteditable="true">Recurso (se houver)</span>
+                </div>
+                <div class="fluxo-step">
+                    <span class="fluxo-step-number">7</span>
+                    <span class="editavel" contenteditable="true">Resultado Final</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== ABAS DE NAVEGAÇÃO ==================== -->
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab(event, 'grupo-basico')">Grupo Básico</button>
+        <button class="tab-button" onclick="openTab(event, 'grupo-medio')">Grupo Médio</button>
+        <button class="tab-button" onclick="openTab(event, 'grupo-medio-tecnico')">Grupo Médio-Técnico</button>
+        <button class="tab-button" onclick="openTab(event, 'grupo-superior')">Grupo Superior</button>
+        <button class="tab-button" onclick="openTab(event, 'auditor-fiscal')">Auditor Fiscal</button>
+        <button class="tab-button" onclick="openTab(event, 'prof-ed-infantil')">Professor Ed. Infantil</button>
+        <button class="tab-button" onclick="openTab(event, 'prof-magisterio')">Profissional do Magistério</button>
+        <button class="tab-button" onclick="openTab(event, 'guarda-municipal')">Guarda Municipal</button>
+        <button class="tab-button" onclick="openTab(event, 'procurador')">Procurador Municipal</button>
+    </div>
+
+    <!-- ==================== GRUPO SUPERIOR ==================== -->
+    <div id="grupo-superior" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Grupo Superior – Lei 16.198/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreiras regidas pela Lei 16.198/2023, com estrutura comum de quadros que valoriza escolarização formal, vida funcional e outros critérios objetivos, respeitando as particularidades de cada grupo.
+        </div>
+
+        <!-- QUADRO A -->
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro considera os títulos formais diretamente relacionados à área de atuação do cargo, como a formação mínima exigida por lei e eventuais formações adicionais na mesma área. É neste quadro que se verifica o atendimento ao requisito mínimo de escolarização para participação no Crescimento Vertical.</p>
+            <ul class="card-list" id="lista-superior-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Considera cursos de graduação diretamente ligados à área do cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de extensão na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos de extensão universitária relacionados à área de atuação do cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização (lato sensu) completa com mínimo de 360 horas em área diretamente relacionada ao cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Mestrado na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Mestrado completo e concluído em área diretamente relacionada ao cargo ocupado pelo servidor.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Doutorado na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Doutorado completo e concluído em área diretamente relacionada ao cargo ocupado pelo servidor.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Neste quadro é verificado se o servidor cumpre o requisito mínimo de escolarização previsto na lei específica do cargo, sem exibição de pontos neste painel.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-superior-a')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO B -->
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro considera formações que não são necessariamente da área de atuação do cargo, mas que complementam a formação do servidor. Ele funciona como complemento ao Quadro A, respeitando o limite global definido em lei para a soma dos dois quadros.</p>
+            <ul class="card-list" id="lista-superior-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Graduação completa em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de extensão em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos de extensão universitária em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização (lato sensu) com mínimo de 360 horas em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Mestrado em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Mestrado completo em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Doutorado em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Doutorado completo em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">A soma dos Quadros A e B está sujeita a um limite máximo definido em lei. O objetivo é equilibrar a valorização da formação específica com a formação complementar.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-superior-b')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO C -->
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro avalia aspectos da trajetória do servidor na carreira, considerando o tempo de efetivo exercício no cargo e, quando previsto na lei do cargo, o tempo de exercício em funções de gerenciamento de equipes.</p>
+            <ul class="card-list" id="lista-superior-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de efetivo exercício no cargo</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo de efetivo exercício no cargo atual, considerado por ano completo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de efetivo gerenciamento de equipes (quando previsto na lei específica do cargo)</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Exercício de função gratificada de chefia, coordenação ou assessoramento, por ano completo.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Os critérios e limites de aproveitamento do tempo de serviço são definidos em cada lei específica de carreira. Aqui apresentamos apenas a metodologia, sem pontuação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-superior-c')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO D -->
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro contempla atividades complementares que demonstram atuação técnica, acadêmica ou institucional do servidor, de acordo com as especificidades de cada carreira.</p>
+            <ul class="card-list" id="lista-superior-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Participação como docente, palestrante ou instrutor no âmbito da Prefeitura</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Atividades de ensino, palestras ou instruções realizadas em programas da Prefeitura Municipal de Curitiba.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Participação como docente, palestrante ou instrutor em instituições externas</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Atividades de ensino, palestras ou instruções realizadas em outras instituições públicas ou privadas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Cada lei específica define quais atividades podem compor este quadro e quais limites são aplicados. No painel, apresentamos apenas os tipos de atividades considerados, sem a atribuição de pontos.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-superior-d')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO E -->
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro registra deduções relacionadas à assiduidade do servidor, como faltas registradas no período considerado para o Crescimento Vertical, respeitando as regras definidas na legislação.</p>
+            <ul class="card-list" id="lista-superior-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Faltas injustificadas registradas no período de avaliação para o Crescimento Vertical.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">As regras de dedução seguem a legislação municipal. O painel não apresenta valores, apenas a metodologia.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-superior-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== GRUPO BÁSICO ==================== -->
+    <div id="grupo-basico" class="tab-content active">
+        <h2 class="editavel" contenteditable="true">Grupo Básico – Lei 16.198/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreiras regidas pela Lei 16.198/2023, com estrutura comum de quadros que valoriza escolarização formal, vida funcional e outros critérios objetivos, respeitando as particularidades de cada grupo.
+        </div>
+
+        <!-- QUADRO A -->
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro considera os títulos formais diretamente relacionados à área de atuação do cargo, como a formação mínima exigida por lei e eventuais formações adicionais na mesma área. É neste quadro que se verifica o atendimento ao requisito mínimo de escolarização para participação no Crescimento Vertical.</p>
+            <ul class="card-list" id="lista-basico-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de educação formal de nível médio ou médio-técnico na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos técnicos ou de nível médio relacionados à área de atuação do cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Considera cursos de graduação diretamente ligados à área do cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de extensão na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos de extensão universitária relacionados à área de atuação do cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização (lato sensu) completa com mínimo de 360 horas em área diretamente relacionada ao cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Mestrado na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Mestrado completo e concluído em área diretamente relacionada ao cargo ocupado pelo servidor.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Doutorado na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Doutorado completo e concluído em área diretamente relacionada ao cargo ocupado pelo servidor.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Neste quadro é verificado se o servidor cumpre o requisito mínimo de escolarização previsto na lei específica do cargo, sem exibição de pontos neste painel.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-basico-a')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO B -->
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro considera formações que não são necessariamente da área de atuação do cargo, mas que complementam a formação do servidor. Ele funciona como complemento ao Quadro A, respeitando o limite global definido em lei para a soma dos dois quadros.</p>
+            <ul class="card-list" id="lista-basico-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de educação formal de nível médio-técnico em qualquer área (quando previsto)</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos técnicos ou de nível médio em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Graduação completa em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de extensão em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos de extensão universitária em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização (lato sensu) com mínimo de 360 horas em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Mestrado em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Mestrado completo em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Doutorado em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Doutorado completo em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">A soma dos Quadros A e B está sujeita a um limite máximo definido em lei. O objetivo é equilibrar a valorização da formação específica com a formação complementar.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-basico-b')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO C -->
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro avalia aspectos da trajetória do servidor na carreira, considerando o tempo de efetivo exercício no cargo e, quando previsto na lei do cargo, o tempo de exercício em funções de gerenciamento de equipes.</p>
+            <ul class="card-list" id="lista-basico-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de efetivo exercício no cargo</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo de efetivo exercício no cargo atual, considerado por ano completo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de efetivo gerenciamento de equipes (quando previsto na lei específica do cargo)</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Exercício de função gratificada de chefia, coordenação ou assessoramento, por ano completo.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Os critérios e limites de aproveitamento do tempo de serviço são definidos em cada lei específica de carreira. Aqui apresentamos apenas a metodologia, sem pontuação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-basico-c')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO D -->
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro contempla atividades complementares que demonstram atuação técnica, acadêmica ou institucional do servidor, de acordo com as especificidades de cada carreira.</p>
+            <ul class="card-list" id="lista-basico-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Participação como docente, palestrante ou instrutor no âmbito da Prefeitura</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Atividades de ensino, palestras ou instruções realizadas em programas da Prefeitura Municipal de Curitiba.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Participação como docente, palestrante ou instrutor em instituições externas</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Atividades de ensino, palestras ou instruções realizadas em outras instituições públicas ou privadas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Cada lei específica define quais atividades podem compor este quadro e quais limites são aplicados. No painel, apresentamos apenas os tipos de atividades considerados, sem a atribuição de pontos.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-basico-d')">➕ Adicionar critério</button>
+        </div>
+
+        <!-- QUADRO E -->
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro registra deduções relacionadas à assiduidade do servidor, como faltas registradas no período considerado para o Crescimento Vertical, respeitando as regras definidas na legislação.</p>
+            <ul class="card-list" id="lista-basico-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Faltas injustificadas registradas no período de avaliação para o Crescimento Vertical.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">As regras de dedução seguem a legislação municipal. O painel não apresenta valores, apenas a metodologia.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-basico-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== GRUPO MÉDIO ==================== -->
+    <div id="grupo-medio" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Grupo Médio – Lei 16.198/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreiras regidas pela Lei 16.198/2023, com estrutura comum de quadros que valoriza escolarização formal, vida funcional e outros critérios objetivos, respeitando as particularidades de cada grupo.
+        </div>
+
+        <!-- Conteúdo idêntico ao Grupo Básico, com mesmos quadros A, B, C, D, E -->
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro considera os títulos formais diretamente relacionados à área de atuação do cargo, como a formação mínima exigida por lei e eventuais formações adicionais na mesma área. É neste quadro que se verifica o atendimento ao requisito mínimo de escolarização para participação no Crescimento Vertical.</p>
+            <ul class="card-list" id="lista-medio-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de educação formal de nível médio ou médio-técnico na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos técnicos ou de nível médio relacionados à área de atuação do cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Considera cursos de graduação diretamente ligados à área do cargo.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização na área de atuação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização (lato sensu) completa com mínimo de 360 horas em área diretamente relacionada ao cargo.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Neste quadro é verificado se o servidor cumpre o requisito mínimo de escolarização previsto na lei específica do cargo, sem exibição de pontos neste painel.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-a')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro considera formações que não são necessariamente da área de atuação do cargo, mas que complementam a formação do servidor.</p>
+            <ul class="card-list" id="lista-medio-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Graduação completa em qualquer área do conhecimento.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">A soma dos Quadros A e B está sujeita a um limite máximo definido em lei.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-b')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Este quadro avalia aspectos da trajetória do servidor na carreira.</p>
+            <ul class="card-list" id="lista-medio-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de efetivo exercício no cargo</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo de efetivo exercício no cargo atual.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Os critérios são definidos em cada lei específica de carreira.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-c')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Atividades complementares que demonstram atuação técnica ou institucional.</p>
+            <ul class="card-list" id="lista-medio-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Participação como docente no âmbito da Prefeitura</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Atividades de ensino em programas da PMC.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Cada lei específica define quais atividades podem compor este quadro.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-d')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Deduções relacionadas à assiduidade do servidor.</p>
+            <ul class="card-list" id="lista-medio-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Faltas injustificadas no período.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">As regras de dedução seguem a legislação municipal.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== GRUPO MÉDIO-TÉCNICO ==================== -->
+    <div id="grupo-medio-tecnico" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Grupo Médio-Técnico – Lei 16.198/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreiras regidas pela Lei 16.198/2023, com estrutura comum de quadros que valoriza escolarização formal, vida funcional e outros critérios objetivos, respeitando as particularidades de cada grupo.
+        </div>
+
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Títulos formais relacionados à área de atuação técnica do cargo.</p>
+            <ul class="card-list" id="lista-medio-tec-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos técnicos na área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos técnicos relacionados à área técnica de atuação.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Verifica requisito mínimo de escolarização técnica.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-tec-a')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formações complementares em qualquer área.</p>
+            <ul class="card-list" id="lista-medio-tec-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Graduação em qualquer área.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formações complementares sujeitas a limite.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-tec-b')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Trajetória profissional técnica.</p>
+            <ul class="card-list" id="lista-medio-tec-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de efetivo exercício no cargo técnico</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo no cargo técnico.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Definido por lei específica.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-tec-c')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Certificações e atividades técnicas.</p>
+            <ul class="card-list" id="lista-medio-tec-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Certificações profissionais técnicas</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Certificações na área técnica.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Atividades técnicas conforme lei.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-tec-d')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Deduções por assiduidade.</p>
+            <ul class="card-list" id="lista-medio-tec-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Faltas injustificadas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Regras de dedução conforme legislação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-medio-tec-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== AUDITOR FISCAL ==================== -->
+    <div id="auditor-fiscal" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Auditor Fiscal – Lei 16.199/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreira de nível superior, regida pela Lei 16.199/2023, com critérios específicos vinculados à área fiscal e possibilidade de registro de atividades técnicas no Quadro D.
+        </div>
+
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação em áreas relacionadas à fiscalização tributária.</p>
+            <ul class="card-list" id="lista-auditor-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização em Direito Tributário</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização em Direito Tributário, Contabilidade Tributária ou áreas correlatas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formações específicas da área fiscal.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-auditor-a')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação complementar geral.</p>
+            <ul class="card-list" id="lista-auditor-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Mestrado/Doutorado em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Titulações em qualquer área.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formação complementar sujeita a limite.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-auditor-b')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Experiência em fiscalização.</p>
+            <ul class="card-list" id="lista-auditor-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo como Auditor Fiscal</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo no cargo de Auditor Fiscal.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Tempo de serviço conforme lei.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-auditor-c')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Atividades complementares em fiscalização.</p>
+            <ul class="card-list" id="lista-auditor-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Participação em grupos de trabalho</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Grupos de trabalho e comissões fiscais.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Atividades específicas da área fiscal.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-auditor-d')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Deduções aplicáveis.</p>
+            <ul class="card-list" id="lista-auditor-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Penalidades no período.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Deduções conforme legislação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-auditor-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== GUARDA MUNICIPAL ==================== -->
+    <div id="guarda-municipal" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Guarda Municipal – Lei 16.203/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreira de nível médio, regida pela Lei 16.203/2023, com requisito mínimo de escolarização formal na área de segurança e critérios específicos de vida funcional.
+        </div>
+
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação em segurança pública.</p>
+            <ul class="card-list" id="lista-guarda-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos de segurança pública</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Cursos relacionados à segurança pública e atuação da Guarda.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formações específicas da área de segurança.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-guarda-a')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação complementar geral.</p>
+            <ul class="card-list" id="lista-guarda-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Graduação em qualquer área</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Graduação completa em qualquer área.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formação complementar sujeita a limite.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-guarda-b')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Experiência operacional.</p>
+            <ul class="card-list" id="lista-guarda-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de efetivo exercício como Guarda Municipal</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo no cargo de Guarda.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Tempo de serviço operacional.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-guarda-c')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Capacitações operacionais.</p>
+            <ul class="card-list" id="lista-guarda-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Cursos operacionais da Guarda</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Participação em cursos operacionais e capacitações.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Atividades operacionais específicas.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-guarda-d')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Deduções aplicáveis.</p>
+            <ul class="card-list" id="lista-guarda-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Penalidades disciplinares no período.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Deduções conforme legislação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-guarda-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== PROFISSIONAL DO MAGISTÉRIO ==================== -->
+    <div id="prof-magisterio" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Profissional do Magistério – Lei 16.202/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreira voltada à educação, regida pela Lei 16.202/2023, com foco em formação pedagógica e titulações na área educacional, considerando também a atuação docente como critério complementar.
+        </div>
+
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação pedagógica e educacional.</p>
+            <ul class="card-list" id="lista-magisterio-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização em Educação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização em áreas pedagógicas ou educacionais.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Mestrado em Educação</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Mestrado em Educação ou áreas relacionadas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formações específicas da área pedagógica.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-magisterio-a')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação complementar geral.</p>
+            <ul class="card-list" id="lista-magisterio-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Pós-graduação em outras áreas</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Titulações em áreas não pedagógicas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formação complementar sujeita a limite.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-magisterio-b')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Experiência docente.</p>
+            <ul class="card-list" id="lista-magisterio-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo de docência na rede municipal</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo na função docente na rede de Curitiba.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Tempo de serviço docente.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-magisterio-c')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Atividades pedagógicas complementares.</p>
+            <ul class="card-list" id="lista-magisterio-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Projetos pedagógicos</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Coordenação ou participação em projetos pedagógicos.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Atividades pedagógicas específicas.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-magisterio-d')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Deduções aplicáveis.</p>
+            <ul class="card-list" id="lista-magisterio-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Faltas injustificadas no período.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Deduções conforme legislação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-magisterio-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== PROFESSOR EDUCAÇÃO INFANTIL ==================== -->
+    <div id="prof-ed-infantil" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Professor de Educação Infantil – Lei 16.201/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreira voltada à educação infantil, regida pela Lei 16.201/2023, com foco na formação para atuação com crianças e na valorização de titulações na área educacional.
+        </div>
+
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação em educação infantil e pedagogia.</p>
+            <ul class="card-list" id="lista-ed-infantil-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização em Educação Infantil</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização específica em Educação Infantil ou Pedagogia da Infância.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formações específicas para educação infantil.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-ed-infantil-a')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação complementar geral.</p>
+            <ul class="card-list" id="lista-ed-infantil-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Pós-graduação em outras áreas</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Titulações em outras áreas educacionais.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formação complementar sujeita a limite.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-ed-infantil-b')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Experiência na educação infantil.</p>
+            <ul class="card-list" id="lista-ed-infantil-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo na educação infantil</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo como professor de educação infantil na rede municipal.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Tempo de serviço na educação infantil.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-ed-infantil-c')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Atividades complementares em educação infantil.</p>
+            <ul class="card-list" id="lista-ed-infantil-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Projetos na educação infantil</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Coordenação ou participação em projetos específicos de educação infantil.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Atividades específicas da educação infantil.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-ed-infantil-d')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Deduções aplicáveis.</p>
+            <ul class="card-list" id="lista-ed-infantil-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Faltas injustificadas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Deduções conforme legislação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-ed-infantil-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== PROCURADOR MUNICIPAL ==================== -->
+    <div id="procurador" class="tab-content">
+        <h2 class="editavel" contenteditable="true">Procurador Municipal – Lei 16.200/2023</h2>
+        
+        <div class="carreira-intro editavel" contenteditable="true">
+            Carreira jurídica de nível superior, regida pela Lei 16.200/2023, com enfoque em formação na área do Direito e atividades jurídicas específicas, como sustentações orais, contempladas no Quadro D.
+        </div>
+
+        <div class="card quadro-a">
+            <div class="card-header">
+                <div class="card-icon">A</div>
+                <div class="card-title editavel" contenteditable="true">Quadro A – Escolarização Formal na Área de Atuação</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação jurídica especializada.</p>
+            <ul class="card-list" id="lista-procurador-a">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Especialização em Direito Público</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Especialização em Direito Público, Administrativo ou correlatas.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Mestrado em Direito</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Mestrado em Direito ou áreas jurídicas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formações específicas da área jurídica.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-procurador-a')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-b">
+            <div class="card-header">
+                <div class="card-icon">B</div>
+                <div class="card-title editavel" contenteditable="true">Quadro B – Escolarização Formal em Qualquer Área – Complementar</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Formação complementar geral.</p>
+            <ul class="card-list" id="lista-procurador-b">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Pós-graduação em outras áreas</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Titulações em áreas não jurídicas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Formação complementar sujeita a limite.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-procurador-b')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-c">
+            <div class="card-header">
+                <div class="card-icon">C</div>
+                <div class="card-title editavel" contenteditable="true">Quadro C – Vida Funcional</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Experiência jurídica.</p>
+            <ul class="card-list" id="lista-procurador-c">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Tempo como Procurador</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Tempo de efetivo exercício no cargo de Procurador Municipal.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Tempo de serviço jurídico.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-procurador-c')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-d">
+            <div class="card-header">
+                <div class="card-icon">D</div>
+                <div class="card-title editavel" contenteditable="true">Quadro D – Outros Critérios Objetivos</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Atividades jurídicas complementares.</p>
+            <ul class="card-list" id="lista-procurador-d">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Sustentações orais perante tribunais</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Sustentações orais realizadas em tribunais.</p>
+                    </div>
+                </li>
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Publicações jurídicas</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Artigos ou trabalhos publicados em revistas jurídicas.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Atividades jurídicas específicas conforme lei.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-procurador-d')">➕ Adicionar critério</button>
+        </div>
+
+        <div class="card quadro-e">
+            <div class="card-header">
+                <div class="card-icon">E</div>
+                <div class="card-title editavel" contenteditable="true">Quadro E – Deduções</div>
+            </div>
+            <p class="card-intro editavel" contenteditable="true">Deduções aplicáveis.</p>
+            <ul class="card-list" id="lista-procurador-e">
+                <li class="item-container">
+                    <div class="item-toggle" onclick="toggleItem(this)">
+                        <span class="item-title editavel" contenteditable="true">Faltas dentro do período de interstício</span>
+                        <span class="item-icon">▼</span>
+                        <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                    </div>
+                    <div class="item-content">
+                        <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Penalidades disciplinares aplicadas no período.</p>
+                    </div>
+                </li>
+            </ul>
+            <p class="card-obs editavel" contenteditable="true">Deduções conforme legislação.</p>
+            <button class="btn-adicionar-criterio" onclick="adicionarCriterio('lista-procurador-e')">➕ Adicionar critério</button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL PARA DESCRIÇÃO ==================== -->
+    <div id="criterio-modal" class="modal-criterio">
+        <div class="modal-content-criterio">
+            <div class="modal-header-criterio">
+                <h3 class="modal-title-criterio editavel" contenteditable="true">Detalhes do critério</h3>
+                <button class="modal-close" onclick="fecharModalDescricao()">✕</button>
+            </div>
+            <div class="modal-body-criterio" id="modal-descricao-conteudo"></div>
+        </div>
+    </div>
+
+    <!-- ==================== RODAPÉ ==================== -->
+    <footer class="footer">
+        <p class="editavel" contenteditable="true">&copy; 2025 Prefeitura Municipal de Curitiba</p>
+        <p class="editavel" contenteditable="true">Secretaria Municipal de Gestão de Pessoal – SMGP</p>
+    </footer>
+
+    <!-- ==================== BOTÃO VOLTAR AO TOPO ==================== -->
+    <div class="back-to-top" onclick="scrollToTop()">↑</div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // ==================== MODO EDIÇÃO ====================
+        let modoEdicaoAtivo = false;
+
+        function toggleModoEdicao() {
+            modoEdicaoAtivo = !modoEdicaoAtivo;
+            const btn = document.querySelector('.btn-modo-edicao');
+            
+            if (modoEdicaoAtivo) {
+                document.body.classList.add('modo-edicao');
+                btn.classList.add('ativo');
+                btn.textContent = '🔒 Desativar Modo Edição';
+            } else {
+                document.body.classList.remove('modo-edicao');
+                btn.classList.remove('ativo');
+                btn.textContent = '✏️ Ativar Modo Edição';
+            }
+        }
+
+        // ==================== TOGGLE FLUXO ====================
+        function toggleFluxo() {
+            const fluxoContent = document.getElementById('fluxo-content');
+            const btn = document.querySelector('.btn-fluxo');
+            
+            if (fluxoContent.classList.contains('show')) {
+                fluxoContent.classList.remove('show');
+                btn.textContent = '📋 Mostrar Fluxo';
+            } else {
+                fluxoContent.classList.add('show');
+                btn.textContent = '📋 Ocultar Fluxo';
+            }
+        }
+
+        // ==================== MODAL DE DESCRIÇÃO ====================
+        function abrirModalDescricao(event, element) {
+            // Se estiver no modo edição, não abrir o pop-up (permitir edição do texto)
+            if (document.body.classList.contains('modo-edicao')) {
+                return; // Sair da função, permitindo que o contenteditable funcione normalmente
+            }
+            
+            // Modo normal: abrir pop-up para apresentação/leitura
+            event.stopPropagation();
+            const modal = document.getElementById('criterio-modal');
+            const modalConteudo = document.getElementById('modal-descricao-conteudo');
+            
+            modalConteudo.innerHTML = element.innerHTML;
+            modal.classList.add('show');
+        }
+
+        function fecharModalDescricao() {
+            const modal = document.getElementById('criterio-modal');
+            modal.classList.remove('show');
+        }
+
+        document.getElementById('criterio-modal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                fecharModalDescricao();
+            }
+        });
+
+        // ==================== NAVEGAÇÃO DE ABAS ====================
+        function openTab(event, tabId) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==================== EXPANDIR/RECOLHER CRITÉRIOS ====================
+        function toggleItem(element) {
+            const content = element.nextElementSibling;
+            element.classList.toggle('active');
+            content.classList.toggle('show');
+        }
+
+        // ==================== ADICIONAR CRITÉRIO ====================
+        function adicionarCriterio(listaId) {
+            const lista = document.getElementById(listaId);
+            const novoItem = document.createElement('li');
+            novoItem.className = 'item-container';
+            novoItem.innerHTML = `
+                <div class="item-toggle" onclick="toggleItem(this)">
+                    <span class="item-title editavel" contenteditable="true">Novo critério</span>
+                    <span class="item-icon">▼</span>
+                    <button class="btn-mover-cima" onclick="moverCriterioParaCima(event, this)">↑</button>
+                        <button class="btn-mover-baixo" onclick="moverCriterioParaBaixo(event, this)">↓</button>
+                        <button class="btn-excluir-criterio" onclick="excluirCriterio(event, this)">✕</button>
+                </div>
+                <div class="item-content">
+                    <p class="item-description editavel" contenteditable="true" onclick="abrirModalDescricao(event, this)">Descrição do novo critério</p>
+                </div>
+            `;
+            lista.appendChild(novoItem);
+        }
+
+        // ==================== EXCLUIR CRITÉRIO ====================
+        function excluirCriterio(event, button) {
+            event.stopPropagation();
+            if (confirm('Deseja realmente excluir este critério?')) {
+                const itemContainer = button.closest('.item-container');
+                itemContainer.remove();
+            }
+        }
+
+        // ==================== MOVER CRITÉRIO PARA CIMA ====================
+        function moverCriterioParaCima(event, button) {
+            event.stopPropagation();
+            const itemContainer = button.closest('.item-container');
+            const anterior = itemContainer.previousElementSibling;
+            
+            if (anterior && anterior.classList.contains('item-container')) {
+                itemContainer.parentNode.insertBefore(itemContainer, anterior);
+            }
+        }
+
+        // ==================== MOVER CRITÉRIO PARA BAIXO ====================
+        function moverCriterioParaBaixo(event, button) {
+            event.stopPropagation();
+            const itemContainer = button.closest('.item-container');
+            const proximo = itemContainer.nextElementSibling;
+            
+            if (proximo && proximo.classList.contains('item-container')) {
+                itemContainer.parentNode.insertBefore(proximo, itemContainer);
+            }
+        }
+
+        // ==================== SALVAR/CARREGAR/LIMPAR ====================
+        function salvarAlteracoes() {
+            const conteudo = document.body.innerHTML;
+            localStorage.setItem('painelCrescimentoVertical', conteudo);
+            alert('✅ Alterações salvas com sucesso!');
+        }
+
+        function carregarAlteracoes() {
+            const conteudo = localStorage.getItem('painelCrescimentoVertical');
+            if (conteudo) {
+                document.body.innerHTML = conteudo;
+                alert('✅ Alterações carregadas com sucesso!');
+                window.location.reload();
+            } else {
+                alert('ℹ️ Não há alterações salvas.');
+            }
+        }
+
+        function limparAlteracoes() {
+            if (confirm('⚠️ Deseja realmente apagar todas as alterações salvas e restaurar o painel original?')) {
+                localStorage.removeItem('painelCrescimentoVertical');
+                alert('✅ Alterações apagadas! A página será recarregada.');
+                window.location.reload();
+            }
+        }
+
+        // ==================== VOLTAR AO TOPO ====================
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onscroll = function() {
+            const backToTopButton = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        };
+
+        // ==================== AUTO-CARREGAR ====================
+        window.addEventListener('load', function() {
+            const conteudo = localStorage.getItem('painelCrescimentoVertical');
+            if (conteudo && confirm('📂 Há alterações salvas. Deseja carregá-las?')) {
+                document.body.innerHTML = conteudo;
+                window.location.reload();
+            }
+        });
+
+        // ==================== PREVENIR BLOQUEIO DE TECLADO EM CONTENTEDITABLE ====================
+        document.addEventListener('keydown', function(e) {
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.contentEditable === 'true') {
+                return;
+            }
+        }, false);
+
+        document.addEventListener('keyup', function(e) {
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.contentEditable === 'true') {
+                return;
+            }
+        }, false);
+
+        document.addEventListener('keypress', function(e) {
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.contentEditable === 'true') {
+                return;
+            }
+        }, false);
+    </script>
+</body>
+</html>
