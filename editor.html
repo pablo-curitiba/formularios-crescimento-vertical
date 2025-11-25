@@ -80,6 +80,20 @@ function FormularioCV() {
   const [mostrarInfoA, setMostrarInfoA] = useState(true);
   const [mostrarInfoB, setMostrarInfoB] = useState(true);
   
+  // Estados para títulos editáveis dos quadros
+  const [tituloQuadroA, setTituloQuadroA] = useState("QUADRO A - ESCOLARIZAÇÃO FORMAL (NA ÁREA DE ATUAÇÃO)");
+  const [tituloQuadroB, setTituloQuadroB] = useState("QUADRO B - ESCOLARIZAÇÃO FORMAL (EM QUALQUER ÁREA - COMPLEMENTAR)");
+  const [tituloQuadroC, setTituloQuadroC] = useState("QUADRO C - VIDA FUNCIONAL");
+  const [tituloQuadroD, setTituloQuadroD] = useState("QUADRO D - OUTROS CRITÉRIOS OBJETIVOS");
+  const [tituloQuadroE, setTituloQuadroE] = useState("QUADRO E - DEDUÇÕES");
+  
+  // Estados para mostrar/ocultar quadros
+  const [mostrarQuadroA, setMostrarQuadroA] = useState(true);
+  const [mostrarQuadroB, setMostrarQuadroB] = useState(true);
+  const [mostrarQuadroC, setMostrarQuadroC] = useState(true);
+  const [mostrarQuadroD, setMostrarQuadroD] = useState(true);
+  const [mostrarQuadroE, setMostrarQuadroE] = useState(true);
+  
   const [config, setConfig] = useState({
     lei: '16.198/2023',
     grupoOcupacional: 'BÁSICO',
@@ -153,1118 +167,1083 @@ function FormularioCV() {
     { id: 2, titulo: 'Nível Superior Graduação - Em qualquer área', pont: 10.0, lim: 15.0, qtd: 0, meses: 0 },
     { id: 3, titulo: 'Cursos de Extensão Universitária - Em qualquer área', pont: 0.5, lim: 10.0, qtd: 0, meses: 0 },
     { id: 4, titulo: 'Pós-Graduação Especialização - Em qualquer área', pont: 7.5, lim: 30.0, qtd: 0, meses: 0 },
-    { id: 5, titulo: 'Pós-Graduação Stricto Sensu Mestrado - Em qualquer área', pont: 15.0, lim: 22.0, qtd: 0, meses: 0 },
-    { id: 6, titulo: 'Pós-Graduação Stricto Sensu Doutorado - Em qualquer área', pont: 25.0, lim: 33.0, qtd: 0, meses: 0 }
+    { id: 5, titulo: 'Pós-Graduação Stricto Sensu Mestrado - Em qualquer área', pont: 17.0, lim: 22.0, qtd: 0, meses: 0 },
+    { id: 6, titulo: 'Pós-Graduação Stricto Sensu Doutorado - Em qualquer área', pont: 25.5, lim: 33.0, qtd: 0, meses: 0 }
   ]);
-
-  const [opcaoQuadroC1, setOpcaoQuadroC1] = useState('padrao');
-  
-  const textoQuadroC1 = {
-    'padrao': 'Tempo de efetivo exercício no cargo, em anos',
-    'pedagogico': 'Tempo de efetivo exercício em atividades pedagógicas de docência, planejamento e regência de classe, em anos'
-  };
 
   const [quadroC, setQuadroC] = useState([
-    { id: 1, titulo: textoQuadroC1['padrao'], pont: 0.4, lim: 12.0, qtd: 0 },
-    { id: 2, titulo: 'Tempo de efetivo gerenciamento de equipes, em anos', pont: 0.4, lim: 12.0, qtd: 0 }
+    { id: 1, titulo: 'Participação em comissão permanente ou temporária instituída pelo prefeito', pont: 0.05, lim: 3.0, qtd: 0, meses: 0 },
+    { id: 2, titulo: 'Licitação e contratos, participando da Comissão de Licitação, Comissão Julgadora ou Pregoeiro, emitindo relatórios, pareceres ou elaborando minutas', pont: 0.20, lim: 8.0, qtd: 0, meses: 0 },
+    { id: 3, titulo: 'Controle Interno de Gestão de Recursos ou Controle Interno Geral', pont: 0.10, lim: 5.0, qtd: 0, meses: 0 },
+    { id: 4, titulo: 'Participação em grupo de estudos ou grupo de trabalho criado pela PMC', pont: 0.05, lim: 3.0, qtd: 0, meses: 0 },
+    { id: 5, titulo: 'Elogio formal emitido pela chefia imediata e/ou pela Administração superior', pont: 0.05, lim: 3.0, qtd: 0, meses: 0 }
   ]);
 
-  useEffect(() => {
-    setQuadroC(prev => prev.map(item => 
-      item.id === 1 ? { ...item, titulo: textoQuadroC1[opcaoQuadroC1] } : item
-    ));
-  }, [opcaoQuadroC1]);
-
   const [quadroD, setQuadroD] = useState([
-    { id: 1, titulo: 'Participação como docente, palestrante ou instrutor - No âmbito da prefeitura', pont: 1.0, lim: 8.0, qtd: 0 },
-    { id: 2, titulo: 'Participação como docente, palestrante ou instrutor - No âmbito externo', pont: 0.5, lim: 8.0, qtd: 0 }
+    { id: 1, titulo: 'Publicação de artigos (em jornal, revista, plataforma digital ou veículo de comunicação de massa)', pont: 0.5, lim: 8.0, qtd: 0 },
+    { id: 2, titulo: 'Publicação de livros (relacionados à área de atuação)', pont: 2.0, lim: 8.0, qtd: 0 },
+    { id: 3, titulo: 'Eventos científicos na área de atuação (participação como coordenador, organizador, palestrante, painelista ou apresentador de trabalho)', pont: 1.0, lim: 8.0, qtd: 0 },
+    { id: 4, titulo: 'Certificados de participação em eventos na área de atuação, tais como: conferências, congressos, seminários, simpósios, workshops, fóruns, palestras', pont: 0.5, lim: 8.0, qtd: 0 },
+    { id: 5, titulo: 'Cursos profissionalizantes com duração mínima de 20h', pont: 0.5, lim: 8.0, qtd: 0 },
+    { id: 6, titulo: 'Participação em projetos de pesquisa e extensão', pont: 0.5, lim: 8.0, qtd: 0 },
+    { id: 7, titulo: 'Desenvolvimento, implementação e/ou execução de projeto aprovado pela Administração, relacionado à área de atuação do servidor', pont: 2.0, lim: 8.0, qtd: 0 },
+    { id: 8, titulo: 'Monitoria, orientação ou docência em cursos realizados no âmbito da PMC', pont: 1.0, lim: 8.0, qtd: 0 },
+    { id: 9, titulo: 'Aprovação em concurso público de nível superior para cargo permanente realizado no Brasil', pont: 1.0, lim: 8.0, qtd: 0 }
   ]);
 
   const [quadroE, setQuadroE] = useState([
-    { id: 1, titulo: 'Faltas', pont: -1.0, lim: -3.0, qtd: 0 }
+    { id: 1, titulo: 'Faltas injustificadas', pont: -1.0, lim: -3.0, qtd: 0 }
   ]);
 
-  const calcMultiplicador = (meses) => {
-    const pts = meses * multiplicador.pontosPorMes;
-    return Math.min(pts, multiplicador.limiteMax);
-  };
-
-  const calcularTotaisPareados = () => {
-    const pares = {};
-    
-    Object.keys(pareamentoAB).forEach(tipo => {
-      const map = pareamentoAB[tipo];
-      const itemA = quadroA.find(i => i.id === map.quadroA);
-      const itemB = quadroB.find(i => i.id === map.quadroB);
-      
-      if (itemA && itemB) {
-        const baseA = Math.min(itemA.pont * itemA.qtd, itemA.lim);
-        const multA = itemA.qtd > 0 && itemA.meses > 0 ? calcMultiplicador(itemA.meses) : 0;
-        const totalA = baseA + multA;
-        
-        const baseB = Math.min(itemB.pont * itemB.qtd, itemB.lim);
-        const multB = itemB.qtd > 0 && itemB.meses > 0 ? calcMultiplicador(itemB.meses) : 0;
-        const totalB_bruto = baseB + multB;
-        
-        const limitePar = itemA.lim;
-        const totalB_valido = Math.max(0, Math.min(totalB_bruto, limitePar - totalA));
-        const descartePar = Math.max(0, totalB_bruto - totalB_valido);
-        
-        pares[tipo] = {
-          totalA: totalA,
-          totalB_bruto: totalB_bruto,
-          totalB_valido: totalB_valido,
-          limitePar: limitePar,
-          descartePar: descartePar,
-          bloqueado: totalA >= limitePar,
-          nome: map.nome
-        };
-      }
-    });
-    
-    return pares;
-  };
-
-  const calcTotalComMultiplicador = (lista) => {
-    let base = 0;
-    let mult = 0;
-    
-    lista.forEach(i => {
-      const ptsBase = Math.min(i.pont * i.qtd, i.lim);
-      base += ptsBase;
-      if (i.qtd > 0 && i.meses > 0) {
-        mult += calcMultiplicador(i.meses);
-      }
-    });
-    
-    return { base, mult, total: base + mult };
-  };
-
-  const calcTotal = (lista, limiteQuadro) => {
-    const soma = lista.reduce((acc, i) => acc + Math.min(i.pont * i.qtd, i.lim), 0);
-    return Math.min(soma, limiteQuadro);
-  };
-
-  const calcTotalE = () => {
-    return quadroE.reduce((acc, i) => acc + (i.pont * i.qtd), 0);
-  };
-
-  const resultA = calcTotalComMultiplicador(quadroA);
-  const totaisPareados = calcularTotaisPareados();
-  
-  const totalB_ComPareamento = Object.values(totaisPareados).reduce((acc, par) => acc + par.totalB_valido, 0);
-  
-  const itensNaoPareadosB = quadroB.filter(item => 
-    !Object.values(pareamentoAB).some(p => p.quadroB === item.id)
-  );
-  const totalB_NaoPareados = itensNaoPareadosB.reduce((acc, i) => {
-    const base = Math.min(i.pont * i.qtd, i.lim);
-    const mult = i.qtd > 0 && i.meses > 0 ? calcMultiplicador(i.meses) : 0;
-    return acc + base + mult;
-  }, 0);
-  
-  const totalB_Real = totalB_ComPareamento + totalB_NaoPareados;
-  const totalAB_SemLimite = resultA.total + totalB_Real;
-  const totalAB_ComLimite = Math.min(totalAB_SemLimite, 60.0);
-  const descarteAB_Global = Math.max(0, totalAB_SemLimite - 60.0);
-  const totalC = calcTotal(quadroC, 12.0);
-  const totalD = calcTotal(quadroD, 8.0);
-  const totalE = calcTotalE();
-  const pontuacaoFinal = totalAB_ComLimite + totalC + totalD + totalE;
-
+  // Função atualizar CORRIGIDA - não converte para número no onChange
   const atualizar = (lista, setLista, id, campo, val) => {
-    setLista(lista.map(i => i.id === id ? { ...i, [campo]: parseFloat(val) || 0 } : i));
-  };
-
-  const addApos = (lista, setLista, id, temMeses) => {
-    const idx = lista.findIndex(i => i.id === id);
-    const novoId = Math.max(...lista.map(i => i.id)) + 1;
-    const novo = { id: novoId, titulo: 'Novo', pont: 0, lim: 0, qtd: 0 };
-    if (temMeses) novo.meses = 0;
-    const arr = [...lista];
-    arr.splice(idx + 1, 0, novo);
-    setLista(arr);
-  };
-
-  const addFinal = (lista, setLista, temMeses) => {
-    const novoId = Math.max(...lista.map(i => i.id), 0) + 1;
-    const novo = { id: novoId, titulo: 'Novo', pont: 0, lim: 0, qtd: 0 };
-    if (temMeses) novo.meses = 0;
-    setLista([...lista, novo]);
-  };
-
-  const mover = (lista, setLista, id, dir) => {
-    const idx = lista.findIndex(i => i.id === id);
-    if ((dir === 'c' && idx === 0) || (dir === 'b' && idx === lista.length - 1)) return;
-    const arr = [...lista];
-    const novoIdx = dir === 'c' ? idx - 1 : idx + 1;
-    [arr[idx], arr[novoIdx]] = [arr[novoIdx], arr[idx]];
-    setLista(arr);
+    setLista(lista.map(i => i.id === id ? { ...i, [campo]: val } : i));
   };
 
   const remover = (lista, setLista, id) => {
     setLista(lista.filter(i => i.id !== id));
   };
 
-  const editTit = (lista, setLista, id, tit) => {
-    setLista(lista.map(i => i.id === id ? { ...i, titulo: tit } : i));
+  const addFinal = (lista, setLista, temMeses = true) => {
+    const novoId = Math.max(...lista.map(i => i.id), 0) + 1;
+    const novoItem = { id: novoId, titulo: '', pont: 0, lim: 0, qtd: 0 };
+    if (temMeses) novoItem.meses = 0;
+    setLista([...lista, novoItem]);
+  };
+
+  // Cálculos do Quadro A - CORRIGIDO com parseFloat
+  const calcA = quadroA.map(i => {
+    const pont = parseFloat(i.pont || 0);
+    const qtd = parseFloat(i.qtd || 0);
+    const lim = parseFloat(i.lim || 0);
+    const meses = parseFloat(i.meses || 0);
+    
+    const ptsBase = Math.min(pont * qtd, lim);
+    const ptsMeses = Math.min(meses * multiplicador.pontosPorMes, multiplicador.limiteMax);
+    const parcial = ptsBase + ptsMeses;
+    return { ...i, ptsBase, ptsMeses, parcial };
+  });
+
+  const totalA = calcA.reduce((acc, i) => acc + i.parcial, 0);
+
+  // Cálculos do Quadro B - CORRIGIDO com parseFloat
+  const calcB = quadroB.map(i => {
+    const pont = parseFloat(i.pont || 0);
+    const qtd = parseFloat(i.qtd || 0);
+    const lim = parseFloat(i.lim || 0);
+    const meses = parseFloat(i.meses || 0);
+    
+    const ptsBase = Math.min(pont * qtd, lim);
+    const ptsMeses = Math.min(meses * multiplicador.pontosPorMes, multiplicador.limiteMax);
+    const parcial = ptsBase + ptsMeses;
+    return { ...i, ptsBase, ptsMeses, parcial };
+  });
+
+  const totalB = calcB.reduce((acc, i) => acc + i.parcial, 0);
+
+  // Pareamento entre A e B
+  const pareamentosAtivos = [];
+  Object.entries(pareamentoAB).forEach(([key, par]) => {
+    const itemA = calcA.find(i => i.id === par.quadroA);
+    const itemB = calcB.find(i => i.id === par.quadroB);
+    if (itemA && itemB) {
+      const qtdA = parseFloat(itemA.qtd || 0);
+      const qtdB = parseFloat(itemB.qtd || 0);
+      if (qtdA > 0 && qtdB > 0) {
+        const descartado = Math.min(itemB.ptsBase, itemA.ptsBase);
+        pareamentosAtivos.push({ nome: par.nome, descartado, itemA, itemB });
+      }
+    }
+  });
+
+  const totalDescartadoB = pareamentosAtivos.reduce((acc, p) => acc + p.descartado, 0);
+  const totalB_AposDescarte = totalB - totalDescartadoB;
+  const totalAB = totalA + totalB_AposDescarte;
+
+  // Limite total A+B
+  let limiteAB_config = 50.0;
+  if (config.lei === '16.201/2023') {
+    if (config.ingressoLei16201 === 'sim') {
+      limiteAB_config = 30.0;
+    } else if (config.ingressoLei16201 === 'nao') {
+      limiteAB_config = 43.0;
+    }
+  }
+
+  const totalAB_ComLimite = Math.min(totalAB, limiteAB_config);
+
+  // Cálculos do Quadro C - CORRIGIDO com parseFloat
+  const calcC = quadroC.map(i => {
+    const pont = parseFloat(i.pont || 0);
+    const qtd = parseFloat(i.qtd || 0);
+    const lim = parseFloat(i.lim || 0);
+    const meses = parseFloat(i.meses || 0);
+    
+    const ptsBase = pont * qtd;
+    const ptsMeses = Math.min(meses * multiplicador.pontosPorMes, multiplicador.limiteMax);
+    const ptsSemLimite = ptsBase + ptsMeses;
+    const parcial = Math.min(ptsSemLimite, lim);
+    const descartado = Math.max(0, ptsSemLimite - lim);
+    return { ...i, ptsBase, ptsMeses, parcial, descartado };
+  });
+
+  const totalC_SemLimite = calcC.reduce((acc, i) => acc + i.ptsBase + i.ptsMeses, 0);
+  const totalC = calcC.reduce((acc, i) => acc + i.parcial, 0);
+  const totalC_Descartado = totalC_SemLimite - totalC;
+
+  // Cálculos do Quadro D - CORRIGIDO com parseFloat
+  const calcD = quadroD.map(i => {
+    const pont = parseFloat(i.pont || 0);
+    const qtd = parseFloat(i.qtd || 0);
+    const lim = parseFloat(i.lim || 0);
+    
+    const ptsSemLimite = pont * qtd;
+    const parcial = Math.min(ptsSemLimite, lim);
+    const descartado = Math.max(0, ptsSemLimite - lim);
+    return { ...i, ptsSemLimite, parcial, descartado };
+  });
+
+  const totalD_SemLimite = calcD.reduce((acc, i) => acc + i.ptsSemLimite, 0);
+  const totalD = Math.min(totalD_SemLimite, 8.0);
+  const totalD_Descartado = Math.max(0, totalD_SemLimite - 8.0);
+
+  // Cálculos do Quadro E - CORRIGIDO com parseFloat
+  const calcE = quadroE.map(i => {
+    const pont = parseFloat(i.pont || 0);
+    const qtd = parseFloat(i.qtd || 0);
+    const lim = parseFloat(i.lim || 0);
+    
+    const ptsSemLimite = pont * qtd;
+    const parcial = Math.max(ptsSemLimite, lim);
+    return { ...i, ptsSemLimite, parcial };
+  });
+
+  const totalE_SemLimite = calcE.reduce((acc, i) => acc + i.ptsSemLimite, 0);
+  const totalE = Math.max(totalE_SemLimite, -3.0);
+
+  // Pontuação final
+  const pontuacaoFinal = totalAB_ComLimite + totalC + totalD + totalE;
+
+  // Verificar se atinge requisito mínimo
+  const atingeRequisito = pontuacaoFinal >= config.requisitoMinimo;
+
+  // Componente de linha genérico
+  function Linha({ item, lista, setLista, indice, mostrarDescartado = true, temMeses = true }) {
+    const calc = temMeses 
+      ? (lista === quadroC ? calcC.find(c => c.id === item.id) : 
+         lista === quadroA ? calcA.find(c => c.id === item.id) :
+         calcB.find(c => c.id === item.id))
+      : (lista === quadroD ? calcD.find(c => c.id === item.id) :
+         calcE.find(c => c.id === item.id));
+
+    const descarte = (lista === quadroB && pareamentosAtivos.find(p => p.itemB.id === item.id))
+      ? pareamentosAtivos.find(p => p.itemB.id === item.id).descartado
+      : (mostrarDescartado && calc?.descartado) || 0;
+
+    return (
+      <tr>
+        <td className="border p-2">
+          {modoEdicao ? (
+            <input
+              type="text"
+              value={item.titulo}
+              onChange={(e) => atualizar(lista, setLista, item.id, 'titulo', e.target.value)}
+              className="w-full px-2 py-1 border rounded"
+            />
+          ) : (
+            <span>{indice}. {item.titulo}</span>
+          )}
+        </td>
+        <td className="border p-2 text-center">
+          {modoEdicao ? (
+            <input
+              type="number"
+              step="0.1"
+              value={item.pont}
+              onChange={(e) => atualizar(lista, setLista, item.id, 'pont', e.target.value)}
+              className="w-full px-2 py-1 border rounded text-center"
+            />
+          ) : (
+            <span>{(parseFloat(item.pont || 0)).toFixed(1)}</span>
+          )}
+        </td>
+        <td className="border p-2 text-center">
+          {modoEdicao ? (
+            <input
+              type="number"
+              step="0.1"
+              value={item.lim}
+              onChange={(e) => atualizar(lista, setLista, item.id, 'lim', e.target.value)}
+              className="w-full px-2 py-1 border rounded text-center"
+            />
+          ) : (
+            <span>{(parseFloat(item.lim || 0)).toFixed(1)}</span>
+          )}
+        </td>
+        <td className="border p-2 text-center">
+          <input
+            type="number"
+            step="1"
+            value={item.qtd}
+            onChange={(e) => atualizar(lista, setLista, item.id, 'qtd', e.target.value)}
+            className="w-full px-2 py-1 border rounded text-center"
+          />
+        </td>
+        <td className="border p-2 text-center font-bold">
+          <div>{calc?.parcial?.toFixed(1) || '0.0'}</div>
+          {descarte > 0 && (
+            <div className="text-red-600 text-xs">(-{descarte.toFixed(1)} pareado)</div>
+          )}
+        </td>
+        {modoEdicao && (
+          <td className="border p-2 text-center no-print">
+            <button
+              onClick={() => remover(lista, setLista, item.id)}
+              className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs flex items-center gap-1 mx-auto"
+            >
+              <Icons.Trash2 /> Excluir
+            </button>
+          </td>
+        )}
+      </tr>
+    );
+  }
+
+  // Componente de linha com meses
+  function LinhaComMeses({ item, lista, setLista, indice }) {
+    const calc = lista === quadroC ? calcC.find(c => c.id === item.id) :
+                 lista === quadroA ? calcA.find(c => c.id === item.id) :
+                 calcB.find(c => c.id === item.id);
+
+    const descarte = (lista === quadroB && pareamentosAtivos.find(p => p.itemB.id === item.id))
+      ? pareamentosAtivos.find(p => p.itemB.id === item.id).descartado
+      : 0;
+
+    return (
+      <tr>
+        <td className="border p-2">
+          {modoEdicao ? (
+            <input
+              type="text"
+              value={item.titulo}
+              onChange={(e) => atualizar(lista, setLista, item.id, 'titulo', e.target.value)}
+              className="w-full px-2 py-1 border rounded"
+            />
+          ) : (
+            <span>{indice}. {item.titulo}</span>
+          )}
+        </td>
+        <td className="border p-2 text-center">
+          {modoEdicao ? (
+            <input
+              type="number"
+              step="0.1"
+              value={item.pont}
+              onChange={(e) => atualizar(lista, setLista, item.id, 'pont', e.target.value)}
+              className="w-full px-2 py-1 border rounded text-center"
+            />
+          ) : (
+            <span>{(parseFloat(item.pont || 0)).toFixed(1)}</span>
+          )}
+        </td>
+        <td className="border p-2 text-center">
+          {modoEdicao ? (
+            <input
+              type="number"
+              step="0.1"
+              value={item.lim}
+              onChange={(e) => atualizar(lista, setLista, item.id, 'lim', e.target.value)}
+              className="w-full px-2 py-1 border rounded text-center"
+            />
+          ) : (
+            <span>{(parseFloat(item.lim || 0)).toFixed(1)}</span>
+          )}
+        </td>
+        <td className="border p-2 text-center">
+          <input
+            type="number"
+            step="1"
+            value={item.qtd}
+            onChange={(e) => atualizar(lista, setLista, item.id, 'qtd', e.target.value)}
+            className="w-full px-2 py-1 border rounded text-center"
+          />
+        </td>
+        <td className="border p-2 text-center">
+          <input
+            type="number"
+            step="1"
+            value={item.meses}
+            onChange={(e) => atualizar(lista, setLista, item.id, 'meses', e.target.value)}
+            className="w-full px-2 py-1 border rounded text-center"
+          />
+        </td>
+        <td className="border p-2 text-center">
+          <div className="text-xs">{calc?.ptsBase?.toFixed(1) || '0.0'}</div>
+        </td>
+        <td className="border p-2 text-center">
+          <div className="text-xs">{calc?.ptsMeses?.toFixed(1) || '0.0'}</div>
+        </td>
+        <td className="border p-2 text-center font-bold">
+          <div>{calc?.parcial?.toFixed(1) || '0.0'}</div>
+          {descarte > 0 && (
+            <div className="text-red-600 text-xs">(-{descarte.toFixed(1)} pareado)</div>
+          )}
+        </td>
+        {modoEdicao && (
+          <td className="border p-2 text-center no-print">
+            <button
+              onClick={() => remover(lista, setLista, item.id)}
+              className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs flex items-center gap-1 mx-auto"
+            >
+              <Icons.Trash2 /> Excluir
+            </button>
+          </td>
+        )}
+      </tr>
+    );
+  }
+
+  // Funções de exportação
+  const exportarHTML = () => {
+    const htmlContent = document.documentElement.outerHTML;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Formulario_CV_${dados.servidor || 'servidor'}_${new Date().toISOString().split('T')[0]}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportarJSON = () => {
+    const data = {
+      config,
+      dados,
+      quadroA,
+      quadroB,
+      quadroC,
+      quadroD,
+      quadroE,
+      totais: {
+        totalA,
+        totalB,
+        totalAB,
+        totalAB_ComLimite,
+        totalC,
+        totalD,
+        totalE,
+        pontuacaoFinal
+      }
+    };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Formulario_CV_${dados.servidor || 'servidor'}_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const copiarTexto = () => {
+    let texto = `${config.tituloPrincipal}\n`;
+    texto += `${config.tituloFormulario}\n\n`;
+    texto += `SERVIDOR: ${dados.servidor}\n`;
+    texto += `MATRÍCULA: ${dados.matricula}\n`;
+    texto += `CARGO: ${dados.cargo}\n`;
+    texto += `UNIDADE: ${dados.unidade}\n`;
+    texto += `LOTAÇÃO: ${dados.lotacao}\n`;
+    texto += `INTERSTÍCIO: ${dados.intersticio}\n\n`;
+    texto += `PONTUAÇÃO FINAL: ${pontuacaoFinal.toFixed(2)} pontos\n`;
+    texto += `${atingeRequisito ? 'ATENDE' : 'NÃO ATENDE'} ao requisito mínimo de ${config.requisitoMinimo.toFixed(1)} pontos\n`;
+
+    navigator.clipboard.writeText(texto).then(() => {
+      alert('Texto copiado para a área de transferência!');
+    });
   };
 
   const imprimir = () => {
     window.print();
   };
 
- // Monta o HTML COMPLETO, com Tailwind e CSS de página A4
-const salvarHTML = () => {
-  // Pega a área completa do formulário
-  const areaOriginal = document.getElementById("print-area");
-
-  if (!areaOriginal) {
-    alert("Área de impressão não encontrada.");
-    return;
-  }
-
-  // Clona a área para poder mexer sem alterar o que está na tela
-  const clone = areaOriginal.cloneNode(true);
-
-  // Remove tudo que tiver classe .no-print (botões, cabeçalho azul, etc.)
-  clone.querySelectorAll(".no-print").forEach((el) => el.remove());
-  clone.querySelectorAll(".hide-on-export").forEach((el) => el.remove());
-
-  // Conteúdo final que vamos colocar no HTML exportado
-  const conteudo = clone.innerHTML;
-
-  // Truque: montamos a tag <script> do Tailwind em pedaços
-  // para NÃO quebrar o <script type="text/babel"> da própria página
-  const tailwindScriptTag =
-    '<script src="https://cdn.tailwindcss.com"></' + 'script>';
-
-// Monta o HTML COMPLETO, com Tailwind e CSS bem compacto (estilo basico.html)
-const htmlCompleto = `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>Formulário - Crescimento Vertical 2025</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  ${tailwindScriptTag}
-  <style>
-    /* A4 bem aproveitado, como no exemplo basico.html */
-    @page {
-      size: A4 portrait;
-      margin: 6mm 8mm; /* topo/fundo 6mm, lados 8mm */
-    }
-
-    html, body {
-      padding: 0;
-      margin: 0;
-    }
-
-    body {
-      background: #ffffff;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 8pt;    /* menor pra caber mais em 1 página */
-      line-height: 1.1;  /* linhas mais próximas, ainda legíveis */
-      color: #000000;
-    }
-
-    /* Área principal bem larga, quase toda a folha */
-    .print-area {
-      max-width: 200mm;  /* A4 ≈ 210mm */
-      margin: 0 auto;
-      padding-top: 2mm;
-    }
-
-        /* Tira cara de “card/app”: sem sombras e sem cantos arredondados (mantendo cores) */
-    .print-area [class*="shadow"] {
-      box-shadow: none !important;
-    }
-
-    .print-area [class*="rounded"] {
-      border-radius: 0 !important;
-    }
-
-    /* Garante que textos que usam text-white apareçam no papel */
-    .print-area [class*="text-white"] {
-      color: #000000 !important;
-    }
-
-    /* Mantém só bordas essenciais (como de tabelas, se houver) */
-    .print-area table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 7.5pt !important;
-    }
-
-    .print-area th,
-    .print-area td {
-      padding: 2px 3px !important;
-      border-width: 0 !important;
-    }
-
-    /* Margens e espaços mais compactos */
-    .print-area .p-6 { padding: 6px !important; }
-    .print-area .p-5 { padding: 5px !important; }
-    .print-area .p-4 { padding: 4px !important; }
-    .print-area .p-3 { padding: 3px !important; }
-    .print-area .p-2 { padding: 2px !important; }
-
-    .print-area .py-6 { padding-top: 4px !important; padding-bottom: 4px !important; }
-    .print-area .py-4 { padding-top: 3px !important; padding-bottom: 3px !important; }
-
-    .print-area .px-6 { padding-left: 4px !important; padding-right: 4px !important; }
-    .print-area .px-4 { padding-left: 3px !important; padding-right: 3px !important; }
-
-    .print-area .mb-10 { margin-bottom: 10px !important; }
-    .print-area .mb-8  { margin-bottom: 8px !important; }
-    .print-area .mb-6  { margin-bottom: 6px !important; }
-    .print-area .mb-4  { margin-bottom: 4px !important; }
-    .print-area .mb-3  { margin-bottom: 3px !important; }
-
-    .print-area .gap-6 { gap: 6px !important; }
-    .print-area .gap-4 { gap: 4px !important; }
-    .print-area .gap-3 { gap: 3px !important; }
-    .print-area .gap-2 { gap: 2px !important; }
-
-    /* Títulos discretos */
-    .print-area h1,
-    .print-area h2,
-    .print-area h3 {
-      margin-top: 0;
-      margin-bottom: 4px;
-      line-height: 1.1;
-    }
-
-    .print-area h1 {
-      font-size: 12pt;
-      font-weight: 700;
-      text-align: left;
-    }
-
-    .print-area h2 {
-      font-size: 10pt;
-      font-weight: 700;
-      text-align: left;
-    }
-
-    .print-area h3 {
-      font-size: 9pt;
-      font-weight: 600;
-      text-align: left;
-    }
-
-    .print-area p {
-      margin: 0 0 2px 0;
-    }
-  </style>
-</head>
-<body>
-  <div class="print-area">
-    ${conteudo}
-  </div>
-</body>
-</html>`;
-
-  // Download
-  const blob = new Blob([htmlCompleto], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "formulario_crescimento_vertical.html";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-
-const salvarJSON = () => {
-  const obj = { 
-    config: config,
-    dados: dados,
-    porNivel: porNivel,
-    nivelSelecionado: nivelSelecionado,
-    pontuacaoFinal: pontuacaoFinal,
-    quadroA: resultA.total,
-    quadroB: totalB_Real,
-    totalAB: totalAB_ComLimite,
-    quadroC: totalC,
-    quadroD: totalD,
-    quadroE: totalE,
-    atendeRequisito: resultA.total >= config.requisitoMinimo
-  };
-
-  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'dados_cv.json';
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-  const copiarTexto = () => {
-    const t = 'PONTUAÇÃO FINAL: ' + pontuacaoFinal.toFixed(2) + ' pontos';
-    navigator.clipboard.writeText(t).then(() => alert('Copiado!')).catch(() => alert('Erro ao copiar'));
-  };
-
-  const LinhaComMultiplicador = ({ item, lista, setLista, quadro }) => {
-    const ptsBase = Math.min(item.pont * item.qtd, item.lim);
-    const ptsBaseTotal = item.pont * item.qtd;
-    const descartadoBase = Math.max(0, ptsBaseTotal - item.lim);
-    const ptsMult = item.qtd > 0 && item.meses > 0 ? calcMultiplicador(item.meses) : 0;
-    const tot = ptsBase + ptsMult;
-
-    let parInfo = null;
-    let itemBloqueado = false;
-    let descartePareamento = 0;
-
-    if (quadro === 'B') {
-      const parEncontrado = Object.entries(pareamentoAB).find(
-        ([_, map]) => map.quadroB === item.id
-      );
-      
-      if (parEncontrado) {
-        const [tipo, _] = parEncontrado;
-        parInfo = totaisPareados[tipo];
-        itemBloqueado = parInfo?.bloqueado || false;
-        descartePareamento = parInfo?.descartePar || 0;
-      }
-    }
-
-    return (
-      <tr className={`border-b hover:bg-gray-50 ${itemBloqueado ? 'bg-red-50' : ''}`}>
-        <td className="p-2 text-sm">
-          {modoEdicao ? (
-            <input type="text" value={item.titulo} onChange={(e) => editTit(lista, setLista, item.id, e.target.value)} className="w-full p-1 border rounded text-xs" />
-          ) : item.titulo}
-        </td>
-        <td className="p-2 text-center">
-          {modoEdicao ? (
-            <input type="number" step="0.1" value={item.pont} onChange={(e) => atualizar(lista, setLista, item.id, 'pont', e.target.value)} className="w-20 p-1 border rounded text-center" />
-          ) : item.pont.toFixed(1)}
-        </td>
-        <td className="p-2 text-center">
-          {modoEdicao ? (
-            <input type="number" step="0.1" value={item.lim} onChange={(e) => atualizar(lista, setLista, item.id, 'lim', e.target.value)} className="w-20 p-1 border rounded text-center" />
-          ) : item.lim.toFixed(1)}
-        </td>
-        <td className="p-2 text-center">
-          <input 
-            type="number" 
-            value={item.qtd} 
-            onChange={(e) => atualizar(lista, setLista, item.id, 'qtd', e.target.value)} 
-            className={`w-16 p-1 border rounded text-center ${itemBloqueado ? 'border-red-500 border-2 bg-red-50' : ''}`}
-            disabled={itemBloqueado}
-          />
-        </td>
-        <td className="p-2 text-center">
-          <div className="font-semibold">{ptsBase.toFixed(1)}</div>
-          {descartadoBase > 0 && (
-            <div className="text-xs text-red-600 font-bold">
-              -{descartadoBase.toFixed(1)} descartado
-            </div>
-          )}
-        </td>
-        <td className="p-2 text-center bg-blue-50">
-          <input 
-            type="number" 
-            value={item.meses} 
-            onChange={(e) => atualizar(lista, setLista, item.id, 'meses', e.target.value)} 
-            className={`w-16 p-1 border rounded text-center ${itemBloqueado ? 'border-red-500 border-2 bg-red-50' : ''}`}
-            disabled={itemBloqueado}
-          />
-        </td>
-        <td className="p-2 text-center font-semibold text-blue-700 bg-blue-50">
-          {ptsMult > 0 ? '+' + ptsMult.toFixed(2) : '0.00'}
-        </td>
-        <td className="p-2 text-center font-bold text-green-700 bg-green-50">
-          <div>{tot.toFixed(2)}</div>
-          {itemBloqueado && (
-            <div className="text-xs text-red-600 font-bold mt-1">
-              🚫 BLOQUEADO
-            </div>
-          )}
-          {descartePareamento > 0 && !itemBloqueado && (
-            <div className="text-xs text-red-600 font-bold mt-1">
-              -{descartePareamento.toFixed(2)} desc.
-            </div>
-          )}
-        </td>
-        {modoEdicao && (
-          <td className="p-2 text-center">
-            <div className="flex gap-1 justify-center flex-wrap">
-              <button onClick={() => mover(lista, setLista, item.id, 'c')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▲</button>
-              <button onClick={() => mover(lista, setLista, item.id, 'b')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▼</button>
-              <button onClick={() => addApos(lista, setLista, item.id, true)} className="text-green-600 hover:bg-green-100 rounded p-1"><Icons.Plus /></button>
-              <button onClick={() => remover(lista, setLista, item.id)} className="text-red-600 hover:bg-red-100 rounded p-1"><Icons.Trash2 /></button>
-            </div>
-          </td>
-        )}
-      </tr>
-    );
-  };
-
-  const Linha = ({ item, lista, setLista, indice, mostrarDescartado = true }) => {
-    const tot = Math.min(item.pont * item.qtd, item.lim);
-    const totTotal = item.pont * item.qtd;
-    const descartado = Math.max(0, totTotal - item.lim);
-    return (
-      <tr className="border-b hover:bg-gray-50">
-        <td className="p-2 text-sm">
-          {modoEdicao ? (
-            <input type="text" value={item.titulo} onChange={(e) => editTit(lista, setLista, item.id, e.target.value)} className="w-full p-1 border rounded text-xs" />
-          ) : (indice ? indice + ') ' : '') + item.titulo}
-        </td>
-        <td className="p-2 text-center">
-          {modoEdicao ? (
-            <input type="number" step="0.1" value={item.pont} onChange={(e) => atualizar(lista, setLista, item.id, 'pont', e.target.value)} className="w-20 p-1 border rounded text-center" />
-          ) : item.pont.toFixed(1)}
-        </td>
-        <td className="p-2 text-center">
-          {modoEdicao ? (
-            <input type="number" step="0.1" value={item.lim} onChange={(e) => atualizar(lista, setLista, item.id, 'lim', e.target.value)} className="w-20 p-1 border rounded text-center" />
-          ) : item.lim.toFixed(1)}
-        </td>
-        <td className="p-2 text-center">
-          <input type="number" value={item.qtd} onChange={(e) => atualizar(lista, setLista, item.id, 'qtd', e.target.value)} className="w-20 p-1 border rounded text-center" />
-        </td>
-        <td className="p-2 text-center">
-          <div className="font-bold">{tot.toFixed(1)}</div>
-          {mostrarDescartado && descartado > 0 && (
-            <div className="text-xs text-red-600 font-bold">
-              -{descartado.toFixed(1)} descartado
-            </div>
-          )}
-        </td>
-        {modoEdicao && (
-          <td className="p-2 text-center">
-            <div className="flex gap-1 justify-center flex-wrap">
-              <button onClick={() => mover(lista, setLista, item.id, 'c')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▲</button>
-              <button onClick={() => mover(lista, setLista, item.id, 'b')} className="text-blue-600 px-1 text-xs hover:bg-blue-100 rounded">▼</button>
-              <button onClick={() => addApos(lista, setLista, item.id, false)} className="text-green-600 hover:bg-green-100 rounded p-1"><Icons.Plus /></button>
-              <button onClick={() => remover(lista, setLista, item.id)} className="text-red-600 hover:bg-red-100 rounded p-1"><Icons.Trash2 /></button>
-            </div>
-          </td>
-        )}
-      </tr>
-    );
-  };
-
   return (
-  <div className="min-h-screen bg-gray-100 p-4">
-    <style>{`
-      @media print {
-        @page { 
-          size: A4 portrait; 
-          margin: 8mm; 
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
+      <style>{`
+        @media print {
+          body { margin: 0; padding: 10px; background: white; }
+          .no-print { display: none !important; }
+          .hide-on-export { display: none !important; }
+          .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
         }
+      `}</style>
 
-        body {
-          background: #ffffff !important;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          font-size: 8pt;
-          line-height: 1.1;
-        }
-
-        .no-print {
-          display: none !important;
-        }
-
-        .min-h-screen {
-          min-height: auto !important;
-          padding: 0 !important;
-        }
-
-        #print-area.print-area {
-          max-width: 190mm !important;
-          margin: 0 !important;
-          padding: 4mm !important;
-          box-shadow: none !important;
-          border-radius: 0 !important;
-        }
-
-        #print-area.print-area table {
-          font-size: 7pt !important;
-        }
-
-        /* Redução leve de espaços para caber em 1 página */
-        #print-area.print-area .mb-6 { margin-bottom: 6px !important; }
-        #print-area.print-area .mb-4 { margin-bottom: 4px !important; }
-        #print-area.print-area .p-6  { padding: 6px !important; }
-        #print-area.print-area .p-4  { padding: 4px !important; }
-      }
-    `}</style>
-    
-    {/* ALTERADO: agora tem id="print-area" e className="print-area" */}
-    <div id="print-area" className="print-area max-w-7xl mx-auto bg-white shadow-lg rounded-lg">
-      <div className="bg-blue-900 text-white p-4 rounded-t-lg no-print">
-        <div className="flex justify-between items-start gap-4 flex-wrap">
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">Formulário - Crescimento Vertical 2025</h1>
-            {modoEdicao && (
-              <p className="text-sm mt-2 text-yellow-200">Modo Edição Ativo</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
+      <div className="max-w-7xl mx-auto">
+        {/* Barra de ferramentas */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6 no-print">
+          <div className="flex flex-wrap gap-3 items-center justify-between">
+            <h1 className="text-2xl font-bold text-blue-900">Gerador de Formulário - CV 2025</h1>
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setModoEdicao(!modoEdicao)}
-                className={
-                  "px-4 py-2 rounded flex items-center gap-2 " +
-                  (modoEdicao
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-blue-700 hover:bg-blue-800")
-                }
+                className={`px-4 py-2 rounded font-semibold flex items-center gap-2 ${
+                  modoEdicao ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
               >
-                {modoEdicao ? (
-                  <>
-                    <Icons.Save /> Concluir
-                  </>
-                ) : (
-                  <>
-                    <Icons.Edit2 /> Editar
-                  </>
-                )}
+                {modoEdicao ? <><Icons.Save /> Salvar</> : <><Icons.Edit2 /> Editar</>}
               </button>
-
+              <button
+                onClick={exportarHTML}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-semibold flex items-center gap-2"
+              >
+                <Icons.Download /> HTML
+              </button>
+              <button
+                onClick={exportarJSON}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-semibold flex items-center gap-2"
+              >
+                <Icons.FileText /> JSON
+              </button>
+              <button
+                onClick={copiarTexto}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold"
+              >
+                📋 Copiar Texto
+              </button>
               <button
                 onClick={imprimir}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded flex items-center gap-2"
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold flex items-center gap-2"
               >
                 <Icons.Printer /> Imprimir
               </button>
             </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={salvarHTML}
-                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded flex items-center gap-2"
-              >
-                <Icons.Download /> HTML
-              </button>
-
-              <button
-                onClick={salvarJSON}
-                className="px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded flex items-center gap-2"
-              >
-                <Icons.FileText /> JSON
-              </button>
-
-              <button
-                onClick={copiarTexto}
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded"
-              >
-                Copiar
-              </button>
-            </div>
           </div>
         </div>
-      </div>
 
-        <div className="p-6">
-          <div className="text-center mb-6 border-b-2 border-blue-900 pb-4">
-            {modoEdicao ? (
-              <>
-                <input 
-                  type="text" 
-                  value={config.tituloPrincipal} 
-                  onChange={(e) => setConfig({...config, tituloPrincipal: e.target.value})} 
-                  className="text-lg font-bold w-full text-center border-b-2 border-blue-300 p-2 mb-2"
+        {/* Configurações */}
+        {modoEdicao && (
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6 no-print">
+            <h2 className="text-xl font-bold mb-4 text-blue-900">⚙️ Configurações do Formulário</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1">Título Principal:</label>
+                <input
+                  type="text"
+                  value={config.tituloPrincipal}
+                  onChange={(e) => setConfig({...config, tituloPrincipal: e.target.value})}
+                  className="w-full px-3 py-2 border rounded"
                 />
-                <input 
-                  type="text" 
-                  value={config.tituloFormulario} 
-                  onChange={(e) => setConfig({...config, tituloFormulario: e.target.value})} 
-                  className="font-bold w-full text-center border-b-2 border-blue-300 p-2 mb-2"
-                />
-                <div className="flex gap-4 justify-center items-center text-sm flex-wrap">
-                  <div className="flex gap-2 items-center">
-                    <label className="font-semibold">GRUPO:</label>
-                    <select 
-                      value={config.grupoOcupacional} 
-                      onChange={(e) => setConfig({...config, grupoOcupacional: e.target.value})} 
-                      className="border px-2 py-1 w-40 rounded"
-                    >
-                      <option value="BÁSICO">BÁSICO</option>
-                      <option value="MÉDIO">MÉDIO</option>
-                      <option value="MÉDIO-TÉCNICO">MÉDIO-TÉCNICO</option>
-                      <option value="SUPERIOR">SUPERIOR</option>
-                    </select>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <label className="font-semibold">LEI:</label>
-                    <select 
-                      value={config.lei} 
-                      onChange={(e) => handleLeiChange(e.target.value)} 
-                      className="border px-2 py-1 w-40 rounded"
-                    >
-                      {leisDisponiveis.map(lei => (
-                        <option key={lei.valor} value={lei.valor}>{lei.valor}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                {config.lei === '16.201/2023' && (
-                  <div className="flex gap-2 justify-center items-center text-sm mt-3 p-3 bg-yellow-50 border-2 border-yellow-500 rounded">
-                    <label className="font-bold text-yellow-900">INGRESSO POR:</label>
-                    <select 
-                      value={config.ingressoLei16201} 
-                      onChange={(e) => setConfig({...config, ingressoLei16201: e.target.value})} 
-                      className="border-2 border-yellow-600 px-3 py-2 rounded font-semibold bg-white"
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="NÍVEL MÉDIO">NÍVEL MÉDIO</option>
-                      <option value="NÍVEL SUPERIOR">NÍVEL SUPERIOR</option>
-                    </select>
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                <h2 className="text-lg font-bold">{config.tituloPrincipal}</h2>
-                <h3 className="font-bold mt-2">{config.tituloFormulario}</h3>
-                <p className="text-sm mt-2">
-                  GRUPO: {config.grupoOcupacional} | LEI: {config.lei}
-                  {porNivel && <span className="ml-2 px-3 py-1 bg-blue-600 text-white rounded font-bold">| {nivelSelecionado}</span>}
-                </p>
-                {config.lei === '16.201/2023' && config.ingressoLei16201 && (
-                  <p className="text-sm mt-2 font-bold bg-yellow-100 inline-block px-4 py-2 rounded border-2 border-yellow-600">
-                    INGRESSO POR: {config.ingressoLei16201}
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-6 text-sm">
-            <div>
-              <label className="font-semibold block mb-1">SERVIDOR:</label>
-              <input type="text" value={dados.servidor} onChange={(e) => setDados({...dados, servidor: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
-            </div>
-            <div>
-              <label className="font-semibold block mb-1">MATRÍCULA:</label>
-              <input type="text" value={dados.matricula} onChange={(e) => setDados({...dados, matricula: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
-            </div>
-            <div>
-              <label className="font-semibold block mb-1">CARGO:</label>
-              <input type="text" value={dados.cargo} onChange={(e) => setDados({...dados, cargo: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
-            </div>
-            <div>
-              <label className="font-semibold block mb-1">UNIDADE:</label>
-              <input type="text" value={dados.unidade} onChange={(e) => setDados({...dados, unidade: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
-            </div>
-            <div>
-              <label className="font-semibold block mb-1">LOTAÇÃO:</label>
-              <input type="text" value={dados.lotacao} onChange={(e) => setDados({...dados, lotacao: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
-            </div>
-            <div>
-              <label className="font-semibold block mb-1">INTERSTÍCIO:</label>
-              <input type="text" value={dados.intersticio} onChange={(e) => setDados({...dados, intersticio: e.target.value})} className="w-full border-b-2 px-2 py-1 focus:border-blue-500 outline-none" />
-            </div>
-            <div className="col-span-2 flex items-center gap-6 mt-2 p-3 bg-gray-50 rounded hide-on-export">
-              <div className="flex items-center gap-3">
-                <label className="font-semibold">É por nível?</label>
-                <button 
-                  onClick={() => setPorNivel(!porNivel)}
-                  className={`px-4 py-2 rounded font-semibold transition ${porNivel ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'}`}
-                >
-                  {porNivel ? 'SIM' : 'NÃO'}
-                </button>
               </div>
-              {porNivel && (
-                <div className="flex items-center gap-3">
-                  <label className="font-semibold">Nível:</label>
-                  <select 
-                    value={nivelSelecionado} 
-                    onChange={(e) => setNivelSelecionado(e.target.value)}
-                    className="border px-3 py-2 rounded font-semibold"
+              <div>
+                <label className="block text-sm font-semibold mb-1">Título do Formulário:</label>
+                <input
+                  type="text"
+                  value={config.tituloFormulario}
+                  onChange={(e) => setConfig({...config, tituloFormulario: e.target.value})}
+                  className="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Lei:</label>
+                <select
+                  value={config.lei}
+                  onChange={(e) => handleLeiChange(e.target.value)}
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  {leisDisponiveis.map(l => (
+                    <option key={l.valor} value={l.valor}>
+                      {l.valor} {l.cargo && `- ${l.cargo}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Grupo Ocupacional:</label>
+                <select
+                  value={config.grupoOcupacional}
+                  onChange={(e) => setConfig({...config, grupoOcupacional: e.target.value})}
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  <option value="BÁSICO">BÁSICO</option>
+                  <option value="MÉDIO">MÉDIO</option>
+                  <option value="SUPERIOR">SUPERIOR</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Requisito Mínimo (pontos):</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={config.requisitoMinimo}
+                  onChange={(e) => setConfig({...config, requisitoMinimo: parseFloat(e.target.value) || 0})}
+                  className="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              {config.lei === '16.201/2023' && (
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Ingressou após Lei 16.201?</label>
+                  <select
+                    value={config.ingressoLei16201}
+                    onChange={(e) => setConfig({...config, ingressoLei16201: e.target.value})}
+                    className="w-full px-3 py-2 border rounded"
                   >
-                    <option value="Nível I">Nível I</option>
-                    <option value="Nível II">Nível II</option>
-                    <option value="Nível III">Nível III</option>
+                    <option value="">Selecione</option>
+                    <option value="sim">Sim (Limite: 30 pts)</option>
+                    <option value="nao">Não (Limite: 43 pts)</option>
                   </select>
                 </div>
               )}
             </div>
           </div>
+        )}
 
-          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded hide-on-export">
-            <h4 className="font-bold text-yellow-900 mb-2">INFORMAÇÃO IMPORTANTE SOBRE LIMITES</h4>
-            <div className="text-sm text-yellow-900 space-y-1">
-              <p><strong>Quadros A e B têm limite conjunto de 60,0 pontos</strong></p>
-              <p>Se A + B ≤ 60,0 então o total será A + B</p>
-              <p>Se A + B &gt; 60,0 então o total será limitado a 60,0 pontos</p>
-              <p><strong>O requisito mínimo de {config.requisitoMinimo.toFixed(1)} pontos é verificado apenas no Quadro A</strong></p>
-              <p>O Quadro B serve como pontuação complementar</p>
-            </div>
+        {/* Formulário principal */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          {/* Cabeçalho */}
+          <div className="text-center mb-6 border-b-2 border-blue-900 pb-4">
+            {modoEdicao ? (
+              <>
+                <input
+                  type="text"
+                  value={config.tituloPrincipal}
+                  onChange={(e) => setConfig({...config, tituloPrincipal: e.target.value})}
+                  className="text-2xl font-bold mb-2 w-full text-center border-b-2 border-blue-300 px-2 py-1"
+                />
+                <input
+                  type="text"
+                  value={config.tituloFormulario}
+                  onChange={(e) => setConfig({...config, tituloFormulario: e.target.value})}
+                  className="text-xl text-blue-800 w-full text-center border-b border-blue-200 px-2 py-1"
+                />
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold mb-2">{config.tituloPrincipal}</h1>
+                <h2 className="text-xl text-blue-800">{config.tituloFormulario}</h2>
+              </>
+            )}
           </div>
 
-          <div className={'p-4 mb-4 rounded-lg shadow border-2 hide-on-export ' + (resultA.total >= config.requisitoMinimo ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600 animate-pulse')}>
-            <div className="flex justify-between items-center flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Requisito Mínimo (Quadro A):</span>
+          {/* Dados do servidor */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+            {Object.entries(dados).map(([key, value]) => (
+              <div key={key}>
+                <label className="block text-sm font-semibold mb-1 capitalize">
+                  {key === 'intersticio' ? 'Interstício' : key}:
+                </label>
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => setDados({...dados, [key]: e.target.value})}
+                  className="w-full px-3 py-2 border rounded"
+                  placeholder={`Digite ${key}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Status de requisito */}
+          <div className={`p-4 rounded-lg mb-6 text-center font-bold text-lg ${
+            atingeRequisito ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'
+          }`}>
+            {atingeRequisito ? '✓' : '✗'} {atingeRequisito ? 'ATENDE' : 'NÃO ATENDE'} ao requisito mínimo de {config.requisitoMinimo.toFixed(1)} pontos
+          </div>
+
+          {/* QUADRO A */}
+          {mostrarQuadroA && (
+            <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+              <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
                 {modoEdicao ? (
-                  <input type="number" step="0.1" value={config.requisitoMinimo} onChange={(e) => setConfig({...config, requisitoMinimo: parseFloat(e.target.value) || 0})} className="w-24 p-1 border-2 rounded text-center font-semibold" />
+                  <input
+                    type="text"
+                    value={tituloQuadroA}
+                    onChange={(e) => setTituloQuadroA(e.target.value)}
+                    className="w-full max-w-xl px-2 py-1 rounded border text-black"
+                  />
                 ) : (
-                  <span className="font-bold text-lg">{config.requisitoMinimo.toFixed(1)}</span>
+                  <span>{tituloQuadroA}</span>
                 )}
-                <span>pontos</span>
-              </div>
-              <div className={'font-bold text-xl ' + (resultA.total >= config.requisitoMinimo ? 'text-green-700' : 'text-red-700')}>
-                {resultA.total >= config.requisitoMinimo ? '✓ ATENDE' : '✗ NÃO ATENDE'} - Quadro A = {resultA.total.toFixed(2)} pts
-              </div>
-            </div>
-            {resultA.total < config.requisitoMinimo && (
-              <div className="mt-3 p-3 bg-red-200 border-l-4 border-red-700 rounded hide-on-export">
-                <p className="font-bold text-red-900">⚠️ ATENÇÃO: Faltam {(config.requisitoMinimo - resultA.total).toFixed(2)} pontos para atingir o requisito mínimo!</p>
-              </div>
-            )}
-          </div>
-
-          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
-            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
-              <span>QUADRO A - ESCOLARIZAÇÃO FORMAL (NA ÁREA DE ATUAÇÃO)</span>
-              <div className="flex gap-2 no-print">
-                <button onClick={() => setMostrarInfoA(!mostrarInfoA)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1">
-                  <Icons.Info /> {mostrarInfoA ? 'Ocultar' : 'Mostrar'}
-                </button>
-                {modoEdicao && (
-                  <button onClick={() => addFinal(quadroA, setQuadroA, true)} className="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-sm flex items-center gap-1">
-                    <Icons.Plus /> Adicionar
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {mostrarInfoA && (
-              <div className="bg-blue-50 border-l-4 border-blue-600 p-3 mb-3 text-sm rounded">
-                <p className="font-bold text-blue-900 mb-1">MULTIPLICADOR POR TEMPO DE FORMAÇÃO</p>
-                <p className="text-xs">Cálculo: {multiplicador.pontosPorMes.toFixed(4)} pontos por mês</p>
-                <p className="text-xs">Limite multiplicador: {multiplicador.limiteMax.toFixed(1)} pontos</p>
-              </div>
-            )}
-
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border text-xs">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="border p-2" style={{width: '35%'}}>Títulos</th>
-                    <th className="border p-2" style={{width: '8%'}}>Pont.</th>
-                    <th className="border p-2" style={{width: '8%'}}>Lim.</th>
-                    <th className="border p-2" style={{width: '8%'}}>Qtd</th>
-                    <th className="border p-2" style={{width: '9%'}}>Base</th>
-                    <th className="border p-2 bg-blue-100" style={{width: '9%'}}>Meses</th>
-                    <th className="border p-2 bg-blue-100" style={{width: '10%'}}>Mult.</th>
-                    <th className="border p-2 bg-green-100" style={{width: '13%'}}>Total</th>
-                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {quadroA.map(i => <LinhaComMultiplicador key={i.id} item={i} lista={quadroA} setLista={setQuadroA} quadro="A" />)}
-                  <tr className="bg-blue-100 font-bold">
-                    <td colSpan={7} className="p-2 text-right">Total Quadro A:</td>
-                    <td className="p-2 text-center text-lg">{resultA.total.toFixed(2)}</td>
-                    {modoEdicao && <td className="no-print"></td>}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-purple-700">
-            <div className="bg-purple-700 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
-              <span>QUADRO B - ESCOLARIZAÇÃO FORMAL (EM QUALQUER ÁREA - COMPLEMENTAR)</span>
-              <div className="flex gap-2 no-print">
-                <button onClick={() => setMostrarInfoB(!mostrarInfoB)} className="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded text-sm flex items-center gap-1">
-                  <Icons.Info /> {mostrarInfoB ? 'Ocultar' : 'Mostrar'}
-                </button>
-                {modoEdicao && (
-                  <button onClick={() => addFinal(quadroB, setQuadroB, true)} className="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-sm flex items-center gap-1">
-                    <Icons.Plus /> Adicionar
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {mostrarInfoB && (
-              <div className="bg-purple-50 border-l-4 border-purple-600 p-3 mb-3 text-sm rounded">
-                <p className="font-bold text-purple-900 mb-1">PONTUAÇÃO COMPLEMENTAR</p>
-                <p className="text-xs">Formações em qualquer área somam com o Quadro A até o limite conjunto de 60,0 pontos</p>
-              </div>
-            )}
-
-            {Object.entries(totaisPareados).map(([tipo, par]) => {
-              if (par.bloqueado || par.descartePar > 0) {
-                return (
-                  <div key={tipo} className={`p-3 mb-2 rounded border-l-4 ${par.bloqueado ? 'bg-red-50 border-red-600' : 'bg-orange-50 border-orange-600'}`}>
-                    <p className="font-bold text-sm">
-                      {par.bloqueado ? '🚫' : '⚠️'} {par.nome}
-                    </p>
-                    <p className="text-xs mt-1">
-                      {par.bloqueado ? (
-                        <>Limite já atingido no Quadro A ({par.totalA.toFixed(2)}/{par.limitePar.toFixed(1)}). Pontuação adicional não será considerada.</>
-                      ) : (
-                        <>Descarte de {par.descartePar.toFixed(2)} pontos (A: {par.totalA.toFixed(2)} + B: {par.totalB_bruto.toFixed(2)} = {(par.totalA + par.totalB_bruto).toFixed(2)} / Limite: {par.limitePar.toFixed(1)})</>
-                      )}
-                    </p>
-                  </div>
-                );
-              }
-              return null;
-            })}
-
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border text-xs">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="border p-2" style={{width: '35%'}}>Títulos</th>
-                    <th className="border p-2" style={{width: '8%'}}>Pont.</th>
-                    <th className="border p-2" style={{width: '8%'}}>Lim.</th>
-                    <th className="border p-2" style={{width: '8%'}}>Qtd</th>
-                    <th className="border p-2" style={{width: '9%'}}>Base</th>
-                    <th className="border p-2 bg-blue-100" style={{width: '9%'}}>Meses</th>
-                    <th className="border p-2 bg-blue-100" style={{width: '10%'}}>Mult.</th>
-                    <th className="border p-2 bg-green-100" style={{width: '13%'}}>Total</th>
-                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {quadroB.map(i => <LinhaComMultiplicador key={i.id} item={i} lista={quadroB} setLista={setQuadroB} quadro="B" />)}
-                  <tr className="bg-purple-100 font-bold">
-                    <td colSpan={7} className="p-2 text-right">
-                      Total Quadro B (considerando pareamento):
-                      <div className="text-xs font-normal">
-                        Pareados: {totalB_ComPareamento.toFixed(2)} | Não pareados: {totalB_NaoPareados.toFixed(2)}
-                      </div>
-                    </td>
-                    <td className="p-2 text-center text-lg">{totalB_Real.toFixed(2)}</td>
-                    {modoEdicao && <td className="no-print"></td>}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className={'p-4 rounded-lg shadow-lg font-bold text-center text-white text-lg mb-6 ' + (descarteAB_Global > 0 ? 'bg-orange-600' : 'bg-green-600')}>
-            <div className="text-2xl mb-2">
-              TOTAL QUADROS A + B: {totalAB_ComLimite.toFixed(2)} pontos
-            </div>
-            <div className="text-sm font-normal bg-white bg-opacity-20 p-3 rounded">
-              <div>Quadro A ({resultA.total.toFixed(2)}) + Quadro B ({totalB_Real.toFixed(2)}) = {totalAB_SemLimite.toFixed(2)}</div>
-              {descarteAB_Global > 0 && (
-                <div className="mt-3 p-3 bg-red-600 rounded font-bold text-lg border-2 border-yellow-400">
-                  ⚠️ LIMITE ULTRAPASSADO: {descarteAB_Global.toFixed(2)} pontos serão descartados!
-                  <div className="text-xs mt-1">(Limite máximo: 60,0 pontos)</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
-            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
-              <span>QUADRO C - VIDA FUNCIONAL</span>
-              {modoEdicao && (
-                <button onClick={() => addFinal(quadroC, setQuadroC, false)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1 no-print">
-                  <Icons.Plus /> Adicionar
-                </button>
-              )}
-            </div>
-
-            <div className="mb-3 p-3 bg-blue-50 border-l-4 border-blue-600 rounded hide-on-export">
-              <label className="font-bold text-blue-900 block mb-2">📋 Opção para Item 1 (Leis 16.201/16.202 - Magistério):</label>
-              <div className="flex gap-3 flex-wrap">
-                <button
-                  onClick={() => setOpcaoQuadroC1('padrao')}
-                  className={`px-4 py-2 rounded font-semibold transition ${opcaoQuadroC1 === 'padrao' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                >
-                  Padrão - Exercício no cargo
-                </button>
-                <button
-                  onClick={() => setOpcaoQuadroC1('pedagogico')}
-                  className={`px-4 py-2 rounded font-semibold transition ${opcaoQuadroC1 === 'pedagogico' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                >
-                  Pedagógico - Docência e regência
-                </button>
-              </div>
-              <p className="text-xs text-blue-800 mt-2">
-                {opcaoQuadroC1 === 'padrao' 
-                  ? '✓ Tempo de efetivo exercício no cargo, em anos'
-                  : '✓ Tempo de efetivo exercício em atividades pedagógicas de docência, planejamento e regência de classe, em anos'
-                }
-              </p>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border text-xs">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="border p-2" style={{width: '50%'}}>Responsabilidade Carreira</th>
-                    <th className="border p-2" style={{width: '12%'}}>Pont. por Ano</th>
-                    <th className="border p-2" style={{width: '12%'}}>Limite</th>
-                    <th className="border p-2" style={{width: '13%'}}>Qtd (anos)</th>
-                    <th className="border p-2" style={{width: '13%'}}>Total</th>
-                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {quadroC.map((i, idx) => <Linha key={i.id} item={i} lista={quadroC} setLista={setQuadroC} indice={idx + 1} />)}
-                  <tr className="bg-yellow-100 font-bold">
-                    <td colSpan={4} className="p-2 text-right">Total Quadro C (Limite: 12,0 pts):</td>
-                    <td className="p-2 text-center text-lg">{totalC.toFixed(1)}</td>
-                    {modoEdicao && <td className="no-print"></td>}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
-            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
-              <span>QUADRO D - OUTROS CRITÉRIOS OBJETIVOS</span>
-              {modoEdicao && (
-                <button onClick={() => addFinal(quadroD, setQuadroD, false)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1 no-print">
-                  <Icons.Plus /> Adicionar
-                </button>
-              )}
-            </div>
-
-            <div className="mb-3 p-3 bg-yellow-50 border-l-4 border-yellow-600 rounded hide-on-export">
-              <p className="font-bold text-yellow-900 mb-2">⚙️ Itens Específicos por Lei/Grupo:</p>
-              
-              {config.lei === '16.200/2023' && (
-                <div className="mb-3 p-2 bg-white rounded border border-yellow-400">
-                  <label className="font-semibold text-sm block mb-2">Lei 16.200 - Procurador Municipal</label>
+                <div className="flex gap-2 no-print">
                   <button
-                    onClick={() => {
-                      const existe = quadroD.some(item => item.titulo.includes('Sustentação oral'));
-                      if (existe) {
-                        setQuadroD(quadroD.filter(item => !item.titulo.includes('Sustentação oral')));
-                      } else {
-                        const novoId = Math.max(...quadroD.map(i => i.id), 0) + 1;
-                        setQuadroD([...quadroD, {
-                          id: novoId,
-                          titulo: 'Sustentação oral perante os tribunais',
-                          pont: 0.5,
-                          lim: 8.0,
-                          qtd: 0
-                        }]);
-                      }
-                    }}
-                    className={`px-3 py-2 rounded text-sm font-semibold transition ${
-                      quadroD.some(item => item.titulo.includes('Sustentação oral'))
-                        ? 'bg-green-600 text-white hover:bg-red-600'
-                        : 'bg-gray-300 text-gray-700 hover:bg-green-600 hover:text-white'
-                    }`}
+                    onClick={() => setMostrarInfoA(!mostrarInfoA)}
+                    className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1"
                   >
-                    {quadroD.some(item => item.titulo.includes('Sustentação oral')) 
-                      ? '✓ Remover: Sustentação oral (0,5 pts / Lim: 8,0)'
-                      : '+ Adicionar: Sustentação oral (0,5 pts / Lim: 8,0)'
-                    }
+                    <Icons.Info /> Info
                   </button>
+                  {modoEdicao && (
+                    <>
+                      <button
+                        onClick={() => addFinal(quadroA, setQuadroA, true)}
+                        className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1"
+                      >
+                        <Icons.Plus /> Adicionar
+                      </button>
+                      <button
+                        onClick={() => {
+                          setQuadroA([]);
+                          setMostrarQuadroA(false);
+                        }}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                      >
+                        Excluir quadro
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {mostrarInfoA && (
+                <div className="mb-3 p-3 bg-blue-50 border-l-4 border-blue-600 rounded text-sm hide-on-export">
+                  <p className="font-bold text-blue-900 mb-1">ℹ️ Informações sobre o Quadro A:</p>
+                  <p className="text-xs">Este quadro considera títulos na área de atuação. Há pareamento com o Quadro B.</p>
                 </div>
               )}
 
-              {config.lei === '16.198/2023' && config.grupoOcupacional === 'SUPERIOR' && (
-                <div className="mb-3 p-2 bg-white rounded border border-yellow-400">
-                  <label className="font-semibold text-sm block mb-2">Lei 16.198 - Grupo SUPERIOR</label>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border text-xs">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="border p-2" style={{width: '35%'}}>Título</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pont. Unit.</th>
+                      <th className="border p-2" style={{width: '8%'}}>Limite</th>
+                      <th className="border p-2" style={{width: '8%'}}>Qtd</th>
+                      <th className="border p-2" style={{width: '8%'}}>Meses</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pts Base</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pts Meses</th>
+                      <th className="border p-2" style={{width: '9%'}}>Total</th>
+                      {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quadroA.map((item, idx) => (
+                      <LinhaComMeses key={item.id} item={item} lista={quadroA} setLista={setQuadroA} indice={idx + 1} />
+                    ))}
+                    <tr className="bg-yellow-100 font-bold">
+                      <td colSpan={7} className="p-2 text-right">Total Quadro A:</td>
+                      <td className="p-2 text-center text-lg">{totalA.toFixed(2)}</td>
+                      {modoEdicao && <td className="no-print"></td>}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* QUADRO B */}
+          {mostrarQuadroB && (
+            <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+              <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
+                {modoEdicao ? (
+                  <input
+                    type="text"
+                    value={tituloQuadroB}
+                    onChange={(e) => setTituloQuadroB(e.target.value)}
+                    className="w-full max-w-xl px-2 py-1 rounded border text-black"
+                  />
+                ) : (
+                  <span>{tituloQuadroB}</span>
+                )}
+                <div className="flex gap-2 no-print">
                   <button
-                    onClick={() => {
-                      const existe = quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'));
-                      if (existe) {
-                        setQuadroD(quadroD.filter(item => !(item.titulo.includes('ART') || item.titulo.includes('RRT'))));
-                      } else {
-                        const novoId = Math.max(...quadroD.map(i => i.id), 0) + 1;
-                        setQuadroD([...quadroD, {
-                          id: novoId,
-                          titulo: 'Emissão de ART (Anotação de Responsabilidade Técnica) ou RRT (Registro de Responsabilidade Técnica), vinculadas a atividades desempenhadas no âmbito da PMC',
-                          pont: 0.2,
-                          lim: 8.0,
-                          qtd: 0
-                        }]);
-                      }
-                    }}
-                    className={`px-3 py-2 rounded text-sm font-semibold transition ${
-                      quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'))
-                        ? 'bg-green-600 text-white hover:bg-red-600'
-                        : 'bg-gray-300 text-gray-700 hover:bg-green-600 hover:text-white'
-                    }`}
+                    onClick={() => setMostrarInfoB(!mostrarInfoB)}
+                    className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1"
                   >
-                    {quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'))
-                      ? '✓ Remover: ART/RRT (0,2 pts / Lim: 8,0)'
-                      : '+ Adicionar: ART/RRT (0,2 pts / Lim: 8,0)'
-                    }
+                    <Icons.Info /> Info
                   </button>
+                  {modoEdicao && (
+                    <>
+                      <button
+                        onClick={() => addFinal(quadroB, setQuadroB, true)}
+                        className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1"
+                      >
+                        <Icons.Plus /> Adicionar
+                      </button>
+                      <button
+                        onClick={() => {
+                          setQuadroB([]);
+                          setMostrarQuadroB(false);
+                        }}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                      >
+                        Excluir quadro
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {mostrarInfoB && (
+                <div className="mb-3 p-3 bg-yellow-50 border-l-4 border-yellow-600 rounded text-sm hide-on-export">
+                  <p className="font-bold text-yellow-900 mb-1">⚠️ Informações sobre o Quadro B:</p>
+                  <p className="text-xs mb-2">Títulos em qualquer área. Sistema de pareamento com Quadro A:</p>
+                  <ul className="text-xs list-disc list-inside space-y-1">
+                    {Object.entries(pareamentoAB).map(([key, par]) => (
+                      <li key={key}>
+                        <strong>{par.nome}:</strong> Se houver título no Quadro A (item {par.quadroA}) e no Quadro B (item {par.quadroB}), o menor valor dos pontos base será descartado do Quadro B.
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
-              {config.lei !== '16.200/2023' && !(config.lei === '16.198/2023' && config.grupoOcupacional === 'SUPERIOR') && (
-                <p className="text-sm text-gray-600 italic">Nenhum item específico disponível para esta lei/grupo</p>
+              {pareamentosAtivos.length > 0 && (
+                <div className="mb-3 p-3 bg-orange-50 border-l-4 border-orange-600 rounded text-sm hide-on-export">
+                  <p className="font-bold text-orange-900 mb-2">🔗 Pareamentos Ativos:</p>
+                  {pareamentosAtivos.map((p, i) => (
+                    <div key={i} className="text-xs mb-1">
+                      <strong>{p.nome}:</strong> Descartado {p.descartado.toFixed(1)} pts do Quadro B
+                    </div>
+                  ))}
+                  <p className="text-xs font-bold mt-2">Total descartado do Quadro B: {totalDescartadoB.toFixed(1)} pts</p>
+                </div>
               )}
-            </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border text-xs">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="border p-2" style={{width: '50%'}}>Participação e Produção</th>
-                    <th className="border p-2" style={{width: '12%'}}>Pont. Unitária</th>
-                    <th className="border p-2" style={{width: '12%'}}>Limite</th>
-                    <th className="border p-2" style={{width: '13%'}}>Qtd</th>
-                    <th className="border p-2" style={{width: '13%'}}>Total</th>
-                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {quadroD.map((i, idx) => <Linha key={i.id} item={i} lista={quadroD} setLista={setQuadroD} indice={idx + 1} />)}
-                  <tr className="bg-yellow-100 font-bold">
-                    <td colSpan={4} className="p-2 text-right">Total Quadro D (Limite: 8,0 pts):</td>
-                    <td className="p-2 text-center text-lg">{totalD.toFixed(1)}</td>
-                    {modoEdicao && <td className="no-print"></td>}
-                  </tr>
-                </tbody>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border text-xs">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="border p-2" style={{width: '35%'}}>Título</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pont. Unit.</th>
+                      <th className="border p-2" style={{width: '8%'}}>Limite</th>
+                      <th className="border p-2" style={{width: '8%'}}>Qtd</th>
+                      <th className="border p-2" style={{width: '8%'}}>Meses</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pts Base</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pts Meses</th>
+                      <th className="border p-2" style={{width: '9%'}}>Total</th>
+                      {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quadroB.map((item, idx) => (
+                      <LinhaComMeses key={item.id} item={item} lista={quadroB} setLista={setQuadroB} indice={idx + 1} />
+                    ))}
+                    <tr className="bg-yellow-100 font-bold">
+                      <td colSpan={7} className="p-2 text-right">Total Quadro B (antes pareamento):</td>
+                      <td className="p-2 text-center text-lg">{totalB.toFixed(2)}</td>
+                      {modoEdicao && <td className="no-print"></td>}
+                    </tr>
+                    <tr className="bg-orange-100 font-bold">
+                      <td colSpan={7} className="p-2 text-right">Total Quadro B (após pareamento):</td>
+                      <td className="p-2 text-center text-lg">{totalB_AposDescarte.toFixed(2)}</td>
+                      {modoEdicao && <td className="no-print"></td>}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Totais A+B */}
+          <div className="mb-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-md">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-sm opacity-90">Total A+B (sem limite)</div>
+                <div className="text-2xl font-bold">{totalAB.toFixed(2)}</div>
+              </div>
+              <div>
+                <div className="text-sm opacity-90">Limite configurado</div>
+                <div className="text-2xl font-bold">{limiteAB_config.toFixed(1)}</div>
+              </div>
+              <div className="bg-white bg-opacity-20 rounded p-2">
+                <div className="text-sm opacity-90">Total A+B (com limite)</div>
+                <div className="text-3xl font-bold">{totalAB_ComLimite.toFixed(2)}</div>
+              </div>
             </div>
           </div>
 
-          <div className="mb-6">
-            <div className="bg-blue-900 text-white p-3 font-bold flex justify-between rounded-lg mb-2">
-              <span>QUADRO E - DEDUÇÕES</span>
+          {/* QUADRO C */}
+          {mostrarQuadroC && (
+            <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+              <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
+                {modoEdicao ? (
+                  <input
+                    type="text"
+                    value={tituloQuadroC}
+                    onChange={(e) => setTituloQuadroC(e.target.value)}
+                    className="w-full max-w-xl px-2 py-1 rounded border text-black"
+                  />
+                ) : (
+                  <span>{tituloQuadroC}</span>
+                )}
+                <div className="flex gap-2 no-print">
+                  {modoEdicao && (
+                    <>
+                      <button
+                        onClick={() => addFinal(quadroC, setQuadroC, true)}
+                        className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1"
+                      >
+                        <Icons.Plus /> Adicionar
+                      </button>
+                      <button
+                        onClick={() => {
+                          setQuadroC([]);
+                          setMostrarQuadroC(false);
+                        }}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                      >
+                        Excluir quadro
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border text-xs">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="border p-2" style={{width: '35%'}}>Atividade</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pont. Unit.</th>
+                      <th className="border p-2" style={{width: '8%'}}>Limite</th>
+                      <th className="border p-2" style={{width: '8%'}}>Qtd</th>
+                      <th className="border p-2" style={{width: '8%'}}>Meses</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pts Base</th>
+                      <th className="border p-2" style={{width: '8%'}}>Pts Meses</th>
+                      <th className="border p-2" style={{width: '9%'}}>Total</th>
+                      {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quadroC.map((item, idx) => (
+                      <LinhaComMeses key={item.id} item={item} lista={quadroC} setLista={setQuadroC} indice={idx + 1} />
+                    ))}
+                    {totalC_Descartado > 0 && (
+                      <tr className="bg-red-100">
+                        <td colSpan={7} className="p-2 text-right text-red-700 font-semibold">
+                          Pontos descartados (excederam limites individuais):
+                        </td>
+                        <td className="p-2 text-center text-red-700 font-bold">
+                          -{totalC_Descartado.toFixed(1)}
+                        </td>
+                        {modoEdicao && <td className="no-print"></td>}
+                      </tr>
+                    )}
+                    <tr className="bg-yellow-100 font-bold">
+                      <td colSpan={7} className="p-2 text-right">Total Quadro C:</td>
+                      <td className="p-2 text-center text-lg">{totalC.toFixed(1)}</td>
+                      {modoEdicao && <td className="no-print"></td>}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* QUADRO D */}
+          {mostrarQuadroD && (
+            <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+              <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
+                {modoEdicao ? (
+                  <input
+                    type="text"
+                    value={tituloQuadroD}
+                    onChange={(e) => setTituloQuadroD(e.target.value)}
+                    className="w-full max-w-xl px-2 py-1 rounded border text-black"
+                  />
+                ) : (
+                  <span>{tituloQuadroD}</span>
+                )}
+                <div className="flex gap-2 no-print">
+                  {modoEdicao && (
+                    <>
+                      <button
+                        onClick={() => addFinal(quadroD, setQuadroD, false)}
+                        className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1"
+                      >
+                        <Icons.Plus /> Adicionar
+                      </button>
+                      <button
+                        onClick={() => {
+                          setQuadroD([]);
+                          setMostrarQuadroD(false);
+                        }}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                      >
+                        Excluir quadro
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
               {modoEdicao && (
-                <button onClick={() => addFinal(quadroE, setQuadroE, false)} className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1 no-print">
-                  <Icons.Plus /> Adicionar
-                </button>
-              )}
-            </div>
-            <div className="bg-red-50 border-l-4 border-red-600 p-3 mb-3 text-sm rounded hide-on-export">
-              <p className="font-bold text-red-900">⚠️ ATENÇÃO - Lógica de Deduções:</p>
-              <p className="text-xs mt-1">Cada falta desconta 1 ponto. Limite máximo de 3 faltas (-3 pontos).</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border text-xs">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="border p-2" style={{width: '50%'}}>Deduções</th>
-                    <th className="border p-2" style={{width: '12%'}}>Pont. Unitária</th>
-                    <th className="border p-2" style={{width: '12%'}}>Limite</th>
-                    <th className="border p-2" style={{width: '13%'}}>Qtd</th>
-                    <th className="border p-2" style={{width: '13%'}}>Total</th>
-                    {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {quadroE.map((i, idx) => <Linha key={i.id} item={i} lista={quadroE} setLista={setQuadroE} indice={idx + 1} mostrarDescartado={false} />)}
-                  <tr className="bg-yellow-100 font-bold">
-                    <td colSpan={4} className="p-2 text-right">Total Quadro E (Limite: -3,0 pts):</td>
-                    <td className="p-2 text-center text-red-600 text-lg">{totalE.toFixed(1)}</td>
-                    {modoEdicao && <td className="no-print"></td>}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                <div className="mb-3 p-3 bg-yellow-50 border-l-4 border-yellow-600 rounded hide-on-export">
+                  <p className="font-bold text-yellow-900 mb-2">⚙️ Itens Específicos por Lei/Grupo:</p>
+                  
+                  {config.lei === '16.200/2023' && (
+                    <div className="mb-3 p-2 bg-white rounded border border-yellow-400">
+                      <label className="font-semibold text-sm block mb-2">Lei 16.200 - Procurador Municipal</label>
+                      <button
+                        onClick={() => {
+                          const existe = quadroD.some(item => item.titulo.includes('Sustentação oral'));
+                          if (existe) {
+                            setQuadroD(quadroD.filter(item => !item.titulo.includes('Sustentação oral')));
+                          } else {
+                            const novoId = Math.max(...quadroD.map(i => i.id), 0) + 1;
+                            setQuadroD([...quadroD, {
+                              id: novoId,
+                              titulo: 'Sustentação oral perante os tribunais',
+                              pont: 0.5,
+                              lim: 8.0,
+                              qtd: 0
+                            }]);
+                          }
+                        }}
+                        className={`px-3 py-2 rounded text-sm font-semibold transition ${
+                          quadroD.some(item => item.titulo.includes('Sustentação oral'))
+                            ? 'bg-green-600 text-white hover:bg-red-600'
+                            : 'bg-gray-300 text-gray-700 hover:bg-green-600 hover:text-white'
+                        }`}
+                      >
+                        {quadroD.some(item => item.titulo.includes('Sustentação oral')) 
+                          ? '✓ Remover: Sustentação oral (0,5 pts / Lim: 8,0)'
+                          : '+ Adicionar: Sustentação oral (0,5 pts / Lim: 8,0)'
+                        }
+                      </button>
+                    </div>
+                  )}
 
+                  {config.lei === '16.198/2023' && config.grupoOcupacional === 'SUPERIOR' && (
+                    <div className="mb-3 p-2 bg-white rounded border border-yellow-400">
+                      <label className="font-semibold text-sm block mb-2">Lei 16.198 - Grupo SUPERIOR</label>
+                      <button
+                        onClick={() => {
+                          const existe = quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'));
+                          if (existe) {
+                            setQuadroD(quadroD.filter(item => !(item.titulo.includes('ART') || item.titulo.includes('RRT'))));
+                          } else {
+                            const novoId = Math.max(...quadroD.map(i => i.id), 0) + 1;
+                            setQuadroD([...quadroD, {
+                              id: novoId,
+                              titulo: 'Emissão de ART (Anotação de Responsabilidade Técnica) ou RRT (Registro de Responsabilidade Técnica), vinculadas a atividades desempenhadas no âmbito da PMC',
+                              pont: 0.2,
+                              lim: 8.0,
+                              qtd: 0
+                            }]);
+                          }
+                        }}
+                        className={`px-3 py-2 rounded text-sm font-semibold transition ${
+                          quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'))
+                            ? 'bg-green-600 text-white hover:bg-red-600'
+                            : 'bg-gray-300 text-gray-700 hover:bg-green-600 hover:text-white'
+                        }`}
+                      >
+                        {quadroD.some(item => item.titulo.includes('ART') || item.titulo.includes('RRT'))
+                          ? '✓ Remover: ART/RRT (0,2 pts / Lim: 8,0)'
+                          : '+ Adicionar: ART/RRT (0,2 pts / Lim: 8,0)'
+                        }
+                      </button>
+                    </div>
+                  )}
+
+                  {config.lei !== '16.200/2023' && !(config.lei === '16.198/2023' && config.grupoOcupacional === 'SUPERIOR') && (
+                    <p className="text-sm text-gray-600 italic">Nenhum item específico disponível para esta lei/grupo</p>
+                  )}
+                </div>
+              )}
+
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border text-xs">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="border p-2" style={{width: '50%'}}>Participação e Produção</th>
+                      <th className="border p-2" style={{width: '12%'}}>Pont. Unitária</th>
+                      <th className="border p-2" style={{width: '12%'}}>Limite</th>
+                      <th className="border p-2" style={{width: '13%'}}>Qtd</th>
+                      <th className="border p-2" style={{width: '13%'}}>Total</th>
+                      {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quadroD.map((i, idx) => <Linha key={i.id} item={i} lista={quadroD} setLista={setQuadroD} indice={idx + 1} temMeses={false} />)}
+                    {totalD_Descartado > 0 && (
+                      <tr className="bg-red-100">
+                        <td colSpan={4} className="p-2 text-right text-red-700 font-semibold">
+                          Pontos descartados (excederam limite de 8,0 pts):
+                        </td>
+                        <td className="p-2 text-center text-red-700 font-bold">
+                          -{totalD_Descartado.toFixed(1)}
+                        </td>
+                        {modoEdicao && <td className="no-print"></td>}
+                      </tr>
+                    )}
+                    <tr className="bg-yellow-100 font-bold">
+                      <td colSpan={4} className="p-2 text-right">Total Quadro D (Limite: 8,0 pts):</td>
+                      <td className="p-2 text-center text-lg">{totalD.toFixed(1)}</td>
+                      {modoEdicao && <td className="no-print"></td>}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* QUADRO E */}
+          {mostrarQuadroE && (
+            <div className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+              <div className="bg-blue-900 text-white p-3 font-bold flex justify-between rounded-lg mb-2">
+                {modoEdicao ? (
+                  <input
+                    type="text"
+                    value={tituloQuadroE}
+                    onChange={(e) => setTituloQuadroE(e.target.value)}
+                    className="w-full max-w-xl px-2 py-1 rounded border text-black"
+                  />
+                ) : (
+                  <span>{tituloQuadroE}</span>
+                )}
+                <div className="flex gap-2 no-print">
+                  {modoEdicao && (
+                    <>
+                      <button
+                        onClick={() => addFinal(quadroE, setQuadroE, false)}
+                        className="bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm flex items-center gap-1"
+                      >
+                        <Icons.Plus /> Adicionar
+                      </button>
+                      <button
+                        onClick={() => {
+                          setQuadroE([]);
+                          setMostrarQuadroE(false);
+                        }}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                      >
+                        Excluir quadro
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="bg-red-50 border-l-4 border-red-600 p-3 mb-3 text-sm rounded hide-on-export">
+                <p className="font-bold text-red-900">⚠️ ATENÇÃO - Lógica de Deduções:</p>
+                <p className="text-xs mt-1">Cada falta desconta 1 ponto. Limite máximo de 3 faltas (-3 pontos).</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border text-xs">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="border p-2" style={{width: '50%'}}>Deduções</th>
+                      <th className="border p-2" style={{width: '12%'}}>Pont. Unitária</th>
+                      <th className="border p-2" style={{width: '12%'}}>Limite</th>
+                      <th className="border p-2" style={{width: '13%'}}>Qtd</th>
+                      <th className="border p-2" style={{width: '13%'}}>Total</th>
+                      {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {quadroE.map((i, idx) => <Linha key={i.id} item={i} lista={quadroE} setLista={setQuadroE} indice={idx + 1} mostrarDescartado={false} temMeses={false} />)}
+                    <tr className="bg-yellow-100 font-bold">
+                      <td colSpan={4} className="p-2 text-right">Total Quadro E (Limite: -3,0 pts):</td>
+                      <td className="p-2 text-center text-red-600 text-lg">{totalE.toFixed(1)}</td>
+                      {modoEdicao && <td className="no-print"></td>}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Pontuação Final */}
           <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 text-center font-bold rounded-lg shadow-xl">
             <div className="text-3xl mb-3">
               PONTUAÇÃO FINAL: {pontuacaoFinal.toFixed(2)} pontos
