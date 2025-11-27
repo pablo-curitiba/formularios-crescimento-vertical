@@ -93,6 +93,7 @@ function FormularioCV() {
     tituloFormulario: 'FORMULÁRIO DO CRESCIMENTO VERTICAL 2025',
     pontosPorMes: 0.0556,
     limiteMaxMeses: 10.0,
+    limiteTotal: 80.0, // NOVO: Limite total do formulário
     // Rótulos editáveis para quadro completo
     rotulosCompleto: {
       criterio: 'Critério',
@@ -104,13 +105,14 @@ function FormularioCV() {
       mult: 'Mult.',
       total: 'Total'
     },
-    // Rótulos editáveis para quadro por ano
-    rotulosPorAno: {
+    // Rótulos editáveis para quadro por tempo (ALTERADO: era "porAno")
+    rotulosPorTempo: {
       criterio: 'Critério',
-      pontAno: 'Pont. por Ano',
+      pontTempo: 'Pont. por Tempo',
       limite: 'Limite',
-      qtdAnos: 'Qtd (anos)',
-      total: 'Total'
+      qtdTempo: 'Qtd (tempo)',
+      total: 'Total',
+      nomeQuadro: 'Por Tempo' // NOVO: Nome editável do tipo de quadro
     }
   });
   
@@ -146,12 +148,12 @@ function FormularioCV() {
     },
     {
       id: 2,
-      titulo: 'QUADRO B - EXEMPLO COM COLUNAS POR ANO',
+      titulo: 'QUADRO B - EXEMPLO COM COLUNAS POR TEMPO',
       temColunas: false,
       limiteQuadro: '',
       criterios: [
-        { id: 1, nome: 'Item exemplo 1', pontAno: 1.0, limItem: 5.0, qtdAnos: '' },
-        { id: 2, nome: 'Item exemplo 2', pontAno: 2.0, limItem: 10.0, qtdAnos: '' }
+        { id: 1, nome: 'Item exemplo 1', pontTempo: 1.0, limItem: 5.0, qtdTempo: '' },
+        { id: 2, nome: 'Item exemplo 2', pontTempo: 2.0, limItem: 10.0, qtdTempo: '' }
       ]
     }
   ]);
@@ -186,8 +188,8 @@ function FormularioCV() {
             // Mudando para colunas completas
             return { id: c.id, nome: c.nome, pont: 0, lim: 0, qtd: '', meses: '' };
           } else {
-            // Mudando para colunas por ano
-            return { id: c.id, nome: c.nome, pontAno: 0, limItem: 0, qtdAnos: '' };
+            // Mudando para colunas por tempo
+            return { id: c.id, nome: c.nome, pontTempo: 0, limItem: 0, qtdTempo: '' };
           }
         });
         return { ...q, temColunas: novoTemColunas, criterios: novosCriterios };
@@ -237,10 +239,10 @@ function FormularioCV() {
           novoCriterio.qtd = '';
           novoCriterio.meses = '';
         } else {
-          // Quadro com colunas por ano
-          novoCriterio.pontAno = 0;
+          // Quadro com colunas por tempo
+          novoCriterio.pontTempo = 0;
           novoCriterio.limItem = 0;
-          novoCriterio.qtdAnos = '';
+          novoCriterio.qtdTempo = '';
         }
         
         return {
@@ -292,13 +294,13 @@ function FormularioCV() {
     return { ptsBase, ptsMeses, total };
   };
 
-  // Função de cálculo para critérios por ano
-  const calcularCriterioPorAno = (criterio) => {
-    const pontAno = parseFloat(criterio.pontAno || 0);
+  // Função de cálculo para critérios por tempo
+  const calcularCriterioPorTempo = (criterio) => {
+    const pontTempo = parseFloat(criterio.pontTempo || 0);
     const limItem = parseFloat(criterio.limItem || 0);
-    const qtdAnos = parseFloat(criterio.qtdAnos || 0);
+    const qtdTempo = parseFloat(criterio.qtdTempo || 0);
     
-    const total = Math.min(pontAno * qtdAnos, limItem);
+    const total = Math.min(pontTempo * qtdTempo, limItem);
     
     return total;
   };
@@ -312,10 +314,15 @@ function FormularioCV() {
       }, 0);
     } else {
       return quadro.criterios.reduce((acc, crit) => {
-        const total = calcularCriterioPorAno(crit);
+        const total = calcularCriterioPorTempo(crit);
         return acc + total;
       }, 0);
     }
+  };
+
+  // NOVO: Calcular total geral do formulário
+  const calcularTotalGeral = () => {
+    return quadros.reduce((acc, quadro) => acc + calcularTotalQuadro(quadro), 0);
   };
 
   const handleLeiChange = (novaLei) => {
@@ -369,7 +376,7 @@ function FormularioCV() {
           const calc = calcularCriterio(crit);
           texto += ` - Total: ${calc.total.toFixed(1)} pts`;
         } else {
-          const total = calcularCriterioPorAno(crit);
+          const total = calcularCriterioPorTempo(crit);
           texto += ` - Total: ${total.toFixed(1)} pts`;
         }
         texto += '\n';
@@ -380,6 +387,9 @@ function FormularioCV() {
       }
       texto += '\n';
     });
+
+    texto += `\n${'='.repeat(50)}\n`;
+    texto += `TOTAL GERAL DO FORMULÁRIO: ${calcularTotalGeral().toFixed(1)} / ${config.limiteTotal.toFixed(1)} pontos\n`;
 
     navigator.clipboard.writeText(texto).then(() => {
       alert('Texto copiado para a área de transferência!');
@@ -398,10 +408,11 @@ function FormularioCV() {
             margin: 0; 
             padding: 0; 
             background: white;
-            font-size: 10pt;
+            font-size: 8pt;
           }
           .no-print { display: none !important; }
           .hide-on-export { display: none !important; }
+          .hide-on-print { display: none !important; }
           .container { 
             max-width: 100% !important; 
             margin: 0 !important; 
@@ -409,12 +420,17 @@ function FormularioCV() {
           }
           @page { 
             size: A4 portrait; 
-            margin: 15mm 10mm;
+            margin: 10mm 8mm;
           }
-          /* Otimizações para A4 */
+          /* Otimizações críticas para A4 */
+          * {
+            box-sizing: border-box;
+          }
           table { 
             page-break-inside: auto;
-            font-size: 9pt;
+            font-size: 7pt;
+            border-collapse: collapse;
+            width: 100%;
           }
           tr { 
             page-break-inside: avoid; 
@@ -427,15 +443,43 @@ function FormularioCV() {
             box-shadow: none !important;
           }
           /* Ajustes de espaçamento para A4 */
-          .p-6 { padding: 1rem !important; }
-          .p-4 { padding: 0.75rem !important; }
-          .mb-6 { margin-bottom: 1rem !important; }
-          .gap-4 { gap: 0.5rem !important; }
+          .p-6 { padding: 0.5rem !important; }
+          .p-4 { padding: 0.4rem !important; }
+          .p-3 { padding: 0.3rem !important; }
+          .p-2 { padding: 0.2rem !important; }
+          .mb-6 { margin-bottom: 0.5rem !important; }
+          .mb-4 { margin-bottom: 0.3rem !important; }
+          .mb-3 { margin-bottom: 0.25rem !important; }
+          .gap-4 { gap: 0.3rem !important; }
           /* Títulos mais compactos */
-          h1 { font-size: 16pt !important; margin: 0.5rem 0 !important; }
-          h2 { font-size: 14pt !important; margin: 0.4rem 0 !important; }
+          h1 { font-size: 12pt !important; margin: 0.3rem 0 !important; line-height: 1.2 !important; }
+          h2 { font-size: 10pt !important; margin: 0.2rem 0 !important; line-height: 1.2 !important; }
           /* Tabelas mais compactas */
-          th, td { padding: 0.25rem !important; }
+          th, td { 
+            padding: 0.15rem 0.25rem !important;
+            font-size: 7pt !important;
+            line-height: 1.2 !important;
+          }
+          /* Bordas finas para impressão */
+          .border, .border-2 { border-width: 1px !important; }
+          /* Grid de dados compacto */
+          .grid { gap: 0.25rem !important; }
+          /* Evitar quebra de quadros */
+          .quadro-container {
+            page-break-inside: avoid;
+          }
+          /* Rodapé total compacto */
+          .total-geral-container {
+            margin-top: 0.5rem !important;
+            padding: 0.4rem !important;
+          }
+          /* Inputs na impressão */
+          input {
+            border: none !important;
+            border-bottom: 1px solid #ccc !important;
+            padding: 0 !important;
+            font-size: 7pt !important;
+          }
         }
         @media screen {
           /* Estilos normais para tela */
@@ -446,7 +490,7 @@ function FormularioCV() {
         {/* Barra de ferramentas */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6 no-print">
           <div className="flex flex-wrap gap-3 items-center justify-between">
-            <h1 className="text-2xl font-bold text-blue-900">📝 Editor de Formulário - CV 2025</h1>
+            <h1 className="text-2xl font-bold text-blue-900">Editor de Formulário - CV 2025</h1>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setModoEdicao(!modoEdicao)}
@@ -472,7 +516,7 @@ function FormularioCV() {
                 onClick={copiarTexto}
                 className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold"
               >
-                📋 Copiar Texto
+                Copiar Texto
               </button>
               <button
                 onClick={imprimir}
@@ -487,7 +531,7 @@ function FormularioCV() {
         {/* Configurações */}
         {modoEdicao && (
           <div className="bg-white rounded-lg shadow-md p-4 mb-6 no-print">
-            <h2 className="text-xl font-bold mb-4 text-blue-900">⚙️ Configurações do Formulário</h2>
+            <h2 className="text-xl font-bold mb-4 text-blue-900">Configurações do Formulário</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -531,6 +575,7 @@ function FormularioCV() {
                 >
                   <option value="BÁSICO">BÁSICO</option>
                   <option value="MÉDIO">MÉDIO</option>
+                  <option value="MÉDIO-TÉCNICO">MÉDIO-TÉCNICO</option>
                   <option value="SUPERIOR">SUPERIOR</option>
                 </select>
               </div>
@@ -554,11 +599,22 @@ function FormularioCV() {
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold mb-1 text-blue-900">Limite Total do Formulário:</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={config.limiteTotal}
+                  onChange={(e) => setConfig({...config, limiteTotal: parseFloat(e.target.value) || 0})}
+                  className="w-full px-3 py-2 border-2 border-blue-300 rounded font-bold"
+                  placeholder="Ex: 80.0"
+                />
+              </div>
             </div>
 
             {/* Configuração de Rótulos */}
             <div className="mt-6 pt-6 border-t-2 border-gray-300">
-              <h3 className="text-lg font-bold mb-4 text-blue-900">🏷️ Configurar Rótulos das Colunas</h3>
+              <h3 className="text-lg font-bold mb-4 text-blue-900">Configurar Rótulos das Colunas</h3>
               
               {/* Rótulos Quadro Completo */}
               <div className="mb-4">
@@ -583,21 +639,21 @@ function FormularioCV() {
                 </div>
               </div>
 
-              {/* Rótulos Quadro Por Ano */}
+              {/* Rótulos Quadro Por Tempo */}
               <div>
-                <h4 className="font-semibold mb-2 text-gray-700">Quadro Por Ano:</h4>
+                <h4 className="font-semibold mb-2 text-gray-700">Quadro Por Tempo:</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {Object.entries(config.rotulosPorAno).map(([key, value]) => (
+                  {Object.entries(config.rotulosPorTempo).map(([key, value]) => (
                     <div key={key}>
                       <label className="block text-xs font-semibold mb-1 text-gray-600 capitalize">
-                        {key}:
+                        {key === 'nomeQuadro' ? 'Nome do Quadro' : key}:
                       </label>
                       <input
                         type="text"
                         value={value}
                         onChange={(e) => setConfig({
                           ...config,
-                          rotulosPorAno: { ...config.rotulosPorAno, [key]: e.target.value }
+                          rotulosPorTempo: { ...config.rotulosPorTempo, [key]: e.target.value }
                         })}
                         className="w-full px-2 py-1 border rounded text-sm"
                       />
@@ -622,7 +678,7 @@ function FormularioCV() {
               onClick={() => addQuadro(false)}
               className="py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-bold text-lg flex items-center justify-center gap-2 shadow-lg"
             >
-              <Icons.Plus /> ADICIONAR QUADRO POR ANO
+              <Icons.Plus /> ADICIONAR QUADRO {config.rotulosPorTempo.nomeQuadro.toUpperCase()}
             </button>
           </div>
         )}
@@ -687,14 +743,14 @@ function FormularioCV() {
                   onClick={() => addQuadro(false)}
                   className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold flex items-center gap-2"
                 >
-                  <Icons.Plus /> Por Ano
+                  <Icons.Plus /> {config.rotulosPorTempo.nomeQuadro}
                 </button>
               </div>
             </div>
           )}
 
           {quadros.map((quadro) => (
-            <div key={quadro.id} className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900">
+            <div key={quadro.id} className="mb-6 bg-white rounded-lg shadow-md p-4 border-2 border-blue-900 quadro-container">
               {/* Cabeçalho do Quadro */}
               <div className="bg-blue-900 text-white p-3 font-bold flex justify-between items-center rounded-lg mb-3">
                 <div className="flex items-center gap-3 flex-1">
@@ -711,7 +767,7 @@ function FormularioCV() {
                   )}
                   {modoEdicao && (
                     <span className={`text-xs px-2 py-1 rounded ${quadro.temColunas ? 'bg-blue-700' : 'bg-green-700'}`}>
-                      {quadro.temColunas ? '📊 Completo' : '📅 Por Ano'}
+                      {quadro.temColunas ? 'Completo' : config.rotulosPorTempo.nomeQuadro}
                     </span>
                   )}
                 </div>
@@ -721,9 +777,9 @@ function FormularioCV() {
                     <button
                       onClick={() => toggleColunas(quadro.id)}
                       className="bg-yellow-600 hover:bg-yellow-500 px-3 py-1 rounded text-sm flex items-center gap-1"
-                      title={quadro.temColunas ? "Mudar para Por Ano" : "Mudar para Completo"}
+                      title={quadro.temColunas ? `Mudar para ${config.rotulosPorTempo.nomeQuadro}` : "Mudar para Completo"}
                     >
-                      <Icons.Table /> {quadro.temColunas ? 'Por Ano' : 'Completo'}
+                      <Icons.Table /> {quadro.temColunas ? config.rotulosPorTempo.nomeQuadro : 'Completo'}
                     </button>
                     <button
                       onClick={() => addCriterio(quadro.id)}
@@ -881,16 +937,16 @@ function FormularioCV() {
                   </table>
                 </div>
               ) : (
-                // Conteúdo do Quadro - COM COLUNAS POR ANO
+                // Conteúdo do Quadro - COM COLUNAS POR TEMPO
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse border text-xs">
                     <thead className="bg-gray-200">
                       <tr>
-                        <th className="border p-2" style={{width: '40%'}}>{config.rotulosPorAno.criterio}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorAno.pontAno}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorAno.limite}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorAno.qtdAnos}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorAno.total}</th>
+                        <th className="border p-2" style={{width: '40%'}}>{config.rotulosPorTempo.criterio}</th>
+                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.pontTempo}</th>
+                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.limite}</th>
+                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.qtdTempo}</th>
+                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.total}</th>
                         {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
                       </tr>
                     </thead>
@@ -911,7 +967,7 @@ function FormularioCV() {
                         </tr>
                       )}
                       {quadro.criterios.map((crit, idx) => {
-                        const total = calcularCriterioPorAno(crit);
+                        const total = calcularCriterioPorTempo(crit);
                         return (
                           <tr key={crit.id}>
                             <td className="border p-2">
@@ -934,12 +990,12 @@ function FormularioCV() {
                                 <input
                                   type="number"
                                   step="0.1"
-                                  value={crit.pontAno}
-                                  onChange={(e) => editCriterio(quadro.id, crit.id, 'pontAno', e.target.value)}
+                                  value={crit.pontTempo}
+                                  onChange={(e) => editCriterio(quadro.id, crit.id, 'pontTempo', e.target.value)}
                                   className="w-full px-2 py-1 border rounded text-center"
                                 />
                               ) : (
-                                <span>{parseFloat(crit.pontAno || 0).toFixed(1)}</span>
+                                <span>{parseFloat(crit.pontTempo || 0).toFixed(1)}</span>
                               )}
                             </td>
                             <td className="border p-2 text-center">
@@ -959,8 +1015,8 @@ function FormularioCV() {
                               <input
                                 type="number"
                                 step="0.1"
-                                value={crit.qtdAnos}
-                                onChange={(e) => editCriterio(quadro.id, crit.id, 'qtdAnos', e.target.value)}
+                                value={crit.qtdTempo}
+                                onChange={(e) => editCriterio(quadro.id, crit.id, 'qtdTempo', e.target.value)}
                                 className="w-full px-2 py-1 border rounded text-center"
                               />
                             </td>
@@ -1028,20 +1084,44 @@ function FormularioCV() {
             </div>
           ))}
 
+          {/* NOVO: Total Geral do Formulário */}
+          <div className="mt-6 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg shadow-xl p-6 border-4 border-blue-700 total-geral-container">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="text-4xl hide-on-print">🎯</div>
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-90">Total Geral do Formulário</h3>
+                  <div className="flex items-baseline gap-3 mt-1">
+                    <span className="text-4xl font-bold">{calcularTotalGeral().toFixed(1)}</span>
+                    <span className="text-2xl opacity-75">/</span>
+                    <span className="text-3xl font-semibold">{config.limiteTotal.toFixed(1)}</span>
+                    <span className="text-lg opacity-75">pontos</span>
+                  </div>
+                </div>
+              </div>
+              {calcularTotalGeral() > config.limiteTotal && (
+                <div className="bg-yellow-500 text-yellow-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hide-on-print">
+                  ⚠️ Limite excedido
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
 
         {/* Instruções de uso */}
         {modoEdicao && (
           <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded no-print">
-            <h3 className="font-bold text-yellow-900 mb-2">💡 Como usar este editor:</h3>
+            <h3 className="font-bold text-yellow-900 mb-2">Como usar este editor:</h3>
             <ul className="text-sm text-yellow-800 space-y-1 list-disc list-inside">
               <li><strong>Quadro Completo:</strong> Colunas: Pont. Unit., Limite, Qtd, Meses - Calcula Base, Mult. e Total automaticamente</li>
-              <li><strong>Quadro Por Ano:</strong> Colunas: Pont. por Ano, Limite, Qtd (anos) - Calcula Total = min(Pont × Anos, Limite)</li>
-              <li><strong>Alternar Tipo:</strong> Use o botão para mudar entre "Completo" e "Por Ano"</li>
+              <li><strong>Quadro {config.rotulosPorTempo.nomeQuadro}:</strong> Colunas: {config.rotulosPorTempo.pontTempo}, Limite, {config.rotulosPorTempo.qtdTempo} - Calcula Total = min(Pont × Tempo, Limite)</li>
+              <li><strong>Alternar Tipo:</strong> Use o botão para mudar entre "Completo" e "{config.rotulosPorTempo.nomeQuadro}"</li>
               <li><strong>Limite do Quadro:</strong> Campo opcional no final de cada quadro para especificar limite máximo</li>
+              <li><strong>Total Geral:</strong> Calculado automaticamente e comparado com o limite de {config.limiteTotal} pontos</li>
               <li><strong>Duplicar:</strong> Copia o quadro completo com todos os critérios e valores</li>
-              <li><strong>Cálculos Completos:</strong> Base = Pont × Qtd (limitado) | Mult = Meses × {config.pontosPorMes} (max {config.limiteMaxMeses})</li>
-              <li><strong>Cálculos Por Ano:</strong> Total = Pont. por Ano × Qtd (anos), limitado pelo Limite do item</li>
+              <li><strong>Nomenclaturas Editáveis:</strong> Configure todos os rótulos em "Configurações" → "Configurar Rótulos das Colunas"</li>
+              <li><strong>Impressão A4:</strong> Use o botão "Imprimir" para gerar PDF otimizado em uma folha única</li>
             </ul>
           </div>
         )}
