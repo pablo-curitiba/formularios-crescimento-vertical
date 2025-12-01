@@ -80,6 +80,16 @@ const Icons = {
       <line x1="9" y1="3" x2="9" y2="21"></line>
       <line x1="15" y1="3" x2="15" y2="21"></line>
     </svg>
+  ),
+  ChevronUp: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  ),
+  ChevronDown: (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
   )
 };
 
@@ -157,6 +167,20 @@ function FormularioCV() {
       ]
     }
   ]);
+
+  // Estado para Critérios de Desempate
+  const [criteriosDesempate, setCriteriosDesempate] = useState([
+    { id: 1, texto: 'Maior pontuação do Quadro A – Escolarização Formal.' },
+    { id: 2, texto: 'Maior pontuação do Quadro B – Vida Funcional.' },
+    { id: 3, texto: 'Maior pontuação do Quadro C – Produção de Conteúdo.' },
+    { id: 4, texto: 'Menor desconto do Quadro D - Inassiduidade.' },
+    { id: 5, texto: 'Maior tempo de efetivo exercício no cargo, contado em anos, meses e dias, sendo descontadas as licenças sem vencimentos e disposições funcionais a órgãos ou entidades da União, do Distrito Federal, dos Estados, de outros Municípios; à Câmara Municipal de Curitiba; e às entidades integrantes da Administração Indireta do Município, salvo Autarquias e Fundações de Direito Público do Município de Curitiba.' },
+    { id: 6, texto: 'Maior tempo de efetivo exercício na Administração Municipal, contado em anos, meses e dias, sendo descontadas as licenças sem vencimentos e disposições funcionais a órgãos ou entidades da União, do Distrito Federal, dos Estados, de outros Municípios; à Câmara Municipal de Curitiba; e às entidades integrantes da Administração Indireta do Município, salvo Autarquias e Fundações de Direito Público do Município de Curitiba.' },
+    { id: 7, texto: 'Maior idade, contada em anos, meses e dias.' },
+    { id: 8, texto: 'Persistindo o empate, será realizado o desempate por meio de Sorteio Público, até o número de vagas ofertadas por cargo.' }
+  ]);
+
+  const [mostrarDesempate, setMostrarDesempate] = useState(false);
 
   // Funções de manipulação de quadros
   const addQuadro = (comColunas = false) => {
@@ -278,6 +302,131 @@ function FormularioCV() {
       }
       return q;
     }));
+  };
+
+  // Funções para gerenciar Critérios de Desempate
+  const addCriterioDesempate = () => {
+    const novoId = Math.max(...criteriosDesempate.map(c => c.id), 0) + 1;
+    setCriteriosDesempate([
+      ...criteriosDesempate,
+      { id: novoId, texto: 'Novo critério de desempate' }
+    ]);
+  };
+
+  const editCriterioDesempate = (id, novoTexto) => {
+    setCriteriosDesempate(criteriosDesempate.map(c =>
+      c.id === id ? { ...c, texto: novoTexto } : c
+    ));
+  };
+
+  const removeCriterioDesempate = (id) => {
+    if (window.confirm('Tem certeza que deseja excluir este critério de desempate?')) {
+      setCriteriosDesempate(criteriosDesempate.filter(c => c.id !== id));
+    }
+  };
+
+  const moveCriterioDesempate = (id, direcao) => {
+    const index = criteriosDesempate.findIndex(c => c.id === id);
+    if (
+      (direcao === 'up' && index === 0) ||
+      (direcao === 'down' && index === criteriosDesempate.length - 1)
+    ) {
+      return;
+    }
+
+    const newArray = [...criteriosDesempate];
+    const newIndex = direcao === 'up' ? index - 1 : index + 1;
+    [newArray[index], newArray[newIndex]] = [newArray[newIndex], newArray[index]];
+    setCriteriosDesempate(newArray);
+  };
+
+  const exportarDesempatePDF = () => {
+    // Criar conteúdo HTML para o PDF de desempate
+    let htmlDesempate = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critérios de Desempate - Crescimento Vertical 2025</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 20mm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #000;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #1e40af;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            color: #1e40af;
+            font-size: 18pt;
+            margin: 0 0 5px 0;
+        }
+        .header h2 {
+            color: #1e3a8a;
+            font-size: 14pt;
+            margin: 0;
+            font-weight: normal;
+        }
+        .content {
+            margin-top: 20px;
+        }
+        .criterio-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 4px solid #1e40af;
+            background-color: #f8f9fa;
+        }
+        .criterio-numero {
+            font-weight: bold;
+            color: #1e40af;
+            margin-right: 5px;
+        }
+        .criterio-texto {
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>${config.tituloPrincipal}</h1>
+        <h2>CRITÉRIOS DE DESEMPATE</h2>
+        <h2>${config.tituloFormulario}</h2>
+    </div>
+    <div class="content">
+`;
+
+    criteriosDesempate.forEach((criterio, index) => {
+      htmlDesempate += `
+        <div class="criterio-item">
+            <span class="criterio-numero">${index + 1}.</span>
+            <span class="criterio-texto">${criterio.texto}</span>
+        </div>
+`;
+    });
+
+    htmlDesempate += `
+    </div>
+</body>
+</html>
+`;
+
+    const blob = new Blob([htmlDesempate], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Criterios_Desempate_CV_2025_${new Date().toISOString().split('T')[0]}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   // Função de cálculo para critérios com colunas completas
@@ -524,9 +673,125 @@ function FormularioCV() {
               >
                 <Icons.Printer /> Imprimir
               </button>
+              <button
+                onClick={() => setMostrarDesempate(!mostrarDesempate)}
+                className={`px-4 py-2 ${mostrarDesempate ? 'bg-orange-600 hover:bg-orange-700' : 'bg-amber-600 hover:bg-amber-700'} text-white rounded font-semibold flex items-center gap-2`}
+              >
+                {mostrarDesempate ? '✓ Desempate' : 'Critérios Desempate'}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Painel de Critérios de Desempate */}
+        {mostrarDesempate && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-4 border-amber-500">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-amber-900">Critérios de Desempate</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={addCriterioDesempate}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded font-semibold flex items-center gap-2"
+                >
+                  <Icons.Plus /> Adicionar Critério
+                </button>
+                <button
+                  onClick={exportarDesempatePDF}
+                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded font-semibold flex items-center gap-2"
+                >
+                  <Icons.Download /> Exportar HTML
+                </button>
+                <button
+                  onClick={() => setMostrarDesempate(false)}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-amber-50 rounded-lg p-4 border-2 border-amber-200">
+              <h3 className="font-bold text-amber-900 mb-3 text-lg">Lista de Critérios:</h3>
+              
+              {criteriosDesempate.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  Nenhum critério de desempate cadastrado.
+                  <button
+                    onClick={addCriterioDesempate}
+                    className="ml-3 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded"
+                  >
+                    Adicionar Primeiro Critério
+                  </button>
+                </div>
+              )}
+
+              {criteriosDesempate.map((criterio, index) => (
+                <div key={criterio.id} className="mb-4 bg-white rounded-lg shadow p-4 border-l-4 border-amber-500">
+                  <div className="flex items-start gap-3">
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => moveCriterioDesempate(criterio.id, 'up')}
+                        disabled={index === 0}
+                        className={`px-2 py-1 rounded text-xs ${
+                          index === 0
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                        }`}
+                        title="Mover para cima"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => moveCriterioDesempate(criterio.id, 'down')}
+                        disabled={index === criteriosDesempate.length - 1}
+                        className={`px-2 py-1 rounded text-xs ${
+                          index === criteriosDesempate.length - 1
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                        }`}
+                        title="Mover para baixo"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-start gap-2 mb-2">
+                        <span className="text-amber-900 font-bold text-lg min-w-[30px]">{index + 1}.</span>
+                        <textarea
+                          value={criterio.texto}
+                          onChange={(e) => editCriterioDesempate(criterio.id, e.target.value)}
+                          className="flex-1 px-3 py-2 border rounded resize-none"
+                          rows="3"
+                          placeholder="Digite o critério de desempate..."
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => removeCriterioDesempate(criterio.id)}
+                      className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center gap-1"
+                      title="Excluir critério"
+                    >
+                      <Icons.Trash2 />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+              <h4 className="font-bold text-blue-900 mb-2">Instruções:</h4>
+              <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                <li>Use os botões ▲▼ para reordenar os critérios</li>
+                <li>Edite o texto diretamente no campo de cada critério</li>
+                <li>Clique em "Adicionar Critério" para incluir novos itens</li>
+                <li>Clique em "Exportar HTML" para gerar documento separado para impressão/PDF</li>
+                <li>Os critérios são independentes do formulário principal</li>
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* Configurações */}
         {modoEdicao && (
@@ -575,7 +840,6 @@ function FormularioCV() {
                 >
                   <option value="BÁSICO">BÁSICO</option>
                   <option value="MÉDIO">MÉDIO</option>
-                  <option value="MÉDIO-TÉCNICO">MÉDIO-TÉCNICO</option>
                   <option value="SUPERIOR">SUPERIOR</option>
                 </select>
               </div>
