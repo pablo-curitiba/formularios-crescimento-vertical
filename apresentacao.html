@@ -182,6 +182,39 @@ function FormularioCV() {
 
   const [mostrarDesempate, setMostrarDesempate] = useState(false);
 
+  // Sistema de Templates e Biblioteca de Critérios
+  const [templates, setTemplates] = useState(() => {
+    const saved = localStorage.getItem('cv2025_templates');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [bibliotecaCriterios, setBibliotecaCriterios] = useState(() => {
+    const saved = localStorage.getItem('cv2025_biblioteca_criterios');
+    return saved ? JSON.parse(saved) : {
+      'Quadro A': [],
+      'Quadro B': [],
+      'Quadro C': [],
+      'Quadro D': [],
+      'Quadro E': []
+    };
+  });
+
+  const [templateAtual, setTemplateAtual] = useState('');
+  const [mostrarGerenciador, setMostrarGerenciador] = useState(false);
+  const [mostrarBiblioteca, setMostrarBiblioteca] = useState(false);
+  const [quadroSelecionadoBiblioteca, setQuadroSelecionadoBiblioteca] = useState('Quadro A');
+  const [novoCriterioTexto, setNovoCriterioTexto] = useState('');
+
+  // Salvar templates no localStorage sempre que mudar
+  React.useEffect(() => {
+    localStorage.setItem('cv2025_templates', JSON.stringify(templates));
+  }, [templates]);
+
+  // Salvar biblioteca no localStorage sempre que mudar
+  React.useEffect(() => {
+    localStorage.setItem('cv2025_biblioteca_criterios', JSON.stringify(bibliotecaCriterios));
+  }, [bibliotecaCriterios]);
+
   // Funções de manipulação de quadros
   const addQuadro = (comColunas = false) => {
     const novoId = Math.max(...quadros.map(q => q.id), 0) + 1;
@@ -427,6 +460,188 @@ function FormularioCV() {
     a.download = `Criterios_Desempate_CV_2025_${new Date().toISOString().split('T')[0]}.html`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // ========== FUNÇÕES DE GERENCIAMENTO DE TEMPLATES ==========
+
+  const salvarTemplate = () => {
+    const nomeTemplate = prompt('Digite um nome para este template (Ex: Lei 16.198 - Básico):');
+    if (!nomeTemplate || nomeTemplate.trim() === '') {
+      alert('Nome inválido!');
+      return;
+    }
+
+    const dadosTemplate = {
+      config: { ...config },
+      dados: { ...dados },
+      quadros: JSON.parse(JSON.stringify(quadros)),
+      criteriosDesempate: JSON.parse(JSON.stringify(criteriosDesempate)),
+      dataCriacao: new Date().toISOString(),
+      dataModificacao: new Date().toISOString()
+    };
+
+    setTemplates({
+      ...templates,
+      [nomeTemplate]: dadosTemplate
+    });
+
+    setTemplateAtual(nomeTemplate);
+    alert(`Template "${nomeTemplate}" salvo com sucesso!`);
+  };
+
+  const carregarTemplate = (nomeTemplate) => {
+    if (!templates[nomeTemplate]) {
+      alert('Template não encontrado!');
+      return;
+    }
+
+    const confirmacao = window.confirm(
+      `Deseja carregar o template "${nomeTemplate}"?\n\nISTO IRÁ SUBSTITUIR TODOS OS DADOS ATUAIS!`
+    );
+
+    if (!confirmacao) return;
+
+    const template = templates[nomeTemplate];
+    setConfig(template.config);
+    setDados(template.dados);
+    setQuadros(JSON.parse(JSON.stringify(template.quadros)));
+    setCriteriosDesempate(JSON.parse(JSON.stringify(template.criteriosDesempate)));
+    setTemplateAtual(nomeTemplate);
+
+    alert(`Template "${nomeTemplate}" carregado com sucesso!`);
+  };
+
+  const atualizarTemplateAtual = () => {
+    if (!templateAtual || !templates[templateAtual]) {
+      alert('Nenhum template carregado para atualizar!');
+      return;
+    }
+
+    const confirmacao = window.confirm(
+      `Deseja atualizar o template "${templateAtual}" com os dados atuais?`
+    );
+
+    if (!confirmacao) return;
+
+    const dadosTemplate = {
+      config: { ...config },
+      dados: { ...dados },
+      quadros: JSON.parse(JSON.stringify(quadros)),
+      criteriosDesempate: JSON.parse(JSON.stringify(criteriosDesempate)),
+      dataCriacao: templates[templateAtual].dataCriacao,
+      dataModificacao: new Date().toISOString()
+    };
+
+    setTemplates({
+      ...templates,
+      [templateAtual]: dadosTemplate
+    });
+
+    alert(`Template "${templateAtual}" atualizado com sucesso!`);
+  };
+
+  const excluirTemplate = (nomeTemplate) => {
+    const confirmacao = window.confirm(
+      `Tem certeza que deseja excluir o template "${nomeTemplate}"?\n\nEsta ação não pode ser desfeita!`
+    );
+
+    if (!confirmacao) return;
+
+    const novosTemplates = { ...templates };
+    delete novosTemplates[nomeTemplate];
+    setTemplates(novosTemplates);
+
+    if (templateAtual === nomeTemplate) {
+      setTemplateAtual('');
+    }
+
+    alert(`Template "${nomeTemplate}" excluído com sucesso!`);
+  };
+
+  const duplicarTemplate = (nomeTemplate) => {
+    if (!templates[nomeTemplate]) return;
+
+    const novoNome = prompt(`Digite um nome para a cópia do template:`, `${nomeTemplate} (Cópia)`);
+    if (!novoNome || novoNome.trim() === '') return;
+
+    const templateOriginal = templates[nomeTemplate];
+    const novoTemplate = {
+      ...JSON.parse(JSON.stringify(templateOriginal)),
+      dataCriacao: new Date().toISOString(),
+      dataModificacao: new Date().toISOString()
+    };
+
+    setTemplates({
+      ...templates,
+      [novoNome]: novoTemplate
+    });
+
+    alert(`Template duplicado como "${novoNome}"!`);
+  };
+
+  // ========== FUNÇÕES DE BIBLIOTECA DE CRITÉRIOS ==========
+
+  const adicionarCriterioNaBiblioteca = () => {
+    if (!novoCriterioTexto.trim()) {
+      alert('Digite um critério antes de adicionar!');
+      return;
+    }
+
+    const novaBiblioteca = { ...bibliotecaCriterios };
+    novaBiblioteca[quadroSelecionadoBiblioteca].push({
+      id: Date.now(),
+      texto: novoCriterioTexto,
+      dataCriacao: new Date().toISOString()
+    });
+
+    setBibliotecaCriterios(novaBiblioteca);
+    setNovoCriterioTexto('');
+    alert(`Critério adicionado à biblioteca do ${quadroSelecionadoBiblioteca}!`);
+  };
+
+  const editarCriterioBiblioteca = (quadro, idCriterio, novoTexto) => {
+    const novaBiblioteca = { ...bibliotecaCriterios };
+    const criterioIndex = novaBiblioteca[quadro].findIndex(c => c.id === idCriterio);
+    if (criterioIndex !== -1) {
+      novaBiblioteca[quadro][criterioIndex].texto = novoTexto;
+      setBibliotecaCriterios(novaBiblioteca);
+    }
+  };
+
+  const removerCriterioBiblioteca = (quadro, idCriterio) => {
+    if (!window.confirm('Deseja remover este critério da biblioteca?')) return;
+
+    const novaBiblioteca = { ...bibliotecaCriterios };
+    novaBiblioteca[quadro] = novaBiblioteca[quadro].filter(c => c.id !== idCriterio);
+    setBibliotecaCriterios(novaBiblioteca);
+  };
+
+  const inserirCriterioDaBiblioteca = (quadroId, criterioTexto) => {
+    setQuadros(quadros.map(q => {
+      if (q.id === quadroId) {
+        const novoId = Math.max(...q.criterios.map(c => c.id), 0) + 1;
+        const novoCriterio = { id: novoId, nome: criterioTexto };
+        
+        if (q.temColunas) {
+          novoCriterio.pont = 0;
+          novoCriterio.lim = 0;
+          novoCriterio.qtd = '';
+          novoCriterio.meses = '';
+        } else {
+          novoCriterio.pontTempo = 0;
+          novoCriterio.limItem = 0;
+          novoCriterio.qtdTempo = '';
+        }
+        
+        return {
+          ...q,
+          criterios: [...q.criterios, novoCriterio]
+        };
+      }
+      return q;
+    }));
+
+    alert('Critério inserido no quadro!');
   };
 
   // Função de cálculo para critérios com colunas completas
@@ -681,7 +896,244 @@ function FormularioCV() {
               </button>
             </div>
           </div>
+          
+          {/* Segunda linha de botões - Sistema de Templates */}
+          <div className="flex flex-wrap gap-2 items-center mt-3 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border-2 border-purple-200">
+            <div className="flex items-center gap-2 mr-4">
+              <span className="font-bold text-purple-900">📚 Templates:</span>
+              {templateAtual && (
+                <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-semibold">
+                  {templateAtual}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={salvarTemplate}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-semibold flex items-center gap-2"
+              title="Salvar formulário atual como template"
+            >
+              <Icons.Save /> Salvar Template
+            </button>
+            <button
+              onClick={() => setMostrarGerenciador(!mostrarGerenciador)}
+              className={`px-4 py-2 ${mostrarGerenciador ? 'bg-purple-700' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded font-semibold flex items-center gap-2`}
+              title="Gerenciar templates salvos"
+            >
+              <Icons.FileText /> {mostrarGerenciador ? 'Fechar' : 'Gerenciar'} ({Object.keys(templates).length})
+            </button>
+            {templateAtual && (
+              <button
+                onClick={atualizarTemplateAtual}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold flex items-center gap-2"
+                title="Atualizar template atual com dados atuais"
+              >
+                <Icons.Edit2 /> Atualizar Atual
+              </button>
+            )}
+            <button
+              onClick={() => setMostrarBiblioteca(!mostrarBiblioteca)}
+              className={`px-4 py-2 ${mostrarBiblioteca ? 'bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white rounded font-semibold flex items-center gap-2`}
+              title="Biblioteca de critérios reutilizáveis"
+            >
+              📖 {mostrarBiblioteca ? 'Fechar' : 'Biblioteca'}
+            </button>
+          </div>
         </div>
+
+        {/* Painel de Gerenciamento de Templates */}
+        {mostrarGerenciador && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-4 border-purple-500">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-purple-900">Gerenciador de Templates</h2>
+              <button
+                onClick={() => setMostrarGerenciador(false)}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold"
+              >
+                Fechar
+              </button>
+            </div>
+
+            {Object.keys(templates).length === 0 ? (
+              <div className="text-center py-12 bg-purple-50 rounded-lg">
+                <p className="text-gray-600 text-lg mb-4">Nenhum template salvo ainda</p>
+                <p className="text-gray-500 text-sm">Configure um formulário e clique em "Salvar Template" para criar seu primeiro template!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(templates).map(([nome, template]) => (
+                  <div key={nome} className={`p-4 rounded-lg border-2 ${templateAtual === nome ? 'border-purple-600 bg-purple-50' : 'border-gray-300 bg-white'} shadow`}>
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-purple-900 mb-1">{nome}</h3>
+                        {templateAtual === nome && (
+                          <span className="inline-block px-2 py-1 bg-purple-600 text-white text-xs rounded">
+                            ATIVO
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm text-gray-600 mb-3 space-y-1">
+                      <p><strong>Lei:</strong> {template.config.lei}</p>
+                      <p><strong>Grupo:</strong> {template.config.grupoOcupacional}</p>
+                      <p><strong>Quadros:</strong> {template.quadros.length}</p>
+                      <p><strong>Criado:</strong> {new Date(template.dataCriacao).toLocaleDateString('pt-BR')}</p>
+                      <p><strong>Modificado:</strong> {new Date(template.dataModificacao).toLocaleDateString('pt-BR')}</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => carregarTemplate(nome)}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-semibold"
+                      >
+                        Carregar
+                      </button>
+                      <button
+                        onClick={() => duplicarTemplate(nome)}
+                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold"
+                      >
+                        Duplicar
+                      </button>
+                      <button
+                        onClick={() => excluirTemplate(nome)}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-semibold"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+              <h4 className="font-bold text-blue-900 mb-2">Como usar Templates:</h4>
+              <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                <li><strong>Salvar Template:</strong> Configure seu formulário e clique em "Salvar Template"</li>
+                <li><strong>Carregar:</strong> Clique em "Carregar" para usar um template salvo</li>
+                <li><strong>Atualizar Atual:</strong> Modifique o template ativo e clique em "Atualizar Atual"</li>
+                <li><strong>Duplicar:</strong> Crie uma cópia de um template para fazer variações</li>
+                <li><strong>Templates são salvos no navegador:</strong> Funcionam mesmo após fechar a página</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Painel de Biblioteca de Critérios */}
+        {mostrarBiblioteca && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-4 border-indigo-500">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-indigo-900">Biblioteca de Critérios Reutilizáveis</h2>
+              <button
+                onClick={() => setMostrarBiblioteca(false)}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-semibold"
+              >
+                Fechar
+              </button>
+            </div>
+
+            {/* Seletor de Quadro */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-2 text-indigo-900">Selecione o Quadro:</label>
+              <select
+                value={quadroSelecionadoBiblioteca}
+                onChange={(e) => setQuadroSelecionadoBiblioteca(e.target.value)}
+                className="w-full px-4 py-2 border-2 border-indigo-300 rounded-lg font-semibold"
+              >
+                {Object.keys(bibliotecaCriterios).map(quadro => (
+                  <option key={quadro} value={quadro}>{quadro}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Adicionar novo critério */}
+            <div className="mb-6 p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+              <label className="block text-sm font-semibold mb-2 text-indigo-900">Adicionar Novo Critério ao {quadroSelecionadoBiblioteca}:</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={novoCriterioTexto}
+                  onChange={(e) => setNovoCriterioTexto(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && adicionarCriterioNaBiblioteca()}
+                  placeholder="Digite o texto do critério..."
+                  className="flex-1 px-4 py-2 border rounded-lg"
+                />
+                <button
+                  onClick={adicionarCriterioNaBiblioteca}
+                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold flex items-center gap-2"
+                >
+                  <Icons.Plus /> Adicionar
+                </button>
+              </div>
+            </div>
+
+            {/* Lista de critérios da biblioteca */}
+            <div className="space-y-3">
+              <h3 className="font-bold text-indigo-900 text-lg">
+                Critérios salvos no {quadroSelecionadoBiblioteca} ({bibliotecaCriterios[quadroSelecionadoBiblioteca].length})
+              </h3>
+              
+              {bibliotecaCriterios[quadroSelecionadoBiblioteca].length === 0 ? (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500">Nenhum critério salvo neste quadro</p>
+                </div>
+              ) : (
+                bibliotecaCriterios[quadroSelecionadoBiblioteca].map((criterio) => (
+                  <div key={criterio.id} className="p-4 bg-white rounded-lg border-2 border-indigo-200 shadow">
+                    <div className="flex gap-3 items-start">
+                      <textarea
+                        value={criterio.texto}
+                        onChange={(e) => editarCriterioBiblioteca(quadroSelecionadoBiblioteca, criterio.id, e.target.value)}
+                        className="flex-1 px-3 py-2 border rounded resize-none"
+                        rows="2"
+                      />
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => removerCriterioBiblioteca(quadroSelecionadoBiblioteca, criterio.id)}
+                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center gap-1"
+                          title="Remover da biblioteca"
+                        >
+                          <Icons.Trash2 />
+                        </button>
+                        {quadros.length > 0 && (
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                inserirCriterioDaBiblioteca(parseInt(e.target.value), criterio.texto);
+                                e.target.value = '';
+                              }
+                            }}
+                            className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs"
+                            defaultValue=""
+                          >
+                            <option value="">Inserir em...</option>
+                            {quadros.map(q => (
+                              <option key={q.id} value={q.id}>{q.titulo}</option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Criado em: {new Date(criterio.dataCriacao).toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+              <h4 className="font-bold text-blue-900 mb-2">Como usar a Biblioteca:</h4>
+              <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                <li><strong>Adicionar:</strong> Digite um critério e clique em "Adicionar" para salvar na biblioteca</li>
+                <li><strong>Editar:</strong> Modifique o texto diretamente - as mudanças são salvas automaticamente</li>
+                <li><strong>Inserir:</strong> Use o dropdown "Inserir em..." para adicionar o critério a um quadro do formulário</li>
+                <li><strong>Organização:</strong> Separe critérios por tipo de quadro (A, B, C, D, E)</li>
+                <li><strong>Reutilização:</strong> Critérios podem ser inseridos em múltiplos formulários/templates</li>
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* Painel de Critérios de Desempate */}
         {mostrarDesempate && (
