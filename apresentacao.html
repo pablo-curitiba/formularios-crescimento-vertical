@@ -102,7 +102,7 @@ function FormularioCV() {
     tituloPrincipal: 'PREFEITURA MUNICIPAL DE CURITIBA',
     tituloFormulario: 'FORMULÁRIO DO CRESCIMENTO VERTICAL 2025',
     pontosPorMes: 0.0556,
-    limiteMaxMeses: 10.0,
+    limiteMaxMeses: 180,
     limiteTotal: 80.0, // NOVO: Limite total do formulário
     // Rótulos editáveis para quadro completo
     rotulosCompleto: {
@@ -136,7 +136,7 @@ function FormularioCV() {
   });
 
   const leisDisponiveis = [
-    { valor: '16.198/2023', cargo: '' },
+    { valor: '16.198/2023', cargo: 'Diversos Cargos' },
     { valor: '16.199/2023', cargo: 'Auditor Fiscal' },
     { valor: '16.200/2023', cargo: 'Procurador Municipal' },
     { valor: '16.201/2023', cargo: 'Professor de Educação Infantil' },
@@ -772,7 +772,7 @@ function FormularioCV() {
             margin: 0; 
             padding: 0; 
             background: white;
-            font-size: 8pt;
+            font-size: 9pt;
           }
           .no-print { display: none !important; }
           .hide-on-export { display: none !important; }
@@ -816,12 +816,12 @@ function FormularioCV() {
           .mb-3 { margin-bottom: 0.25rem !important; }
           .gap-4 { gap: 0.3rem !important; }
           /* Títulos mais compactos */
-          h1 { font-size: 12pt !important; margin: 0.3rem 0 !important; line-height: 1.2 !important; }
-          h2 { font-size: 10pt !important; margin: 0.2rem 0 !important; line-height: 1.2 !important; }
+          h1 { font-size: 16pt !important; margin: 0.3rem 0 !important; line-height: 1.2 !important; }
+          h2 { font-size: 14pt !important; margin: 0.2rem 0 !important; line-height: 1.2 !important; }
           /* Tabelas mais compactas */
           th, td { 
             padding: 0.15rem 0.25rem !important;
-            font-size: 7pt !important;
+            font-size: 8pt !important;
             line-height: 1.2 !important;
           }
           /* Bordas finas para impressão */
@@ -842,7 +842,7 @@ function FormularioCV() {
             border: none !important;
             border-bottom: 1px solid #ccc !important;
             padding: 0 !important;
-            font-size: 7pt !important;
+            font-size: 8pt !important;
           }
         }
         @media screen {
