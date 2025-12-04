@@ -8,7 +8,7 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -1637,6 +1637,13 @@
 
             // Exportar para PDF
             const exportarPDF = () => {
+                // Pedir número do edital
+                const numeroEdital = prompt('Digite o número do edital (ex: 01/2024):', '01/2024');
+                if (!numeroEdital) {
+                    alert('Exportação cancelada. É necessário informar o número do edital.');
+                    return;
+                }
+                
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('l', 'mm', 'a4');
                 
@@ -1654,7 +1661,7 @@
                 doc.text('Tabela de Áreas de Conhecimento por Cargo', 148.5, 20, { align: 'center' });
                 
                 doc.setFontSize(10);
-                doc.text('Anexo - Edital de Capacitação', 148.5, 27, { align: 'center' });
+                doc.text(`Anexo I - Edital ${numeroEdital}`, 148.5, 27, { align: 'center' });
                 
                 // Preparar dados para a tabela
                 const dadosTabela = dados.map(item => [
@@ -1695,6 +1702,9 @@
                     },
                     margin: { top: 40, right: 10, bottom: 15, left: 10 },
                     didDrawPage: function(data) {
+                        // Rodapé
+                        const anoAtual = new Date().getFullYear();
+                        
                         doc.setFontSize(8);
                         doc.setTextColor(128);
                         doc.text(
@@ -1704,9 +1714,8 @@
                             { align: 'center' }
                         );
                         
-                        const dataHora = new Date().toLocaleString('pt-BR');
                         doc.text(
-                            `Gerado em: ${dataHora}`,
+                            `${anoAtual}`,
                             10,
                             doc.internal.pageSize.height - 10
                         );
@@ -1714,7 +1723,7 @@
                 });
                 
                 const dataHora = new Date().toISOString().slice(0,10);
-                doc.save(`Anexo_Tabela_Areas_Conhecimento_PMC_${dataHora}.pdf`);
+                doc.save(`Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_${dataHora}.pdf`);
             };
 
             return (
