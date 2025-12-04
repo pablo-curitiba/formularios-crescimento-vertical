@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Áreas de Conhecimento por Cargo - PMC</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Info box - não aparece na impressão */
+        .info-box {
+            background: #e7f1ff;
+            border-left: 4px solid #2a5298;
+            padding: 20px 30px;
+            margin: 0;
+            border-bottom: 2px solid #d0e3ff;
+        }
+
+        .info-box h3 {
+            color: #1e3c72;
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p {
+            color: #2a5298;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #2a5298;
+        }
+
+        .info-box li {
+            margin-bottom: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: #1e3c72;
+        }
+
+        /* Esconder info-box na impressão e no PDF */
+        @media print {
+            .info-box {
+                display: none !important;
+            }
+        }
+
+        .toolbar {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #2a5298;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        /* Status de salvamento */
+        .save-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .save-status.saving {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .save-status.saved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .save-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #856404;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .table-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table thead {
+            background: #2a5298;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .data-table .col-numero {
+            width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: #2a5298;
+        }
+
+        .data-table .col-lei {
+            width: 120px;
+        }
+
+        .data-table .col-cargo {
+            width: 250px;
+            font-weight: 500;
+        }
+
+        .data-table .col-areas-cnpq {
+            width: 250px;
+        }
+
+        .data-table .col-cursos {
+            min-width: 400px;
+        }
+
+        .data-table .col-acoes {
+            width: 120px;
+            text-align: center;
+        }
+
+        .editable-cell {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            min-height: 35px;
+            transition: background-color 0.2s ease;
+        }
+
+        .editable-cell:hover {
+            background-color: #e9ecef;
+        }
+
+        .editable-cell.editing {
+            background-color: #fff3cd;
+        }
+
+        .cell-input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #2a5298;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .cell-textarea {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #2a5298;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .btn-icon {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            background: transparent;
+        }
+
+        .btn-icon.edit {
+            color: #2a5298;
+        }
+
+        .btn-icon.edit:hover {
+            background: #e7f1ff;
+        }
+
+        .btn-icon.delete {
+            color: #dc3545;
+        }
+
+        .btn-icon.delete:hover {
+            background: #f8d7da;
+        }
+
+        .btn-icon.save {
+            color: #28a745;
+        }
+
+        .btn-icon.save:hover {
+            background: #d4edda;
+        }
+
+        .btn-icon.cancel {
+            color: #6c757d;
+        }
+
+        .btn-icon.cancel:hover {
+            background: #e9ecef;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #2a5298;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .stats {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2a5298;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .toolbar, .stats, .btn-icon, .info-box {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+            }
+            .search-box {
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Dados iniciais da planilha
+        const dadosIniciais = [
+            {
+                        "N.º": 1,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ADVOGADO",
+                        "Áreas CNPq (Nível Área)": "Direito",
+                        "Cursos/Áreas Correlacionados": "Direito; Direito Público; Direito Administrativo; Direito Constitucional; Direito Penal; Direito Tributário; Direito Civil; Direito Municipal; Direito Contemporâneo; Direito Empresarial; Direito do Trabalho; Direito do Consumidor; Direito da Família; Direito Digital e LGPD; Direito Internacional; Direito Previdenciário; Direitos Humanos, Direito da Criança e do Adolescente; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 2,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE ADMINISTRATIVO",
+                        "Áreas CNPq (Nível Área)": "Administração; Administração Pública; Ciências Contábeis; Economia",
+                        "Cursos/Áreas Correlacionados": "Administração; Administração Pública; Administração em Recursos Humanos; Administração em Marketing; Administração da Produção; Administração Financeira; Administração Orçamentária; Gestão Pública; Gestão de Recursos Humanos; Gestão em Marketing; Gestão em Marketing Digital; Gestão Financeira; Gestão Tributária; Gestão Orçamentária; Contabilidade; Contabilidade Internacional; Contabilidade Aplicada ao Setor Público; Economia;  Ciências Econômicas; Economia do Desenvolvimento; Processos Gerenciais; Gestão de Projetos;  Gestão de Projetos e Processos; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 3,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE COMUNITARIO DE SAUDE",
+                        "Áreas CNPq (Nível Área)": "Saúde Coletiva; Enfermagem; Serviço Social",
+                        "Cursos/Áreas Correlacionados": "Saúde Coletiva; Agente Comunitário; Enfermagem; Serviço Social; Promoção da Saúde; Vigilância em Saúde; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 4,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE CULTURAL",
+                        "Áreas CNPq (Nível Área)": "Artes; Comunicação; Museologia",
+                        "Cursos/Áreas Correlacionados": "Produção Cultural; Artes Visuais; Artes Cênicas; Música; Comunicação Social; Museologia; História; História da Arte; Comunicação Institucional; Comunicação Assistiva; Relações Públicas; Teatro; Cinema;  Patrimônio Cultural; História da Arte; História da Arte e Curadoria; Comunicação Institucional; Comunicação Assistiva; Relações Públicas; Produção Cultural e Curadoria de Conteúdo; Curadoria em Artes Visuais; Curadoria, Museologia e Gestão de Exposições; Museologia, Colecionismo e Curadoria; Curadoria e Produção de Conteúdos Culturais; Gestão Cultural; Curadoria Digital; Gestão de Acervos e Curadoria de Museus e Exposições; Arte, Curadoria e Gestão Cultural; Curadoria e Museologia; Curadoria, Cultura Urbana e Práticas Espaciais; Curadoria da Arte; Museologia e Patrimônio; História Contemporânea e Relações Internacionais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 5,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE DE COMBATE AS ENDEMIAS",
+                        "Áreas CNPq (Nível Área)": "Saúde Coletiva; Enfermagem; Medicina; Ciências Biológicas",
+                        "Cursos/Áreas Correlacionados": "Saúde Pública; Enfermagem; Vigilância Epidemiológica; Biologia; Saneamento; Medicina; Ciências Biológicas; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Auditoria em Saúde; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 6,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE DE CONTROLE DE ZOONOSES",
+                        "Áreas CNPq (Nível Área)": "Medicina Veterinária; Zootecnia; Saúde Coletiva",
+                        "Cursos/Áreas Correlacionados": "Medicina Veterinária; Zootecnia; Saúde Pública; Gestão de Zoonoses; Ciências Biológicas; Gestão Ambiental; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 7,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE DE GEOPROCESSAMENTO",
+                        "Áreas CNPq (Nível Área)": "Geografia; Geociências; Geodésia; Ciência da Computação",
+                        "Cursos/Áreas Correlacionados": "Geoprocessamento; Geografia; Geologia; Sensoriamento Remoto; Cartografia; Sistemas de Informação Geográfica; Geociências; Geodésia; Ciência da Computação; Gestão Ambiental; Engenharia Cartográfica e de Agrimensura; Engenharia Ambiental e Sanitária; Agrimensura; Análise de Sistemas; Sistemas de Informação; Tecnologia da Informação; Engenharia de Software; Engenharia da Computação; Ciência de Dados; Análise e Desenvolvimento de Sistemas; Banco de Dados;  Segurança da Informação; Redes de Computadores; Sistemas Embarcados; Sistemas para Internet; Ciência de Dados e Inteligência Artificial; Engenharia da Computação com ênfase em Inteligência Artificial; Tecnologia em Inteligência Artificial; Tecnologia em  Segurança Cibernética com ênfase em Inteligência Artificial; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 8,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE DE TRANSITO MUNICIPAL",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Transportes; Administração Pública; Direito",
+                        "Cursos/Áreas Correlacionados": "Engenharia de Tráfego; Mobilidade Urbana; Direito; Gestão Pública; Segurança Viária; Gestão de Trânsito; Graduação Tecnológica em Segurança no Trânsito; Direito de Trânsito; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 9,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE ORGANIZACIONAL",
+                        "Áreas CNPq (Nível Área)": "Administração; Administração Pública; Ciências Contábeis",
+                        "Cursos/Áreas Correlacionados": "Administração; Gestão Pública; Gestão de Pessoas; Contabilidade; Administração em Recursos Humanos; Administração em Marketing; Administração da Produção; Administração Financeira; Administração Orçamentária; Gestão Pública; Gestão de Recursos Humanos; Gestão em Marketing; Gestão em Marketing Digital; Gestão Financeira; Gestão Tributária; Gestão Orçamentária; Contabilidade; Contabilidade Internacional; Contabilidade Aplicada ao Setor Público; Processos Gerenciais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 10,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AGENTE TECNOLOGICO PROFISSIONAL",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação; Engenharia de Produção; Administração",
+                        "Cursos/Áreas Correlacionados": "Análise de Sistemas; Sistemas de Informação; Engenharia de Produção; Administração; Tecnologia da Informação; Engenharia de Software; Ciência da Computação; Análise de Sistemas; Sistemas de Informação; Tecnologia da Informação; Engenharia de Software; Engenharia da Computação; Ciência de Dados; Análise e Desenvolvimento de Sistemas; Banco de Dados;  Segurança da Informação; Redes de Computadores; Sistemas Embarcados; Sistemas para Internet; Processos Gerenciais; Ciência de Dados e Inteligência Artificial; Engenharia da Computação com ênfase em Inteligência Artificial; Tecnologia em Inteligência Artificial; Tecnologia em  Segurança Cibernética com ênfase em Inteligência Artificial;Engenharia da Computação; Ciência de Dados; Análise e Desenvolvimento de Sistemas; Banco de Dados;  Segurança da Informação; Redes de Computadores; Sistemas Embarcados; Sistemas para Internet;  Gestão de Pessoas; Administração em Recursos Humanos; Administração da Produção; Gestão de Recursos Humanos; Gestão em Marketing; Gestão em Marketing Digital; Processos Gerenciais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 11,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA DE ATIVIDADES CULTURAIS",
+                        "Áreas CNPq (Nível Área)": "Artes; Comunicação; Museologia; História",
+                        "Cursos/Áreas Correlacionados": "Produção Cultural; Artes Visuais; Música; Teatro; Cinema; História da Arte; Museologia; Produção Audiovisual; Comunicação; Comunicação Social; Comunicação Institucional; Comunicação Assistiva; Relações Públicas; Artes Cênicas; Gestão Cultural; História; Patrimônio Cultural; História da Arte e Curadoria; Produção Cultural e Curadoria de Conteúdo; Curadoria em Artes Visuais; Curadoria, Museologia e Gestão de Exposições; Museologia, Colecionismo e Curadoria; Curadoria e Produção de Conteúdos Culturais; Gestão Cultural; Curadoria Digital; Gestão de Acervos e Curadoria de Museus e Exposições; Arte, Curadoria e Gestão Cultural; Curadoria e Museologia; Curadoria, Cultura Urbana e Práticas Espaciais; Curadoria da Arte; Museologia e Patrimônio; História Contemporânea e Relações Internacionais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 12,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA DE DESENVOLVIMENTO ORGANIZACIONAL",
+                        "Áreas CNPq (Nível Área)": "Administração; Administração Pública; Psicologia; Engenharia de Produção",
+                        "Cursos/Áreas Correlacionados": "Administração; Psicologia Organizacional; Psicologia Organizacional e do Trabalho; Gestão de Pessoas; Engenharia de Produção; Gestão Pública; Administração Pública; Administração em Recursos Humanos; Administração em Marketing; Administração da Produção; Administração Financeira; Administração Orçamentária; Gestão Pública; Gestão de Recursos Humanos; Gestão em Marketing; Gestão em Marketing Digital; Gestão Financeira; Gestão Tributária; Gestão Orçamentária;  Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Engenharia e Gestão da Produção; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 13,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA DE FINANCAS",
+                        "Áreas CNPq (Nível Área)": "Administração; Ciências Contábeis; Economia",
+                        "Cursos/Áreas Correlacionados": "Contabilidade; Finanças; Administração; Economia; Controladoria; Gestão Pública; Administração Pública; Administração Financeira; Administração Orçamentária; Gestão Pública; Gestão Financeira; Gestão Tributária; Gestão Orçamentária;  Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Contabilidade Internacional; Contabilidade Aplicada ao Setor Público; Ciências Contábeis;  Ciências Econômicas; Economia do Desenvolvimento; Auditoria Financeira; Controladoria e Finanças; Controladoria e Auditoria Financeira; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 14,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA DE PRODUÇÃO",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Produção; Administração",
+                        "Cursos/Áreas Correlacionados": "Engenharia de Produção; Administração; Gestão da Qualidade; Logística; Gestão de Processos; Administração da Produção; Gestão da Produção; Engenharia e Gestão da Produção; Administração Pública; Gestão Pública; Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Engenharia e Gestão da Produção; Gestão e Auditoria da Qualidade; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 15,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA DE SISTEMAS",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação; Engenharia Elétrica; Engenharia de Produção",
+                        "Cursos/Áreas Correlacionados": "Sistemas de Informação; Análise de Sistemas; Ciência da Computação; Engenharia de Software; Análise de Sistemas; Sistemas de Informação; Engenharia de Produção; Tecnologia da Informação; Engenharia de Software; Engenharia da Computação; Ciência de Dados; Análise e Desenvolvimento de Sistemas; Banco de Dados;  Segurança da Informação; Redes de Computadores; Sistemas Embarcados; Sistemas para Internet; Ciência de Dados e Inteligência Artificial; Engenharia da Computação com ênfase em Inteligência Artificial; Tecnologia em Inteligência Artificial; Tecnologia em  Segurança Cibernética com ênfase em Inteligência Artificial; Processos Gerenciais; Engenharia de Produção; Logística; Gestão de Processos; Gestão da Produção; Engenharia e Gestão da Produção;  Gestão de Projetos; Gestão de Projetos e Processos; Engenharia e Gestão da Produção; Engenharia Elétrica; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 16,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA DE SUPORTE",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação; Engenharia Elétrica",
+                        "Cursos/Áreas Correlacionados": "Redes de Computadores; Suporte Técnico; Sistemas de Informação; Ciência da Computação; Análise de Sistemas; Sistemas de Informação; Engenharia de Produção; Tecnologia da Informação; Engenharia de Software; Engenharia da Computação; Ciência de Dados; Análise e Desenvolvimento de Sistemas; Banco de Dados;  Segurança da Informação; Redes de Computadores; Sistemas Embarcados; Sistemas para Internet; Ciência de Dados e Inteligência Artificial; Engenharia da Computação com ênfase em Inteligência Artificial; Tecnologia em Inteligência Artificial; Tecnologia em  Segurança Cibernética com ênfase em Inteligência Artificial;  Engenharia Elétrica; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 17,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA EM TURISMO",
+                        "Áreas CNPq (Nível Área)": "Turismo; Administração; Comunicação",
+                        "Cursos/Áreas Correlacionados": "Turismo; Gestão de Turismo; Hotelaria; Eventos; Administração; Marketing; Marketing Turístico; Comunicação Social; Produção Cultural; Artes Visuais; Produção Audiovisual; Gestão Cultural; Políticas Públicas no Turismo; Administração Pública; Gestão Pública; Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Ecoturismo; Relações Públicas; Comunicação; Comunicação Social; Comunicação Institucional; Comunicação Assistiva; Relações Públicas; Jornalismo; História Contemporânea e Relações Internacionais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 18,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ANALISTA FINANCEIRO",
+                        "Áreas CNPq (Nível Área)": "Administração; Ciências Contábeis; Economia",
+                        "Cursos/Áreas Correlacionados": "Administração; Economia; Contabilidade; Finanças; Controladoria; Gestão Pública; Administração Pública; Administração Financeira; Administração Orçamentária; Gestão Pública; Gestão Financeira; Gestão Tributária; Gestão Orçamentária;  Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Contabilidade Internacional; Contabilidade Aplicada ao Setor Público; Ciências Contábeis;  Ciências Econômicas; Economia do Desenvolvimento; Auditoria Financeira; Controladoria e Finanças; Controladoria e Auditoria Financeira; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 19,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ARQUITETO",
+                        "Áreas CNPq (Nível Área)": "Arquitetura e Urbanismo; Planejamento Urbano e Regional",
+                        "Cursos/Áreas Correlacionados": "Arquitetura; Urbanismo; Paisagismo; Planejamento Urbano; Design Urbano; Restauração e Patrimônio Cultural; Conservação e Gestão do Patrimônio Cultural; Arquitetura Sustentável; Gerenciamento de Obras e Tecnologia da Construção; Gestão da Qualidade e Tecnologia na Construção Civil; Gerencimento e Qualidade de Obras; Gerenciamento de Obras, Qualidade e Desempenho da Construção; Gerenciamento e Execução de Obras; Arquitetura Sustentável e Tecnologias Verdes; Cidades Sustentáveis e Inteligentes; Planejamento Urbano e Cidades Inteligentes; Planejamento Urbano e Regional; Planejamento Urbano e Tecnologias; Gestão de Cidades e Planejamento Urbano; Gestão Urbana; Construções Sustentáveis e Ecourbanismo; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 20,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ARTIFICE",
+                        "Áreas CNPq (Nível Área)": "Engenharia Civil; Engenharia Mecânica; Engenharia Elétrica",
+                        "Cursos/Áreas Correlacionados": "Construção Civil; Mecânica; Elétrica; Edificações; Manutenção Predial; Manutenção Industrial; Eletrotécnica; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 21,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ASCENSORISTA",
+                        "Áreas CNPq (Nível Área)": "Engenharia Elétrica; Engenharia Mecânica",
+                        "Cursos/Áreas Correlacionados": "Eletrotécnica; Eletricidade; Mecânica; Automação; Sistemas Eletromecânicos; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 22,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ASSISTENTE DE DESENVOLVIMENTO SOCIAL",
+                        "Áreas CNPq (Nível Área)": "Serviço Social; Psicologia; Administração Pública",
+                        "Cursos/Áreas Correlacionados": "Serviço Social; Psicologia; Gestão Pública; Sociologia; Mediação Social; Gestão de Políticas Públicas; Políticas Públicas de Assistência Social; Políticas de Assistência Social; Gestão e Serviços do Sistema Único de Assistência Social; Projetos Sociais e Políticas Públicas; Gestão e Serviço Social; Psicologia Social; Política Social; Gestão de Políticas Públicas; Educação Social; Assistência Social e Saúde Pública; Serviço Social, Seguridade Social e Direitos Humanos; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 23,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ASSISTENTE DE OPERAÇÃO E MANUTENCAO",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Produção; Engenharia Mecânica; Engenharia Elétrica",
+                        "Cursos/Áreas Correlacionados": "Mecânica; Eletromecânica; Sistemas Eletromecânicos; Elétrica; Manutenção Industrial; Automação; Eletrotécnica; Gestão de Processos; Administração da Produção; Gestão da Produção; Engenharia e Gestão da Produção; Gestão de Projetos e Processos; Engenharia e Gestão da Produção; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 24,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ASSISTENTE DO MEIO AMBIENTE",
+                        "Áreas CNPq (Nível Área)": "Engenharia Ambiental; Engenharia Sanitária; Ciências Biológicas; Agronomia",
+                        "Cursos/Áreas Correlacionados": "Gestão Ambiental; Engenharia Ambiental; Saneamento; Biologia; Ecologia; Agronomia; Ciências Biológicas; Ciências Ambientais; Meio Ambiente; Meio Ambiente e Sustentabilidade; Gestão Estratégica em ESG (Ambiental, Social e Governança); Gestão de Recursos Hídricos; Gestão de Resíduos Sólidos; Engenharia Ambiental e Saneamento Básico; Saneamento Ambiental; Gestão Ambiental Sustentável; Ciências Ambientais; Análise Ambiental; Sustentabilidade Ambiental; Ecologia; Ecologia e Evolução da Biodiversidade; Ecologia e Recursos Naturais; Ecologia, Conservação e Biodiversidade; Ecologia e Evolução; Perícia e Auditoria Ambiental; Auditoria, Perícia e Licenciamento Ambiental; Direito Ambiental; Direito Ambiental e Sustentabilidade; Direito Ambiental e Urbanístico; Direito Ambiental e Gestão Estratégica da Sustentabilidade;  Educação Ambiental; Educação Ambiental e Sustentabilidade; Engenharia Sanitária e Ambiental; Ciências da Engenharia Ambiental; Zoologia; Botânica; Agronomia, Meio Ambiente e Sustentabilidade; Análise e Tecnologia Ambiental; Avaliação de Impactos Ambientais e Processos de Licenciamento Ambiental; Engenharia Ambiental e Sanitária; Engenharia e Gestão Ambiental; Engenharia e Sustentabilidade Ambiental; Engenharia e Tecnologia Ambiental; Engenharia Sanitária Tecnologia e Gestão Ambiental; Engenharia Sanitária; Processos Ambientais; Saneamento, Meio Ambiente e Recursos Hídricos; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Ciências Biológicas; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 25,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ASSISTENTE SOCIAL",
+                        "Áreas CNPq (Nível Área)": "Serviço Social",
+                        "Cursos/Áreas Correlacionados": "Serviço Social; Política Social; Gestão de Políticas Públicas; Educação Social; Assistência Social e Saúde Pública; Serviço Social, Seguridade Social e Direitos Humanos; Direitos Sociais e Competências Profissionais do Assistente Social; Políticas e Gestão de Serviço Social; Políticas Públicas de Assistência Social; Políticas de Assistência Social; Gestão e Serviços do Sistema Único de Assistência Social; Projetos Sociais e Políticas Públicas; Gestão e Serviço Social; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 26,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ASSISTENTE TECNICO DE EQUIPAMENTOS (MANUTENÇÃO)",
+                        "Áreas CNPq (Nível Área)": "Engenharia Elétrica; Engenharia Mecânica; Engenharia de Produção",
+                        "Cursos/Áreas Correlacionados": "Eletrotécnica; Automação; Mecânica; Engenharia de Produção; Manutenção de Equipamentos; Eletromecânica; Elétrica; Eletricidade; Sistemas Eletromecânicos; Gestão de Processos; Administração da Produção; Gestão da Produção; Engenharia e Gestão da Produção; Gestão de Projetos e Processos; Engenharia e Gestão da Produção; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 27,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ASSISTENTE TECNICO DE MANUTENCAO",
+                        "Áreas CNPq (Nível Área)": "Engenharia Civil; Engenharia Mecânica; Engenharia Elétrica; Engenharia de Produção",
+                        "Cursos/Áreas Correlacionados": "Construção Civil; Eletrotécnica; Mecânica; Edificações; Automação; Manutenção; Gestão de Processos; Administração da Produção; Gestão da Produção; Engenharia e Gestão da Produção; Gestão de Projetos e Processos; Engenharia e Gestão da Produção; Engenharia da Produção; Manutenção de Equipamentos; Eletromecânica; Elétrica; Eletricidade; Sistemas Eletromecânicos; Construção de Edifícios; Controle de Obras; Gerenciamento de Obras e Projetos; Gestão da Construção Civil; Gerenciamento de Obras na Construção Civil; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 28,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ATENDENTE DE MUNICIPES",
+                        "Áreas CNPq (Nível Área)": "Administração; Administração Pública; Comunicação; Serviço Social",
+                        "Cursos/Áreas Correlacionados": "Administração; Gestão Pública; Atendimento; Comunicação; Serviço Social; Administração Pública; Política Social; Gestão de Políticas Públicas; Educação Social; Assistência Social e Saúde Pública; Serviço Social, Seguridade Social e Direitos Humanos; Políticas e Gestão de Serviço Social; Políticas Públicas de Assistência Social; Políticas de Assistência Social; Gestão e Serviços do Sistema Único de Assistência Social; Projetos Sociais e Políticas Públicas; Gestão e Serviço Social; Relações Públicas; Comunicação Social; Comunicação Institucional; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 29,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ATENDENTE DE SECRETARIA",
+                        "Áreas CNPq (Nível Área)": "Administração; Administração Pública; Ciências Contábeis",
+                        "Cursos/Áreas Correlacionados": "Administração; Secretariado; Contabilidade; Gestão Pública; Administração Pública; Administração em Recursos Humanos; Administração em Marketing; Administração da Produção; Gestão de Recursos Humanos; Contabilidade Aplicada ao Setor Público; Processos Gerenciais; Gestão de Projetos;  Gestão de Projetos e Processos; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 30,
+                        "LEI": "16.199/2023",
+                        "Cargo": "AUDITOR FISCAL DE TRIBUTOS MUNICIPAIS",
+                        "Áreas CNPq (Nível Área)": "Administração; Administração Pública; Ciências Contábeis; Economia; Direito",
+                        "Cursos/Áreas Correlacionados": "Ciências Contábeis; Administração; Economia; Direito Tributário; Gestão Fazendária; Contabilidade; Gestão Pública; Administração Pública; Administração da Produção; Administração Financeira; Administração Orçamentária; Gestão Financeira; Gestão Tributária; Gestão Orçamentária; Contabilidade; Contabilidade Internacional; Contabilidade Aplicada ao Setor Público; Contabilidade Tributária e Inteligência Fiscal; Processos Gerenciais; Gestão de Projetos;  Gestão de Projetos e Processos; Ciência da Computação; Ciência da Informação; Ciências Econômicas; Economia do Desenvolvimento; Computação; Direito; Engenharia Civil; Engenharia da Computação; Engenharia de Software; Sistemas de Informação; Tecnologia da Informação; Ciência de Dados; Banco de Dados;  Segurança da Informação; Redes de Computadores; Sistemas Embarcados; Sistemas para Internet; Análise de Sistemas;  Análise e Desenvolvimento de Sistemas; Direito; Direito Público; Direito Administrativo; Direito Constitucional; Direito Penal; Direito Civil; Direito Empresarial; Direito do Trabalho; Direito do Consumidor; Direito Digital e LGPD; Direito Internacional; Direito Previdenciário; Governança Tributária; Auditoria, Perícia e Planejamento Tributário;  Auditoria Fiscal; Auditoria Fiscal e Gestão de Tributos; Auditoria Fiscal e Tributária; Auditoria Tributária; Auditoria, Contabilidade e Perícia Contábil; Auditoria e Perícia Contábil e Tributária; Auditoria Fiscal e Legislação Tributária; Gestão financeira, Controladoria, Auditoria e Compliance; Contabilidade, Auditoria e Reforma Tributária; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 31,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AUXILIAR ADMINISTRATIVO OPERACIONAL",
+                        "Áreas CNPq (Nível Área)": "Administração; Administração Pública; Ciências Contábeis",
+                        "Cursos/Áreas Correlacionados": "Administração; Gestão Pública; Processos Administrativos; Contabilidade; Administração Pública; Administração em Recursos Humanos; Administração em Marketing; Administração da Produção; Administração Financeira; Administração Orçamentária; Gestão Pública; Gestão de Recursos Humanos; Gestão em Marketing; Gestão em Marketing Digital; Gestão Financeira; Gestão Tributária; Gestão Orçamentária; Contabilidade; Ciências Contábeis; Contabilidade Internacional; Contabilidade Aplicada ao Setor Público; Processos Gerenciais; Gestão de Projetos;  Gestão de Projetos e Processos; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 32,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AUXILIAR CULTURAL",
+                        "Áreas CNPq (Nível Área)": "Artes; Comunicação; Museologia",
+                        "Cursos/Áreas Correlacionados": "Produção Cultural; Artes Visuais; Música; Teatro; Cinema; Museologia; Patrimônio Cultural; Artes Visuais; História da Arte; História da Arte e Curadoria; Comunicação Social; Comunicação Institucional; Comunicação Assistiva; Relações Públicas; Produção Cultural e Curadoria de Conteúdo; Curadoria em Artes Visuais; Curadoria, Museologia e Gestão de Exposições; Museologia, Colecionismo e Curadoria; Curadoria e Produção de Conteúdos Culturais; Gestão Cultural; Curadoria Digital; Gestão de Acervos e Curadoria de Museus e Exposições; Arte, Curadoria e Gestão Cultural; Curadoria e Museologia; Curadoria, Cultura Urbana e Práticas Espaciais; Curadoria da Arte; Museologia e Patrimônio; História Contemporânea e Relações Internacionais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 33,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AUXILIAR DE PRODUÇÃO",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Produção",
+                        "Cursos/Áreas Correlacionados": "Engenharia de Produção; Gestão Industrial; Logística; Gestão da Qualidade; Gestão de Processos; Administração da Produção; Gestão da Produção; Engenharia e Gestão da Produção; Administração Pública; Gestão Pública; Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Engenharia e Gestão da Produção; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 34,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AUXILIAR DE SAUDE BUCAL EM SAUDE PUBLICA",
+                        "Áreas CNPq (Nível Área)": "Odontologia; Saúde Coletiva",
+                        "Cursos/Áreas Correlacionados": "Odontologia; Saúde Bucal; Higiene Dental; Saúde Pública; Saúde Coletiva; Prótese Dentária; Dentística; Prótese e Dentística; Saúde Coletiva e Educação em Saúde Bucal; Ciências Aplicadas à Saúde Bucal; Estomatologia; Ortodontia; Endodontia; Periodontia; Dentística; Implantodontia; Epidemiologia; Odontogeriatria; Patologia Bucal; Bucomaxilofacial; Traumatologia Bucomaxilofacial; Protesista; Radiologia; Reabilitação Oral; Saúde Coletiva; Estratégia de Saúde da Família; Odontologia do Trabalho; Terapêutica Aplicada na Clínica Odontológica; Farmacologia Aplicada à Odontologia; Auditoria em Saúde; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 35,
+                        "LEI": "16.198/2023",
+                        "Cargo": "AUXILIAR DE SERVICOS ESCOLARES",
+                        "Áreas CNPq (Nível Área)": "Educação; Psicologia; Serviço Social",
+                        "Cursos/Áreas Correlacionados": "Pedagogia; Educação; Psicologia Educacional; Serviço Social; Processos Escolares; Educação Social; Gestão Escolar; Psicopedagogia; Educação Infantil; Desenvolvimento Infantil; Psicologia; Magistério; Educação Especial; Política Social; Gestão de Políticas Públicas;  Assistência Social e Saúde Pública; Serviço Social, Seguridade Social e Direitos Humanos; Políticas e Gestão de Serviço Social; Políticas Públicas de Assistência Social; Políticas de Assistência Social; Gestão e Serviços do Sistema Único de Assistência Social; Projetos Sociais e Políticas Públicas; Gestão e Serviço Social; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 36,
+                        "LEI": "16.198/2023",
+                        "Cargo": "BIBLIOTECARIO",
+                        "Áreas CNPq (Nível Área)": "Ciência da Informação",
+                        "Cursos/Áreas Correlacionados": "Biblioteconomia; Gestão da Informação; Arquivologia (ênfase em organização documental); Ciência da Informação; Museologia; Gestão de Bibliotecas; Administração Pública; Gestão Pública; "
+            },
+            {
+                        "N.º": 37,
+                        "LEI": "16.198/2023",
+                        "Cargo": "BIOLOGO",
+                        "Áreas CNPq (Nível Área)": "Ciências Biológicas",
+                        "Cursos/Áreas Correlacionados": "Biologia; Ciências Biológicas; Biotecnologia; Ecologia; Microbiologia; Biologia Molecular; Biologia Vegetal; Biologia Celular e Molecular; Biologia Celular e Desenvolvimento; Biologia Animal; Biologia Microbiana; Biodiversidade; Botânica; Zoologia; Fitopatologia; Nanociência e Nanobiotecnologia;  Biotecnologia e Biociências; Ecologia de Ecossistemas; Conservação da Biodiversidade; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 38,
+                        "LEI": "16.198/2023",
+                        "Cargo": "CIRURGIAO DENTISTA",
+                        "Áreas CNPq (Nível Área)": "Odontologia",
+                        "Cursos/Áreas Correlacionados": "Odontologia; Saúde Bucal; Estomatologia; Ortodontia; Endodontia; Periodontia; Dentística; Implantodontia; Epidemiologia; Odontogeriatria; Patologia Bucal; Bucomaxilofacial; Traumatologia Bucomaxilofacial; Protesista; Radiologia; Reabilitação Oral; Saúde Coletiva; Estratégia de Saúde da Família; Odontologia do Trabalho; Terapêutica Aplicada na Clínica Odontológica; Farmacologia Aplicada à Odontologia; Saúde Pública; Saúde Coletiva e Educação em Saúde Bucal; Ciências Aplicadas à Saúde Bucal; Auditoria em Saúde; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 39,
+                        "LEI": "16.198/2023",
+                        "Cargo": "CITOTECNICO",
+                        "Áreas CNPq (Nível Área)": "Farmácia; Ciências Biológicas; Medicina",
+                        "Cursos/Áreas Correlacionados": "Citotecnologia; Citopatologia; Farmácia; Análises Clínicas; Biomedicina; Biologia; Citologia Clínica; Patologia Clínica; Citologia Oncótica; Ciências Biológicas; Biotecnologia; Microbiologia; Biologia Molecular; Biologia Celular e Molecular; Biologia Celular e Desenvolvimento; Biologia Microbiana; Nanociência e Nanobiotecnologia;  Biotecnologia e Biociências; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 40,
+                        "LEI": "16.198/2023",
+                        "Cargo": "COMUNICADOR VISUAL",
+                        "Áreas CNPq (Nível Área)": "Comunicação; Desenho Industrial; Artes",
+                        "Cursos/Áreas Correlacionados": "Design Gráfico; Comunicação Visual; Publicidade; Artes; Multimídia; Comunicação; Comunicação Social; Comunicação Institucional; Relações Públicas; Design Digital; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 41,
+                        "LEI": "16.198/2023",
+                        "Cargo": "CONTADOR",
+                        "Áreas CNPq (Nível Área)": "Ciências Contábeis; Administração; Economia",
+                        "Cursos/Áreas Correlacionados": "Ciências Contábeis; Contabilidade; Controladoria; Administração; Economia; Contabilidade Internacional; Contabilidade Aplicada ao Setor Público; Contabilidade Tributária e Inteligência Fiscal; Administração; Gestão Pública; Administração Pública; Administração Financeira; Administração Orçamentária; Gestão Pública; Gestão Financeira; Gestão Tributária; Gestão Orçamentária;  Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Ciências Econômicas; Economia do Desenvolvimento; Governança Tributária; Auditoria, Perícia e Planejamento Tributário;  Auditoria Fiscal; Auditoria Fiscal e Gestão de Tributos; Auditoria Fiscal e Tributária; Auditoria Tributária; Auditoria, Contabilidade e Perícia Contábil; Auditoria e Perícia Contábil e Tributária; Auditoria Fiscal e Legislação Tributária; Gestão financeira, Controladoria, Auditoria e Compliance; Contabilidade, Auditoria e Reforma Tributária; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 42,
+                        "LEI": "16.198/2023",
+                        "Cargo": "CORALISTA",
+                        "Áreas CNPq (Nível Área)": "Artes (Música)",
+                        "Cursos/Áreas Correlacionados": "Canto; Música; Artes; Regência; Regência de Coral; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 43,
+                        "LEI": "16.198/2023",
+                        "Cargo": "COZINHEIRO",
+                        "Áreas CNPq (Nível Área)": "Ciência e Tecnologia de Alimentos; Nutrição",
+                        "Cursos/Áreas Correlacionados": "Gastronomia; Cozinha Profissional; Nutrição; Alimentos; Ciência dos Alimentos; Engenharia de Alimentos; Alimentação, Nutrição e Saúde; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 44,
+                        "LEI": "16.198/2023",
+                        "Cargo": "DESENHISTA",
+                        "Áreas CNPq (Nível Área)": "Desenho Industrial; Arquitetura; Artes",
+                        "Cursos/Áreas Correlacionados": "Design; Arquitetura; Desenho Técnico; Artes Visuais; Design Gráfico; Comunicação Visual; Artes; Design Digital; Design Urbano; Urbanismo e Planejamento Urbano; Arquitetura e Urbanismo; Administração Pública; Gestão Pública; Urbanismo; Paisagismo; Planejamento Urbano; Arquitetura Sustentável; Arquitetura Sustentável e Tecnologias Verdes; Cidades Sustentáveis e Inteligentes; Planejamento Urbano e Cidades Inteligentes; Planejamento Urbano e Regional; Planejamento Urbano e Tecnologias; Gestão de Cidades e Planejamento Urbano; Gestão Urbana; Construções Sustentáveis e Ecourbanismo; Artes Visuais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 45,
+                        "LEI": "16.198/2023",
+                        "Cargo": "DESENHISTA INDUSTRIAL",
+                        "Áreas CNPq (Nível Área)": "Desenho Industrial",
+                        "Cursos/Áreas Correlacionados": "Design de Produto; Design Gráfico; Comunicação Visual; Design Industrial; Design; Design Digital; Design Urbano; Administração Pública; Gestão Pública;  Artes Visuais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 46,
+                        "LEI": "16.198/2023",
+                        "Cargo": "EDUCADOR SOCIAL",
+                        "Áreas CNPq (Nível Área)": "Serviço Social; Educação; Psicologia",
+                        "Cursos/Áreas Correlacionados": "Serviço Social; Pedagogia; Psicologia; Educação Social; Educação; Psicologia Educacional; Processos Escolares; Gestão Escolar; Psicopedagogia; Educação Infantil; Desenvolvimento Infantil; Psicologia Escolar e Educacional; Psicologia Social; Psicologia em Saúde; Psicologia Organizacional e do Trabalho; Neuropsicologia; Psicomotricidade; Avaliação Psicológica; Magistério; Educação Especial; Política Social; Gestão de Políticas Públicas;  Assistência Social e Saúde Pública; Serviço Social, Seguridade Social e Direitos Humanos; Políticas e Gestão de Serviço Social; Políticas Públicas de Assistência Social; Políticas de Assistência Social; Gestão e Serviços do Sistema Único de Assistência Social; Projetos Sociais e Políticas Públicas; Gestão e Serviço Social; Políticas Públicas; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 47,
+                        "LEI": "16.198/2023",
+                        "Cargo": "EDUCADOR SOCIAL FAS",
+                        "Áreas CNPq (Nível Área)": "Serviço Social; Educação; Psicologia",
+                        "Cursos/Áreas Correlacionados": "Pedagogia; Serviço Social; Psicologia; Políticas Públicas; Educação; Educação Social; Psicologia Educacional; Processos Escolares; Gestão Escolar; Psicopedagogia; Educação Infantil; Desenvolvimento Infantil; Psicologia Escolar e Educacional; Psicologia Social; Psicologia em Saúde; Psicologia Organizacional e do Trabalho; Neuropsicologia; Psicomotricidade; Avaliação Psicológica; Magistério; Educação Especial; Política Social; Gestão de Políticas Públicas;  Assistência Social e Saúde Pública; Serviço Social, Seguridade Social e Direitos Humanos; Políticas e Gestão de Serviço Social; Políticas Públicas de Assistência Social; Políticas de Assistência Social; Gestão e Serviços do Sistema Único de Assistência Social; Projetos Sociais e Políticas Públicas; Gestão e Serviço Social; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 48,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENFERMEIRO",
+                        "Áreas CNPq (Nível Área)": "Enfermagem",
+                        "Cursos/Áreas Correlacionados": "Enfermagem; Saúde Pública; Enfermagem em Saúde Coletiva; Microbiologia Clínica; Urgência e Emergência; Pediatria e Cuidados Intensivos Neonatais; Terapia Intensiva Adulto; Terapia Intensiva; Unidade de Terapia Intensiva; Enfermagem Humanizada em Oncologia; Enfermagem do Trabalho; Enfermagem Hospitalar; Enfermagem em Gestão e Administração; Gerontologia em Enfermagem; Neurociência e Seus Aspectos Funcionais; Prática do Cuidado em Saúde; Doenças Infectocontagiosas e Pandemia; Cuidados de Feridas e Estomias; Combate das Doenças Emergentes; Cuidado ao Paciente com Doença Crônica; Gestão e Liderança em Enfermagem; Vacinas; Cuidados Paliativos; Cuidados da Enfermagem a Dependência Química: Alcool, Crack e Outras Drogas; Prevenção e Controle de Infecção Hospitalar; Gestão da Qualidade e Segurança do Paciente; Prescrição de Medicamentos por Enfermeiros nos Serviços Públicos de Saúde; Planejamento e Gestão em Saúde; Oncologia; Saúde da Mulher; Auditoria em Serviços de Saúde; Saúde mental; Enfermagem na Atenção Primária com ênfase na Estratégia Saúde da Família; Saúde Pública com Ênfase em Vigilância em Saúde; Obstetria; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Auditoria em Saúde; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 49,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO AGRICOLA",
+                        "Áreas CNPq (Nível Área)": "Engenharia Agrícola",
+                        "Cursos/Áreas Correlacionados": "Engenharia Agrícola; Agronomia; Irrigação e Drenagem; Processamento de Produtos Agrícolas; Engenharia de Sistemas Agrícolas; Engenharia Agronômica; Agroengenharia; Irrigação; Hidráulica Agrícola e Irrigação; Irrigação e Gestão dos Recursos Hídricos; Recursos Hídricos; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 50,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO AGRONOMO",
+                        "Áreas CNPq (Nível Área)": "Agronomia",
+                        "Cursos/Áreas Correlacionados": "Agronomia; Fitotecnia; Solos; Fitossanidade; Extensão Rural; Engenharia Agronômica; Fertilidade de Solos e Nutrição de Plantas; Solos e Nutrição de Plantas; Ciência do Solo; Ciência dos Solos e Responsabilidade Ambiental; Fertilidade, Manejamento de Solos e Nutrição de Plantas; Manejamento de Solo e Água; Fitossanidade e Biotecnologia Aplicada; Extensão rural e Desenvolvimento Local; Produção e Desenvolvimento Rural; Conservação da Biodiversidade; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 51,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO AMBIENTAL",
+                        "Áreas CNPq (Nível Área)": "Engenharia Ambiental; Engenharia Sanitária",
+                        "Cursos/Áreas Correlacionados": "Engenharia Ambiental; Engenharia Sanitária; Gestão Ambiental; Saneamento; Processos Ambientais; Saneamento Ambiental; Engenharia e Tecnologia Ambiental; Engenharia Ambiental e Saneamento Básico; Engenharia e Sustentabilidade Ambiental; Engenharia Ambiental e Sanitária; Saneamento, Meio Ambiente e Recursos Hídricos; Engenharia e Gestão Ambiental; Análise e Tecnologia Ambiental; Avaliação de Impactos Ambientais e Processos de Licenciamento Ambiental; Engenharia Sanitária Tecnologia e Gestão Ambiental; Auditoria, Perícia e Licenciamento Ambiental; Análise Ambiental; Ciências da Engenharia Ambiental; Direito Ambiental e Gestão Estratégica da Sustentabilidade; Direito Ambiental e Sustentabilidade; Direito Ambiental; Ecologia e Evolução da Biodiversidade; Ecologia e Evolução; Ecologia e Recursos Naturais; Ecologia, Conservação e Biodiversidade; Ecologia; Educação Ambiental e Su Sustentabilidade Ambiental; stentabilidade; Educação Ambiental; Gestão Ambiental Sustentável; Gestão Estratégica em ESG (Ambiental, Social e Governança); Meio Ambiente e Sustentabilidade; Meio Ambiente; Perícia e Auditoria Ambiental; Conservação da Biodiversidade; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 52,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO CARTOGRAFO",
+                        "Áreas CNPq (Nível Área)": "Geodésia; Geociências; Engenharia Civil",
+                        "Cursos/Áreas Correlacionados": "Engenharia Cartográfica; Geomática; Geoprocessamento; Sensoriamento Remoto; Topografia; Engenharia Cartográfica e de Agrimensura; Ciências Geodésicas; Ciências Geodésicas e Tecnologias da Geoinformação; Engenharia de Agrimensura com Ênfase em Topografia; Ciências Cartográficas; Geodésia, Cartografia e Geoprocessamento; Topografia Aplicada e Geoprocessamento; Topografia e Sensoriamento Remoto; Geotecnologias; Engenharia Geodésia e Geomática; Geociências; Geociências Aplicadas; Geociências e Meio Ambiente; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 53,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO CIVIL",
+                        "Áreas CNPq (Nível Área)": "Engenharia Civil",
+                        "Cursos/Áreas Correlacionados": "Engenharia Civil; Estruturas; Construção Civil; Geotecnia; Hidráulica; Urbanismo; Planejamento Urbano; Design Urbano; Restauração e Patrimônio Cultural; Arquitetura Sustentável; Gerenciamento de Obras e Tecnologia da Construção; Gestão da Qualidade e Tecnologia na Construção Civil; Gerencimento e Qualidade de Obras; Gerenciamento de Obras, Qualidade e Desempenho da Construção; Gerenciamento e Execução de Obras; Arquitetura Sustentável e Tecnologias Verdes; Cidades Sustentáveis e Inteligentes; Planejamento Urbano e Cidades Inteligentes; Planejamento Urbano e Regional; Planejamento Urbano e Tecnologias; Gestão de Cidades e Planejamento Urbano; Gestão Urbana; Construções Sustentáveis e Ecourbanismo; Geotecnia; Hidráulica e Saneamento; Hidráulica e Recursos Hídricos; Saneamento; Gerenciamento de Obras; Regularização de Imóveis; Topografia e Georreferenciamento; Construção Sustentável; Tecnologia da Construção; Engenharia Ambiental; Infraestrutura de Transporte Inteligente; Engenharia de Infraestrutura Resiliente; Tecnologia da Informação e BIM; Construção de Edifícios; Controle de Obras; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 54,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO DE SEGURANCA DO TRABALHO",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Produção; Engenharia Sanitária; Engenharia Civil",
+                        "Cursos/Áreas Correlacionados": "Segurança do Trabalho; Engenharia de Segurança; Engenharia Civil; Engenharia de Produção; Logística; Gestão de Processos; Administração da Produção; Gestão da Produção; Engenharia e Gestão da Produção; Processos Gerenciais; Gestão de Projetos; Gestão de Projetos e Processos; Engenharia e Gestão da Produção;  Administração Pública; Gestão Pública; Gerenciamento de Riscos; Ergonomia - Perícia e Auditoria; Engenharia em Segurança do Trabalho com Ênfase em Auditoria e Perícia; Perícia e Auditoria em Segurança do Trabalho; Engenharia Sanitária; Engenharia Ambiental; Gestão Ambiental; Saneamento; Processos Ambientais; Saneamento Ambiental; Engenharia e Tecnologia Ambiental; Engenharia Ambiental e Saneamento Básico; Engenharia e Sustentabilidade Ambiental; Engenharia Ambiental e Sanitária; Saneamento, Meio Ambiente e Recursos Hídricos; Engenharia e Gestão Ambiental; Análise e Tecnologia Ambiental; Avaliação de Impactos Ambientais e Processos de Licenciamento Ambiental; Engenharia Sanitária Tecnologia e Gestão Ambiental;  Análise Ambiental; Ciências da Engenharia Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 55,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO ELETRICISTA",
+                        "Áreas CNPq (Nível Área)": "Engenharia Elétrica",
+                        "Cursos/Áreas Correlacionados": "Engenharia Elétrica; Eletrônica; Telecomunicações; Sistemas de Energia; Eletrotécnica; Elétrica; Eletricidade; Gerenciamento de Obras e Projetos; Energias Renováveis; Engenharia de Energias Renováveis; Sistemas de Controle; Sistemas Eletrônicos; Instrumentos de Medição; Engenharia Eletrônica e Robótica; Engenharia de Redes e Telecomunicações; Gestão de Energia e Redes Elétricas Inteligentes; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 56,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO FLORESTAL",
+                        "Áreas CNPq (Nível Área)": "Recursos Florestais e Engenharia Florestal",
+                        "Cursos/Áreas Correlacionados": "Engenharia Florestal; Recursos Florestais; Manejo Florestal; Silvicultura; Gestão Ambiental; Gestão Ambiental e Manejo Florestal; Gestão Florestal; Gestão Florestal Responsável; Ciência Florestal; Ecologia; Topografia e Geoprocessamento; Manejamento Florestal Sustentável; Conservação da Biodiversidade; Restauração Florestal; Silvicultura e Reflorestamento; Ciência e Tecnologia de Produtos Florestais; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 57,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO MECANICO",
+                        "Áreas CNPq (Nível Área)": "Engenharia Mecânica",
+                        "Cursos/Áreas Correlacionados": "Engenharia Mecânica; Mecatrônica; Automação; Termodinâmica; Manutenção Industrial; Engenharia Mecânica e de Materiais; Engenharia Mecatrônica; Materiais e Processos de Fabricação; Mecânica dos Sólidos e Projeto Mecânico; Térmica e Fluídos; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 58,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO QUIMICO",
+                        "Áreas CNPq (Nível Área)": "Engenharia Química",
+                        "Cursos/Áreas Correlacionados": "Engenharia Química; Processos Químicos; Engenharia de Processos; Tecnologia Química; Processos Químicos; Controle de Processos; Engenharia de Materiais; Engenharia de Bioprocessos (Biotecnologia e Bioprocessos); Engenharia e Gestão de Energias Renováveis; Engenharia Ambiental; Engenharia Química e Automação de Processos; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 59,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ENGENHEIRO SANITARISTA",
+                        "Áreas CNPq (Nível Área)": "Engenharia Sanitária; Engenharia Ambiental",
+                        "Cursos/Áreas Correlacionados": "Saneamento; Engenharia Sanitária; Engenharia Ambiental; Gestão Ambiental; Engenharia Sanitária;  Saneamento; Processos Ambientais; Saneamento Ambiental; Engenharia e Tecnologia Ambiental; Engenharia Ambiental e Saneamento Básico; Engenharia e Sustentabilidade Ambiental; Engenharia Ambiental e Sanitária; Saneamento, Meio Ambiente e Recursos Hídricos; Engenharia e Gestão Ambiental; Análise e Tecnologia Ambiental; Avaliação de Impactos Ambientais e Processos de Licenciamento Ambiental; Engenharia Sanitária Tecnologia e Gestão Ambiental; Auditoria, Perícia e Licenciamento Ambiental; Análise Ambiental; Ciências da Engenharia Ambiental; Direito Ambiental e Gestão Estratégica da Sustentabilidade; Direito Ambiental e Sustentabilidade; Direito Ambiental; Ecologia e Evolução da Biodiversidade; Ecologia e Evolução; Ecologia e Recursos Naturais; Ecologia, Conservação e Biodiversidade; Ecologia; Educação Ambiental e Su Sustentabilidade Ambiental; stentabilidade; Educação Ambiental; Gestão Ambiental Sustentável; Gestão Estratégica em ESG (Ambiental, Social e Governança); Meio Ambiente e Sustentabilidade; Meio Ambiente; Perícia e Auditoria Ambiental; Conservação da Biodiversidade; Gestão e Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 60,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ESTATISTICO",
+                        "Áreas CNPq (Nível Área)": "Probabilidade e Estatística",
+                        "Cursos/Áreas Correlacionados": "Estatística; Matemática Aplicada; Data Science; Atuária; Estatística e Probabilidade; Ciências Atuariais; Estatística Aplicada; Matemática Aplicada e Estatística; Estatística para Ciência de Dados; Estatística com Ênfase em Pesquisa Quantitativa; Data Science e Estatística; Estatística e Modelagem Quantitativa;  Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 61,
+                        "LEI": "16.198/2023",
+                        "Cargo": "FARMACEUTICO-BIOQUIMICO",
+                        "Áreas CNPq (Nível Área)": "Farmácia",
+                        "Cursos/Áreas Correlacionados": "Farmácia; Bioquímica; Análises Clínicas; Farmácia Industrial; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Bioquímica Clínica; Bioquímica Clínica Avançada; Bioquímica e Imunologia; Análises Clínicas e Toxicológicas;  Análises Clínicas e Diagnóstico  Laboratorial; Bioquímica e Biologia Molecular; Bioquímica e Hematologia; Análises Clínicas e Microbiologia; Análises Clínicas e Diagnóstico Laboratorial; Farmácia Clínica e Hospitalar; Administração de Clínicas, Laboratórios e Farmácias; Farmácia Clínica e Hospitalar; Farmacologia e Interações Medicamentosas; Farmácia em Oncologia; Farmacologia; Ciências Farmacêuticas; "
+            },
+            {
+                        "N.º": 62,
+                        "LEI": "16.198/2023",
+                        "Cargo": "FISCAL",
+                        "Áreas CNPq (Nível Área)": "Administração Pública; Administração; Direito",
+                        "Cursos/Áreas Correlacionados": "Gestão Pública; Administração; Direito Administrativo; Direito Tributário; Administração Pública; Gestão Tributária; Gestão Orçamentária; Direito; Direito Público; Direito Constitucional; Direito Penal; Direito Tributário; Direito Civil; Direito Empresarial; Direito do Trabalho; Direito do Consumidor; Direito Digital e LGPD; Direito Internacional; Direito Previdenciário; Direitos Humanos, Direito da Criança e do Adolescente; Gestão Pública;"
+            },
+            {
+                        "N.º": 63,
+                        "LEI": "16.198/2023",
+                        "Cargo": "FISCAL DE OBRAS E POSTURAS",
+                        "Áreas CNPq (Nível Área)": "Engenharia Civil; Arquitetura e Urbanismo; Planejamento Urbano e Regional; Administração Pública; Direito",
+                        "Cursos/Áreas Correlacionados": "Engenharia Civil; Arquitetura; Urbanismo; Construção Civil; Fiscalização de Obras; Direito Urbanístico; Estruturas; Geotecnia; Hidráulica; Urbanismo; Planejamento Urbano; Design Urbano; Restauração e Patrimônio Cultural; Arquitetura Sustentável; Gerenciamento de Obras e Tecnologia da Construção; Gestão da Qualidade e Tecnologia na Construção Civil; Gerencimento e Qualidade de Obras; Gerenciamento de Obras, Qualidade e Desempenho da Construção; Gerenciamento e Execução de Obras; Arquitetura Sustentável e Tecnologias Verdes; Cidades Sustentáveis e Inteligentes; Planejamento Urbano e Cidades Inteligentes; Planejamento Urbano e Regional; Planejamento Urbano e Tecnologias; Gestão de Cidades e Planejamento Urbano; Gestão Urbana; Construções Sustentáveis e Ecourbanismo; Geotecnia; Hidráulica e Saneamento; Hidráulica e Recursos Hídricos; Saneamento; Gerenciamento de Obras; Regularização de Imóveis; Topografia e Georreferenciamento; Construção Sustentável; Tecnologia da Construção; Engenharia Ambiental; Infraestrutura de Transporte Inteligente; Engenharia de Infraestrutura Resiliente; Tecnologia da Informação e BIM; Construção de Edifícios; Controle de Obras; Administração Pública; Gestão Pública; Direito Administrativo; Direito Tributário;  Gestão Tributária; Direito; Direito Público; Direito Constitucional; Direito Penal; Direito Civil; Direito Empresarial; Direito do Trabalho; Direito do Consumidor; Direito Digital e LGPD; Direito Previdenciário; Direitos Humanos, Direito da Criança e do Adolescente; "
+            },
+            {
+                        "N.º": 64,
+                        "LEI": "16.198/2023",
+                        "Cargo": "FISICO",
+                        "Áreas CNPq (Nível Área)": "Física",
+                        "Cursos/Áreas Correlacionados": "Física; Física Aplicada; Física Médica; Física de Materiais; Física da Matéria Condensada; Física de Partículas Elementares; Partículas e Campos; Partículas Elementares; Astrofísica; Física e Astronomia; Astrofísica, Cosmologia e Gravitação; Astrofísica e Cosmologia; Física Nuclear; Física Atômica e Molecular; Física Aplicada; Física Matemática; Física dos Fluidos e Plasmas; Física Geral;"
+            },
+            {
+                        "N.º": 65,
+                        "LEI": "16.198/2023",
+                        "Cargo": "FISIOTERAPEUTA",
+                        "Áreas CNPq (Nível Área)": "Fisioterapia e Terapia Ocupacional",
+                        "Cursos/Áreas Correlacionados": "Fisioterapia; Reabilitação; Fisioterapia Esportiva; Neurofuncional; Cinesiologia e Biomecânica na Reabilitação Física; Atenção ao Paciente Crítico: Urgência, Emergência e UTI; Terapia Ocupacional; Reabilitação; Saúde Mental; Gerontologia; Ergonomia; Psicomotricidade;Fisioterapia Hospitalar; Fisioterapia Intensiva; Fisioterapia Muscoesquelética; Reabilitação Muscoesquelética; Fisioterapia Dermatofuncional; Fisioterapia Dermatofuncional e Cosmetologia; Fisioterapia Esportiva; Fisioterapia em Gerontologia; Fisioterapia Neurofuncional; Fisioterapia Pediátrica; Terapia Ocupacional na Saúde Mental; Cinesiologia e Biomecânica na Reabilitação Física; Atenção ao Paciente Crítico: Urgência, Emergência e UTI;  Gestão e Liderança em Serviços de Saúde; "
+            },
+            {
+                        "N.º": 66,
+                        "LEI": "16.198/2023",
+                        "Cargo": "FONOAUDIOLOGO",
+                        "Áreas CNPq (Nível Área)": "Fonoaudiologia",
+                        "Cursos/Áreas Correlacionados": "Fonoaudiologia; Linguagem; Audiologia; Voz; Motricidade Orofacial; Audiologia Clínica e Ocupacional; Linguagem Oral e Escrita; Motricidade Orofacial; Avaliação e Reabilitação em Motricidade Orofacial; Disfagia e Motricidade Orofacial; Voz e Saúde Vocal; Fonoaudiologia Hospitalar; Fonoaudiologia Hospitalar e Reabilitação; Fonoaudiologia Neurofuncional; Fonoaudiologia no Transtorno do Espectro Autista; Otoneurologia em Fonoaudiologia; Disfagia Orofaríngea; Fonoaudiologia do Sono; Fonoaudiologia em  Gerontologia; Fonoaudiologia do Trabalho; Fonoaudiologia Educacional; Fooaudiologia em Saúde Coletiva; Gestão em Fonoaudiologia Empresarial; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 67,
+                        "LEI": "16.198/2023",
+                        "Cargo": "GEOGRAFO",
+                        "Áreas CNPq (Nível Área)": "Geografia; Geociências",
+                        "Cursos/Áreas Correlacionados": "Geografia; Geografia Física; Geografia Humana; Geoprocessamento; Conservação da Biodiversidade; Geografia e Meio Ambiente; Geografia: Análise Ambiental e Gestão Territorial; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Geografia Humana; Geografia Humana e Econômica; Geografia dos Recursos Hídricos; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; História Contemporânea e Relações Internacionais; Geociências Aplicadas; Geociências e Meio Ambiente; Geoprocessamento e Inteligência Geoespacial; Geoprocessamento e Geotecnologias;"
+            },
+            {
+                        "N.º": 68,
+                        "LEI": "16.198/2023",
+                        "Cargo": "GEOLOGO",
+                        "Áreas CNPq (Nível Área)": "Geologia; Geociências",
+                        "Cursos/Áreas Correlacionados": "Geologia; Geofísica; Hidrogeologia; Geotectônica; Geociências; Geociências Aplicadas; Geociências e Meio Ambiente; Gestão e Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação; Geociências Aplicadas; Geociências e Meio Ambiente; Geoprocessamento e Inteligência Geoespacial; Geoprocessamento e Geotecnologias;"
+            },
+            {
+                        "N.º": 69,
+                        "LEI": "16.198/2023",
+                        "Cargo": "GESTOR DA INFORMACAO",
+                        "Áreas CNPq (Nível Área)": "Ciência da Informação; Ciência da Computação; Administração",
+                        "Cursos/Áreas Correlacionados": "Gestão da Informação; Ciência da Informação; Biblioteconomia; Sistemas de Informação; Arquivologia; Gestão da Tecnologia da Informação; Gestão de Documentos; Gestão de Documentos e Informações; Gestão Eletrônica de Documentos na Administração Pública; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 70,
+                        "LEI": "16.203/2023",
+                        "Cargo": "GUARDA MUNICIPAL",
+                        "Áreas CNPq (Nível Área)": "Administração Pública; Direito; Saúde Coletiva; Segurança Pública",
+                        "Cursos/Áreas Correlacionados": "Direito; Segurança Pública; Gestão Pública; Mediação de Conflitos; Policiamento Comunitário; Direito Administrativo; Direito Administrativo e Gestão Pública; Direito da Criança e do Adolescente e Políticas Públicas; Direito e Políticas Públicas; Direito Civil; Direito Penal; Direito Constitucional; Direito da Criança e do Adolescente; Direito da Criança e do Adolescente e Políticas Públicas; Direito Civil e Direito Processual Civil; Direito de Trânsito; Assistência Sociojurídico e Segurança Pública; Direito, Segurança Pública e Organismo Policial;  Gestão em Segurança e Ordem Pública; Gestão em Segurança Institucional e Corporativas; Direitos Humanos e Segurança Pública; Políticas e Gestão em Segurança Pública; Gestão em Segurança Pública e Privada; Gestão e Inteligência em Segurança Pública; Gestão e Inteligência em Segurança Privada; Gestão, Mobilidade e Segurança no Trânsito; Segurança Pública; Política Criminal, Segurança Pública e Direito Penal; Segurança Pública e Cidadania; Saúde Coletiva; "
+            },
+            {
+                        "N.º": 71,
+                        "LEI": "16.198/2023",
+                        "Cargo": "HISTORIADOR",
+                        "Áreas CNPq (Nível Área)": "História",
+                        "Cursos/Áreas Correlacionados": "História; Patrimônio Histórico; Humanidades; História Contemporânea e Relações Internacionais; História Cultural; Historiografia Brasileira; História Cultural; História da Arte; História e Antropologia; História Política; História Social e Contemporânea; História Social: Planejamento e Gestão; Direitos Humanos e Políticas Públicas; Administração Pública; Gestão Pública; "
+            },
+            {
+                        "N.º": 72,
+                        "LEI": "16.198/2023",
+                        "Cargo": "INSTRUMENTISTA",
+                        "Áreas CNPq (Nível Área)": "Artes (Música)",
+                        "Cursos/Áreas Correlacionados": "Música; Instrumentação Musical; Canto; Regência; Música e Artes; Produção Musical - Multiartes; Arranjo, Liderança e Criação Musical; Produção Musical e Arranjo Musical; Regência Orquestral Aplicada a Repertório; Regência de Coral; Administração Pública; Gestão Pública; "
+            },
+            {
+                        "N.º": 73,
+                        "LEI": "16.198/2023",
+                        "Cargo": "INSTRUTOR",
+                        "Áreas CNPq (Nível Área)": "Educação; Administração; Psicologia",
+                        "Cursos/Áreas Correlacionados": "Pedagogia; Educação; Psicologia Organizacional; Psicologia Educacional; Gestão de Pessoas; Recursos humanos; Andragogia; Tecnologias educacionais; Comunicação social; Administração; Neuroaprendizagem; Didaticas e metodologia de ensino superior; Libras; Comportamento organizacional; Programação neurolinguistica; Acessibilidade e inclusão no ensino; Administração Pública; Gestão Pública; "
+            },
+            {
+                        "N.º": 74,
+                        "LEI": "16.198/2023",
+                        "Cargo": "INSTRUTOR DE ARTES",
+                        "Áreas CNPq (Nível Área)": "Artes; Educação Artística; Educação",
+                        "Cursos/Áreas Correlacionados": "Artes Visuais; Música; Teatro; Dança; Educação Artística; Artesanato; Quimica analitica; Arqueologia; tecnologia em fotografia; Conservação e restauração de bens culturais moveis; História Contemporânea e Relações Internacionais; Direção de Arte e Processos Criativos; "
+            },
+            {
+                        "N.º": 75,
+                        "LEI": "16.198/2023",
+                        "Cargo": "JORNALISTA",
+                        "Áreas CNPq (Nível Área)": "Comunicação; Jornalismo e Editoração",
+                        "Cursos/Áreas Correlacionados": "Jornalismo; Comunicação Social; Produção Editorial; Mídias Digitais"
+            },
+            {
+                        "N.º": 76,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MATEMATICO",
+                        "Áreas CNPq (Nível Área)": "Matemática",
+                        "Cursos/Áreas Correlacionados": "Matemática; Matemática Aplicada; Estatística; Ciências Exatas; Engenharia matemática; Física; Matematica financeira; Estatistica; Bioestatistica; Pesquisa operacional; Administração Pública; Gestão Pública; "
+            },
+            {
+                        "N.º": 77,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MEDICO",
+                        "Áreas CNPq (Nível Área)": "Medicina",
+                        "Cursos/Áreas Correlacionados": "Medicina (todas as especialidades); Clínica Médica; Cirurgia; Pediatria; Saúde Coletiva; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública; "
+            },
+            {
+                        "N.º": 78,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MEDICO RADIOLOGISTA",
+                        "Áreas CNPq (Nível Área)": "Medicina; Radiologia Médica",
+                        "Cursos/Áreas Correlacionados": "Medicina; Radiologia; Diagnóstico por Imagem; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 79,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MEDICO VETERINARIO",
+                        "Áreas CNPq (Nível Área)": "Medicina Veterinária",
+                        "Cursos/Áreas Correlacionados": "Medicina Veterinária; Zootecnia (ênfase clínica animal); Saúde Animal; Conservação da Biodiversidade; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 80,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MOTORISTA",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Transportes",
+                        "Cursos/Áreas Correlacionados": "Transporte; Logística; Mobilidade Urbana; Operações de Tráfego; Administração Pública; Gestão Pública; Tecnologia em logistica; Gestão de frotas; Segurança de transito; Engenharia civil; Mecanica basica de veiculos; Direção defensiva; Primeiros socorros; Gestão de pneus e combustivel; Pscicologia do transito; Transportes sustentaveis e gestão ambiental; "
+            },
+            {
+                        "N.º": 81,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MOTORISTA DE VEICULOS LEVES",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Transportes",
+                        "Cursos/Áreas Correlacionados": "Transporte; Logística; Mobilidade; Trânsito; Administração Pública; Gestão Pública; Tecnologia em logistica; Gestão de frotas; Segurança de transito; Engenharia civil; Mecanica basica de veiculos; Direção defensiva; Primeiros socorros; Gestão de pneus e combustivel; Pscicologia do transito; Transportes sustentaveis e gestão ambiental; "
+            },
+            {
+                        "N.º": 82,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MUSEOLOGO",
+                        "Áreas CNPq (Nível Área)": "Museologia; Artes; História",
+                        "Cursos/Áreas Correlacionados": "Museologia; Patrimônio Cultural; Artes; Curadoria; História; História Contemporânea e Relações Internacionais; Arquivologia; Biblioteconomia; Antropologia; arqueologia; Turismo cultural; Conservação e restauração de bens culturais; Relações publicas; comunicação social; Administração Pública; Gestão Pública; "
+            },
+            {
+                        "N.º": 83,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MUSICO CORALISTA",
+                        "Áreas CNPq (Nível Área)": "Artes (Música)",
+                        "Cursos/Áreas Correlacionados": "Música; Canto; Regência; Instrumentação Musical; Fonoaudiologia; Tecnica vocal; Preparação cênica; Expressão corporal; Musica antiga; Didatica do canto coral; Musicologia; Harmonia e teoria musical avançada; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 84,
+                        "LEI": "16.198/2023",
+                        "Cargo": "MUSICO-INSTRUMENTISTA",
+                        "Áreas CNPq (Nível Área)": "Artes (Música)",
+                        "Cursos/Áreas Correlacionados": "Música; Instrumentação; Performance Musical; Produção fonografica; Composição musical; Musicologia; Tecnologia em Luteria; Musica popular; Sonoplastia; Arranjo musical; História da musica; Teatro; Educação musical especial; Historia da arte, Musicoterapia; Engenharia acustica;  Harmonia e improvisação; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 85,
+                        "LEI": "16.198/2023",
+                        "Cargo": "NUTRICIONISTA",
+                        "Áreas CNPq (Nível Área)": "Nutrição; Ciência e Tecnologia de Alimentos",
+                        "Cursos/Áreas Correlacionados": "Nutrição; Dietética; Alimentação Coletiva; Ciência de Alimentos; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Gastronomia; Nutrição clinica; Nutrição Esportiva; Nutrição Materno infantil; Qualidade dos alimentos; Fitoterapia; Nutrição em saude publica; Unidades de Alimentação e nutrição; Nutrigenômica; Nutrigenética; Tecnologia em alimentos; Bromatologia; Aconselhamento nutricional; Gestão hospitalar; Nutrição funcional; Gerontologia; Nutrição oncologica; Marketing de alimentos e nutrição; Vigilancia alimentar; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 86,
+                        "LEI": "16.198/2023",
+                        "Cargo": "OPERADOR DE COMPUTADOR",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação",
+                        "Cursos/Áreas Correlacionados": "Informática; Sistemas de Informação; Redes; Tecnologia da Informação; Suporte tecnico; Análise de Dados; Software; Segurança da Informação; ciência de dados; Analise e Desenvolvimento de Sistemas; Hardware, Sistemas operacionais; Administração de sistemas; Secretariado executivo em informatica; Digitação e processamento; Ciência de dados; Redes de computadores; Segurança da Informação; Cloud Computing; Desenolvimento Web e Mobile; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 87,
+                        "LEI": "16.198/2023",
+                        "Cargo": "OPERADOR DE ENTRADA DE DADOS",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação",
+                        "Cursos/Áreas Correlacionados": "Processamento de Dados; Sistemas de Informação; Informática; Análise de Dados; Software; Segurança da Informação; ciência de dados; Analise e Desenvolvimento de Sistemas; Hardware, Sistemas operacionais; Estatistica; Matematica Aplicada; Administração de sistemas; Secretariado executivo em informatica; Digitação e processamento; Ciência de dados; Redes de computadores; Segurança da Informação; Cloud Computing; Desenolvimento Web e Mobile; Operador de computador e microcomputador; Noções de banco de dados; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 88,
+                        "LEI": "16.198/2023",
+                        "Cargo": "OPERADOR DE TERMINAL DE VIDEO",
+                        "Áreas CNPq (Nível Área)": "Comunicação; Ciência da Computação",
+                        "Cursos/Áreas Correlacionados": "Comunicação; Produção Audiovisual; Multimídia; Informática; Comunicação social; Desing grafico; ciência da computação; Multimidia; Edição de video; Publicidade propaganda; Jornalismo digital; Marketing digital; Relações publicas; Desing grafico; Tecnico Radio e Televisão; Comunicação digital; Engenharia de software; Analise e Desenvolvimento de Sistemas; Ciência de dados; Redes de computadores; Segurança da Informação; Cloud Computing; Desenolvimento Web e Mobile; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 89,
+                        "LEI": "16.198/2023",
+                        "Cargo": "OPERADOR TECNICO CULTURAL",
+                        "Áreas CNPq (Nível Área)": "Artes; Comunicação",
+                        "Cursos/Áreas Correlacionados": "Produção Cultural; Artes; Teatro; Música; Audiovisual; Iluinação cênica; Sonorização; Engenharia acustica; Cenografia; Desing grafico; Cinema; Multimidia; Engenharia de produção; Produção cultural; Segurança do trabalho; Captação de recursos; Produção de figurino; Relações publicas; marketing cultural; Marketing; comunicação; Roteiros; Educação artistica; Historia da arte; Literatura; critica da arte; Antropologia cultural; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 90,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ORIENTADOR EM ESPORTE E LAZER",
+                        "Áreas CNPq (Nível Área)": "Educação Física",
+                        "Cursos/Áreas Correlacionados": "Educação Física; Esporte; Recreação; Lazer; Turismo; Fisioterapia; Gêstão desportiva; Gestão de eventos esportivos; Marketing esportivo; Nutrição esportiva; Esporte escolar; Inclusão social; Comunicação;  Administração Pública; Gestão Pública;                                                                                                                                                                                                                                                                                                                       "
+            },
+            {
+                        "N.º": 91,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PEDAGOGO",
+                        "Áreas CNPq (Nível Área)": "Educação",
+                        "Cursos/Áreas Correlacionados": "Pedagogia; Educação; Psicopedagogia; Pscicologia; Letras; Educação especial; Gestão de recursos humanos; Serviço social; Direito educacional; Tecnologia educacional; Administração; Gêstão de eventos; Pedagogia empresarial; Pedagogia hospitalar; Administração Pública; Gestão Pública;        "
+            },
+            {
+                        "N.º": 92,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PESQUISADOR ARTISTICO - CULTURAL",
+                        "Áreas CNPq (Nível Área)": "Artes; Comunicação; História; Educação",
+                        "Cursos/Áreas Correlacionados": "Artes; História da Arte; Cinema; Dança; Música; Teatro; Museologia; Artes Cênicas e visuais;  Comunicação social; Audiovisual; Arquitetura; urbanismo; Produção cultural; Sociologia; Antropologia; Praticas culturais; História Contemporânea e Relações Internacionais; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 93,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PRATICO EM LABORATORIO",
+                        "Áreas CNPq (Nível Área)": "Ciências Biológicas; Farmácia",
+                        "Cursos/Áreas Correlacionados": "Farmácia; Análises Clínicas; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Ciências Biológicas; Patologia clínica; Biotecnologia; Microbiologia; Toxicologia; Microbiologia; Imunologia; Hematologia; Biomedicina; Bioquimica; Biologia molecular; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 94,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PRATICO EM TOPOGRAFIA",
+                        "Áreas CNPq (Nível Área)": "Geodésia; Engenharia Civil; Geociências",
+                        "Cursos/Áreas Correlacionados": "Topografia; Geoprocessamento; Engenharia Civil; Geodésia; Sensoriamento Remoto; Agrimensura; Geodésia e cartografia; Tecnico em edificações; Sistema de informação grafica; Software de geoprocessamento; Engenharia cartografica; "
+            },
+            {
+                        "N.º": 95,
+                        "LEI": "16.200/2023",
+                        "Cargo": "PROCURADOR DO MUNICIPIO",
+                        "Áreas CNPq (Nível Área)": "Direito",
+                        "Cursos/Áreas Correlacionados": "Direito; Direito Público; Direito Administrativo; Direito Constitucional; Direito Penal; Direito Tributário; Direito Civil; Direito Empresarial; Direito do Trabalho; Direito do Consumidor; Direito da Família; Direito Digital e LGPD; Direito Internacional; Direito municipal; Gestão publica; Direito Urbanistico; direito ambiental; Ciência politica; "
+            },
+            {
+                        "N.º": 96,
+                        "LEI": "16.201/2023",
+                        "Cargo": "PROFESSOR DE EDUCACAO INFANTIL",
+                        "Áreas CNPq (Nível Área)": "Educação",
+                        "Cursos/Áreas Correlacionados": "Pedagogia; Educação Infantil; Educação; Psicopedagogia; Neurociência e aprendizagem; Contacção de historia; Cuidados infantis; Secretaria escolar; Fonoaudiologa; Educação especial e inclusiva; Auxiliar pedagogico; Alfebitazação e letramento; Ludicidade e Desenvolvimento Infantil; "
+            },
+            {
+                        "N.º": 97,
+                        "LEI": "16.202/2023",
+                        "Cargo": "PROFISSIONAL DO MAGISTERIO",
+                        "Áreas CNPq (Nível Área)": "Educação",
+                        "Cursos/Áreas Correlacionados": "Pedagogia; Licenciaturas; Educação; Psicopedagogia; Mestrado em ensino; Multimeios didaticos; Educação especial e inclusiva; Gestão escolar; Portugues; História; Geografia; Matematica; Artes; Ingles; Espanhol; Ciências; Filosoia. Sociologia; Biologia; Quimica; Fisica;Tecnologias educacionais; Administração; Docencia do ensino superior; Educação profisional e tecnologica; Educação digital e midíatica; Comunicação; Computação;"
+            },
+            {
+                        "N.º": 98,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PROFISSIONAL POLIVALENTE",
+                        "Áreas CNPq (Nível Área)": "Educação",
+                        "Cursos/Áreas Correlacionados": "Pedagogia; Licenciaturas; Educação; Educação Infantil; Alfabetização; Ludopedagogia; Tecnologias educacionais; Bibliotecaria; Secretaria escolar; Pscicologia escolar; Neurociência educacional; Educação inclusiva e especial; Gestão escolar; Recursos humanos; Metodologias ativas de ensino; Alfabetização e letramento;  Libras; "
+            },
+            {
+                        "N.º": 99,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PROGRAMADOR DE COMPUTADOR",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação",
+                        "Cursos/Áreas Correlacionados": "Programação; Sistemas de Informação; Ciência da Computação; Engenharia de Software; Banco de Dados; Tecnico em informatica; desenvolvimento de sistemas; tecnico redes de computadores; Cibersegurança; arquitetura de software; Inteligencia artificial; Ciência de dados; Cloud computing; front-end; Back-End; Desenvolvimento mobile; Programador de sistemas; Desenvolvimento de software; Full-Stack; Logica de programação; Linguagens especificas; Frameworks "
+            },
+            {
+                        "N.º": 100,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PROMOTOR CULTURAL",
+                        "Áreas CNPq (Nível Área)": "Artes; Comunicação; Museologia",
+                        "Cursos/Áreas Correlacionados": "Produção Cultural; Artes; Comunicação; Cinema; Teatro; Patrimônio Cultural; Produtor de audio e video; Tecnico em eventos; Politica e Gestão cultural; Relações publicas; marketing cultural; gestão de projetos; Captação de recursos; Produção de figurino; Projetos Culturais; Produção musical; Politica e gestão cultural; Gestores Municipais de cultura; Rede das artes; Politicas culturais; Interculturalidade; Relacionamento interpessoal; Marketing e comunicação; Roteiros culturais; História Contemporânea e Relações Internacionais;"
+            },
+            {
+                        "N.º": 101,
+                        "LEI": "16.198/2023",
+                        "Cargo": "PSICOLOGO",
+                        "Áreas CNPq (Nível Área)": "Psicologia",
+                        "Cursos/Áreas Correlacionados": "Psicologia; Psicologia Clínica; Psicologia Organizacional; Psicologia Educacional; Neuropscicologia; Saude coletiva; serviço social; Recursos Humanos; psicanalise; terapia cognitivo-Comportamental; Tecnico em orientação comunitaria; Pscicologia juridica; Pscicopedagogia; Pscicologia esportiva, Hospitalar, Pscicologia de tráfego; Tecnico em dependência quimica; Administração publica; "
+            },
+            {
+                        "N.º": 102,
+                        "LEI": "16.198/2023",
+                        "Cargo": "QUIMICO",
+                        "Áreas CNPq (Nível Área)": "Química",
+                        "Cursos/Áreas Correlacionados": "Química; Química Industrial; Química Tecnológica; Engenharia Química; Processos quimicos; Farmacia; Engenharia de materiais; Ciencias biologicas; Bioquimica; Tecnologia em analise e desenvolvimento de produtos; Engenharia de petrolio e gás; Engenharia de materiais; Tecnico em petroquimica; Tecnico em controle de qualidade; Meio ambiente; Quimica ambiental; Alimenticia; Quimica forense; Biotecnologia; "
+            },
+            {
+                        "N.º": 103,
+                        "LEI": "16.198/2023",
+                        "Cargo": "RELACOES PUBLICAS",
+                        "Áreas CNPq (Nível Área)": "Comunicação; Administração; Administração Pública",
+                        "Cursos/Áreas Correlacionados": "Relações Públicas; Comunicação Social; Marketing; Administração; Gestão Pública; Jornalismo; publicidade e propaganda; Eventos; Relações internacionais; Secretariado executivo; Ciência política; "
+            },
+            {
+                        "N.º": 104,
+                        "LEI": "16.198/2023",
+                        "Cargo": "RESTAURADOR ARTISTICO CULTURAL",
+                        "Áreas CNPq (Nível Área)": "Artes; Museologia; História",
+                        "Cursos/Áreas Correlacionados": "Artes Visuais; Conservação e Restauro; Museologia; Patrimônio Cultural; História da Arte; Artesanato; Quimica analitica; Arqueologia; tecnologia em fotografia; Conservação e restauração de bens culturais moveis; História Contemporânea e Relações Internacionais;"
+            },
+            {
+                        "N.º": 105,
+                        "LEI": "16.198/2023",
+                        "Cargo": "SERIGRAFO",
+                        "Áreas CNPq (Nível Área)": "Desenho Industrial; Artes; Comunicação",
+                        "Cursos/Áreas Correlacionados": "Design Gráfico; Comunicação Visual; Artes; Produção Gráfica; Conservação e restauro; Textil; Serigrafia; Produção grafica; Estamparia; Impressor de serigrafia; Silk; Serigrafia fotografica; "
+            },
+            {
+                        "N.º": 106,
+                        "LEI": "16.198/2023",
+                        "Cargo": "SOCIOLOGO",
+                        "Áreas CNPq (Nível Área)": "Sociologia",
+                        "Cursos/Áreas Correlacionados": "Sociologia; Ciências Sociais; Antropologia; Ciência Política; Ciência de dados; Historia; Arqueologia; Relações internacionais; Museologia; Gestão publica; Conservação e restauro; Geografia; "
+            },
+            {
+                        "N.º": 107,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO AGRICOLA",
+                        "Áreas CNPq (Nível Área)": "Agronomia",
+                        "Cursos/Áreas Correlacionados": "Técnicas Agrícolas; Agronomia; Produção Agropecuária; Agroecologia; Aquicultura; Piscicultura; Tecnico em Geoprocessamento; Tecnologia em irrigação e drenagem; Agroindustria; Tecnico em cooperativismo; Engenharia florestal; Recursos pesqueiros;  Elaboração de processos rurais; Topografia e georreferenciamento; "
+            },
+            {
+                        "N.º": 108,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO DE ENFERMAGEM EM SAUDE PUBLICA",
+                        "Áreas CNPq (Nível Área)": "Enfermagem; Saúde Coletiva",
+                        "Cursos/Áreas Correlacionados": "Enfermagem; Enfermagem em Saúde Pública; Vigilância em Saúde; Saude Ocupacional; Enfermagem do trabalho; Saude da Familia e Comunidade; Administração hospitalar; Epidemiologia; Ciências Sociais; Bioética; Gestão Publica; Pesquisa clinica; Ergonomia; Informatica rm saúde; Comunicação empresarial; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Auditoria em Saúde;"
+            },
+            {
+                        "N.º": 109,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO DE OBRAS E PROJETOS",
+                        "Áreas CNPq (Nível Área)": "Engenharia Civil; Arquitetura e Urbanismo",
+                        "Cursos/Áreas Correlacionados": "Edificações; Construção Civil; Projetos; Arquitetura; Desenho Técnico; Desenho industrial; Tecnologia em estradas; Urbanismo; Instalações e Sistemas; Sistemas de transporte; Gerenciamento de projetos; Desenho e modelação; Geoprocessamento; Orçamento de obras;"
+            },
+            {
+                        "N.º": 110,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO DE PROCESSAMENTO",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação",
+                        "Cursos/Áreas Correlacionados": "Processamento de Dados; Sistemas de Informação; Informática; Análise de Dados; Software; Segurança da Informação; ciência de dados; Analise e Desenvolvimento de Sistemas; Hardware, Sistemas operacionais; Estatistica; Matematica Aplicada; Administração de empresas; Tecnologia em cibersegurança; Certificação em ITIL/COBIT; Automação industrial; Analytics; "
+            },
+            {
+                        "N.º": 111,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO DE SAUDE BUCAL EM SAUDE PUBLICA",
+                        "Áreas CNPq (Nível Área)": "Odontologia; Saúde Coletiva",
+                        "Cursos/Áreas Correlacionados": "Saúde Bucal; Odontologia; Higiene Dental; Saúde Pública; Protese dentaria; Saude coletiva; Educação em saude; Radiologia odontologica, Gestão de consultórios; Auditoria em Saúde; "
+            },
+            {
+                        "N.º": 112,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO DE TELEPROCESSAMENTO",
+                        "Áreas CNPq (Nível Área)": "Ciência da Computação; Engenharia Elétrica",
+                        "Cursos/Áreas Correlacionados": "Redes; Telecomunicações; Informática; Sistemas de Informação; Eletrônica; Computação; Sitema operacionais; Desenvolvimento de sistemas; Computação em nuvem; Telefonia movel; Instalação e manutençãode equipamentos; "
+            },
+            {
+                        "N.º": 113,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO EM ARTES GRAFICAS",
+                        "Áreas CNPq (Nível Área)": "Artes; Desenho Industrial; Comunicação",
+                        "Cursos/Áreas Correlacionados": "Design Gráfico; Comunicação Visual; Produção Gráfica; Artes; Processos graficos; Desenho industrial; Desenho; Gestão da qualidade; "
+            },
+            {
+                        "N.º": 114,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO EM CINEMAS",
+                        "Áreas CNPq (Nível Área)": "Artes; Comunicação",
+                        "Cursos/Áreas Correlacionados": "Cinema; Audiovisual; Produção de Vídeo; Multimídia; Comunicação Social; Fotografia; Edição foto/video; Artes visuais; Desenho; Atuação; Produção executiva; Animação digital; Produção de figurinos; Produção de single; Desing de espetáculo; Rede das artes; Iluminação cenica; "
+            },
+            {
+                        "N.º": 115,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO EM CONTABILIDADE",
+                        "Áreas CNPq (Nível Área)": "Ciências Contábeis; Administração",
+                        "Cursos/Áreas Correlacionados": "Contabilidade; Ciências Contábeis; Gestão Financeira; Administração; Contabilidade de custos; Contabilidade gerencial; Pericia e Auditoria; Legislação tributari e societária; Controle patrimonial;"
+            },
+            {
+                        "N.º": 116,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO EM PATOLOGIA CLINICA",
+                        "Áreas CNPq (Nível Área)": "Farmácia; Ciências Biológicas",
+                        "Cursos/Áreas Correlacionados": "Análises Clínicas; Patologia Clínica; Farmácia; Biologia; Ciências Biológicas; Hemoterapia; hematologia; Biomedicina; Gestão hospitalar; Acreditação Laboratorial; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Anatomia patologica; Patologia cirúrgica; Toxicologia ocupacional; Toxicologia Forense; Toxicologia Ambiental; "
+            },
+            {
+                        "N.º": 117,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO EM SANEAMENTO",
+                        "Áreas CNPq (Nível Área)": "Engenharia Sanitária; Engenharia Ambiental",
+                        "Cursos/Áreas Correlacionados": "Saneamento; Engenharia Sanitária; Engenharia Ambiental; Gestão Ambiental; Recursos hidricos; Construção civil; Sistema de informação geografica; Legislação ambiental Regulatoria; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação;"
+            },
+            {
+                        "N.º": 118,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO EM SEGURANCA DO TRABALHO",
+                        "Áreas CNPq (Nível Área)": "Engenharia de Produção; Engenharia Sanitária; Engenharia Civil",
+                        "Cursos/Áreas Correlacionados": "Segurança do Trabalho; Engenharia de Segurança; Engenharia Civil; Engenharia de Produção; Perícia e Auditoria; higiene ocupacional; Segurança indutrial; segurança e saúde; Medicina do trabalho; Recursos Humanos; "
+            },
+            {
+                        "N.º": 119,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO EM TURISMO",
+                        "Áreas CNPq (Nível Área)": "Turismo; Administração",
+                        "Cursos/Áreas Correlacionados": "Turismo; Gestão do Turismo; Eventos; Hotelaria; Administração; Turismo e negócios; Marketing; Ecoturismo; Comunicação e Marketing; Relação públicas; Administração publica; "
+            },
+            {
+                        "N.º": 120,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO FLORESTAL",
+                        "Áreas CNPq (Nível Área)": "Recursos Florestais e Engenharia Florestal; Agronomia",
+                        "Cursos/Áreas Correlacionados": "Engenharia Florestal; Manejo Florestal; Silvicultura; Agronomia; Administração rural; Gestão ambiental; Produção Florestal; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação;"
+            },
+            {
+                        "N.º": 121,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TECNICO QUIMICO",
+                        "Áreas CNPq (Nível Área)": "Química",
+                        "Cursos/Áreas Correlacionados": "Química; Química Industrial; Processos Químicos; Quimica ambiental; Engenharia quimica; Gestão e Sustentabilidade Ambiental; Sustentabilidade Ambiental; Cidades Resilientes: Futuro, Sustentabilidade e Inovação;"
+            },
+            {
+                        "N.º": 122,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TELEFONISTA",
+                        "Áreas CNPq (Nível Área)": "Comunicação; Administração",
+                        "Cursos/Áreas Correlacionados": "Comunicação empresarial; Secretariado; Administração; Atendimento; Telemarketing; Recepcionista; Telecomunicações; Gestão de recursos humanos; Administração pubica; "
+            },
+            {
+                        "N.º": 123,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TERAPEUTA OCUPACIONAL",
+                        "Áreas CNPq (Nível Área)": "Fisioterapia e Terapia Ocupacional",
+                        "Cursos/Áreas Correlacionados": "Terapia Ocupacional; Reabilitação; Saúde Mental; Gerontologia; Ergonomia; Psicomotricidade;Fisioterapia Hospitalar; Fisioterapia Intensiva; Fisioterapia Muscoesquelética; Reabilitação Muscoesquelética; Fisioterapia Dermatofuncional; Fisioterapia Dermatofuncional e Cosmetologia; Fisioterapia Esportiva; Fisioterapia em Gerontologia; Fisioterapia Neurofuncional; Fisioterapia Pediátrica; Terapia Ocupacional na Saúde Mental; Cinesiologia e Biomecânica na Reabilitação Física; Atenção ao Paciente Crítico: Urgência, Emergência e UTI;  Gestão e Liderança em Serviços de Saúde; "
+            },
+            {
+                        "N.º": 124,
+                        "LEI": "16.198/2023",
+                        "Cargo": "TRATADOR DE ANIMAIS",
+                        "Áreas CNPq (Nível Área)": "Zootecnia; Medicina Veterinária",
+                        "Cursos/Áreas Correlacionados": "Zootecnia; Produção Animal; Medicina Veterinária; Manejo de Animais; Nutrição animal; Controle de Zoonoses; Gestão de Agronegócio; Manejo Reprodutivo 360°; Manejo Reprodutivo; Pecuária; Produção vegetal; Administração Rural; Engenharia Agronômica; Agropecuária; Melhoramento Genético; Produção Animal; Conservação de Pastagens; Bem-estar Animal; Produção e Tecnologia de Alimentos; Produção Animal e Meio Ambiente; Nutrição Animal e Forragicultura; Sistemas de Produção Animal; Genética e Melhoramento Animal, Nutrição e Alimentação Animal; Ciência Animal; Saúde Animal; Conservação da Biodiversidade; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública;"
+            },
+            {
+                        "N.º": 125,
+                        "LEI": "16.198/2023",
+                        "Cargo": "ZOOTECNISTA",
+                        "Áreas CNPq (Nível Área)": "Zootecnia",
+                        "Cursos/Áreas Correlacionados": "Zootecnia; Produção Animal; Nutrição Animal; Manejo de Pastagens; Gestão de Agronegócio; Manejo Reprodutivo 360°; Manejo Reprodutivo; Pecuária; Produção vegetal; Administração Rural; Engenharia Agronômica; Agropecuária; Melhoramento Genético; Produção Animal; Conservação de Pastagens; Bem-estar Animal; Produção e Tecnologia de Alimentos; Produção Animal e Meio Ambiente; Nutrição Animal e Forragicultura; Sistemas de Produção Animal; Genética e Melhoramento Animal, Nutrição e Alimentação Animal; Ciência Animal; One Health: Estratégias Integradas em Saúde Humana, Animal e Ambiental; Administração Pública; Gestão Pública;"
+            }
+];
+
+        // Chave para localStorage
+        const STORAGE_KEY = 'pmc_tabela_areas_conhecimento';
+
+        function App() {
+            const [dados, setDados] = useState(() => {
+                // Tentar carregar dados salvos
+                const dadosSalvos = localStorage.getItem(STORAGE_KEY);
+                if (dadosSalvos) {
+                    try {
+                        return JSON.parse(dadosSalvos);
+                    } catch (e) {
+                        console.error('Erro ao carregar dados salvos:', e);
+                        return dadosIniciais;
+                    }
+                }
+                return dadosIniciais;
+            });
+
+            const [filtro, setFiltro] = useState('');
+            const [editando, setEditando] = useState(null);
+            const [mostrarModal, setMostrarModal] = useState(false);
+            const [saveStatus, setSaveStatus] = useState('saved'); // 'saving', 'saved', 'error'
+            const [mostrarAlerta, setMostrarAlerta] = useState(null);
+            const [novoRegistro, setNovoRegistro] = useState({
+                'LEI': '',
+                'Cargo': '',
+                'Áreas CNPq (Nível Área)': '',
+                'Cursos/Áreas Correlacionados': ''
+            });
+
+            // Auto-save: salvar dados sempre que mudarem
+            useEffect(() => {
+                setSaveStatus('saving');
+                const timer = setTimeout(() => {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+                        setSaveStatus('saved');
+                    } catch (e) {
+                        console.error('Erro ao salvar:', e);
+                        setSaveStatus('error');
+                    }
+                }, 500); // Aguarda 500ms após última mudança
+
+                return () => clearTimeout(timer);
+            }, [dados]);
+
+            // Mostrar alerta inicial se tiver dados salvos
+            useEffect(() => {
+                const dadosSalvos = localStorage.getItem(STORAGE_KEY);
+                if (dadosSalvos) {
+                    setMostrarAlerta('loaded');
+                    setTimeout(() => setMostrarAlerta(null), 5000);
+                }
+            }, []);
+
+            // Função para renumerar todos os registros
+            const renumerarRegistros = (dadosArray) => {
+                return dadosArray.map((item, index) => ({
+                    ...item,
+                    'N.º': index + 1
+                }));
+            };
+
+            // Filtrar dados
+            const dadosFiltrados = dados.filter(item => {
+                const termoBusca = filtro.toLowerCase();
+                return (
+                    item.Cargo?.toLowerCase().includes(termoBusca) ||
+                    item.LEI?.toLowerCase().includes(termoBusca) ||
+                    item['Áreas CNPq (Nível Área)']?.toLowerCase().includes(termoBusca) ||
+                    item['Cursos/Áreas Correlacionados']?.toLowerCase().includes(termoBusca)
+                );
+            });
+
+            // Editar célula
+            const iniciarEdicao = (index, campo) => {
+                setEditando({ index, campo, valor: dados[index][campo] });
+            };
+
+            const salvarEdicao = () => {
+                if (editando) {
+                    const novosDados = [...dados];
+                    novosDados[editando.index][editando.campo] = editando.valor;
+                    setDados(novosDados);
+                    setEditando(null);
+                }
+            };
+
+            const cancelarEdicao = () => {
+                setEditando(null);
+            };
+
+            // Adicionar novo registro
+            const adicionarRegistro = () => {
+                const novosDados = [
+                    ...dados,
+                    {
+                        'N.º': dados.length + 1,
+                        ...novoRegistro
+                    }
+                ];
+                setDados(novosDados);
+                setMostrarModal(false);
+                setNovoRegistro({
+                    'LEI': '',
+                    'Cargo': '',
+                    'Áreas CNPq (Nível Área)': '',
+                    'Cursos/Áreas Correlacionados': ''
+                });
+                setMostrarAlerta('added');
+                setTimeout(() => setMostrarAlerta(null), 3000);
+            };
+
+            // Excluir registro
+            const excluirRegistro = (index) => {
+                if (confirm('Tem certeza que deseja excluir este registro?')) {
+                    const novosDados = dados.filter((_, i) => i !== index);
+                    setDados(renumerarRegistros(novosDados));
+                }
+            };
+
+            // Salvar manualmente (força o salvamento)
+            const salvarManual = () => {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+                    setSaveStatus('saved');
+                    setMostrarAlerta('manual-save');
+                    setTimeout(() => setMostrarAlerta(null), 3000);
+                } catch (e) {
+                    console.error('Erro ao salvar:', e);
+                    setSaveStatus('error');
+                    alert('Erro ao salvar os dados. Por favor, exporte para Excel como backup.');
+                }
+            };
+
+            // Restaurar dados originais
+            const restaurarOriginais = () => {
+                if (confirm('Tem certeza que deseja restaurar os dados originais? Todas as alterações serão perdidas.')) {
+                    setDados(dadosIniciais);
+                    localStorage.removeItem(STORAGE_KEY);
+                    setMostrarAlerta('restored');
+                    setTimeout(() => setMostrarAlerta(null), 3000);
+                }
+            };
+
+            // Exportar para Excel
+            const exportarExcel = () => {
+                const ws = XLSX.utils.json_to_sheet(dados);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Areas_por_Cargo");
+                const dataHora = new Date().toISOString().slice(0,10);
+                XLSX.writeFile(wb, `Tabela_Areas_Conhecimento_PMC_${dataHora}.xlsx`);
+            };
+
+            // Importar do Excel
+            const importarExcel = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const data = new Uint8Array(event.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                            
+                            // Renumerar
+                            const dadosImportados = renumerarRegistros(jsonData);
+                            setDados(dadosImportados);
+                            
+                            setMostrarAlerta('imported');
+                            setTimeout(() => setMostrarAlerta(null), 3000);
+                        } catch (error) {
+                            alert('Erro ao importar arquivo: ' + error.message);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+                // Limpar input
+                e.target.value = '';
+            };
+
+            // Exportar para PDF
+            const exportarPDF = () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4');
+                
+                doc.setFont('helvetica');
+                
+                // Cabeçalho
+                doc.setFillColor(42, 82, 152);
+                doc.rect(0, 0, 297, 35, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(18);
+                doc.text('Prefeitura Municipal de Curitiba', 148.5, 12, { align: 'center' });
+                
+                doc.setFontSize(14);
+                doc.text('Tabela de Áreas de Conhecimento por Cargo', 148.5, 20, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.text('Anexo - Edital XX/XXXX', 148.5, 27, { align: 'center' });
+                
+                // Preparar dados para a tabela
+                const dadosTabela = dados.map(item => [
+                    item['N.º'],
+                    item['LEI'],
+                    item['Cargo'],
+                    item['Áreas CNPq (Nível Área)'],
+                    item['Cursos/Áreas Correlacionados']
+                ]);
+                
+                // Criar tabela
+                doc.autoTable({
+                    startY: 40,
+                    head: [['N.º', 'Lei', 'Cargo', 'Áreas CNPq (Nível Área)', 'Cursos/Áreas Correlacionados']],
+                    body: dadosTabela,
+                    theme: 'grid',
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 3,
+                        overflow: 'linebreak',
+                        font: 'helvetica'
+                    },
+                    headStyles: {
+                        fillColor: [42, 82, 152],
+                        textColor: 255,
+                        fontStyle: 'bold',
+                        halign: 'center'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 15, halign: 'center' },
+                        1: { cellWidth: 25 },
+                        2: { cellWidth: 50 },
+                        3: { cellWidth: 60 },
+                        4: { cellWidth: 117 }
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 247, 250]
+                    },
+                    margin: { top: 40, right: 10, bottom: 15, left: 10 },
+                    didDrawPage: function(data) {
+                        doc.setFontSize(8);
+                        doc.setTextColor(128);
+                        doc.text(
+                            `Página ${doc.internal.getNumberOfPages()}`,
+                            148.5,
+                            doc.internal.pageSize.height - 10,
+                            { align: 'center' }
+                        );
+                        
+                        const dataHora = new Date().toLocaleString('pt-BR');
+                        doc.text(
+                            `Gerado em: ${dataHora}`,
+                            10,
+                            doc.internal.pageSize.height - 10
+                        );
+                    }
+                });
+                
+                const dataHora = new Date().toISOString().slice(0,10);
+                doc.save(`Anexo_Tabela_Areas_Conhecimento_PMC_${dataHora}.pdf`);
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>📋 Tabela de Áreas de Conhecimento por Cargo</h1>
+                        <p>Prefeitura Municipal de Curitiba</p>
+                    </div>
+
+                    {/* Info box - não aparece na impressão */}
+                    <div className="info-box">
+                        <h3>📚 Sobre a Referência CNPq</h3>
+                        <p>
+                            Esta tabela utiliza como referência a <strong>Tabela de Áreas do Conhecimento do CNPq</strong>, 
+                            que organiza o conhecimento científico brasileiro em níveis hierárquicos:
+                        </p>
+                        <ul>
+                            <li><strong>1º nível - Grande Área:</strong> Agrupa conhecimentos de natureza similar (ex: Ciências Exatas, Ciências Humanas)</li>
+                            <li><strong>2º nível - Área:</strong> Conjunto de conhecimentos inter-relacionados (ex: Ciência da Computação, Direito)</li>
+                        </ul>
+                        <p>
+                            <strong>Importância desta referência:</strong> A utilização da classificação CNPq garante uma padronização 
+                            nacional reconhecida academicamente, facilitando a análise de conformidade dos cursos de capacitação 
+                            com a área de atuação de cada cargo municipal. Isso traz transparência e objetividade ao processo de 
+                            análise de cursos para progressão funcional.
+                        </p>
+                    </div>
+
+                    {/* Alertas */}
+                    {mostrarAlerta === 'loaded' && (
+                        <div className="alert alert-info">
+                            <span>ℹ️</span>
+                            <span>Dados anteriores carregados com sucesso! Continue de onde parou.</span>
+                        </div>
+                    )}
+                    {mostrarAlerta === 'added' && (
+                        <div className="alert alert-success">
+                            <span>✓</span>
+                            <span>Registro adicionado e salvo automaticamente!</span>
+                        </div>
+                    )}
+                    {mostrarAlerta === 'manual-save' && (
+                        <div className="alert alert-success">
+                            <span>✓</span>
+                            <span>Dados salvos com sucesso!</span>
+                        </div>
+                    )}
+                    {mostrarAlerta === 'restored' && (
+                        <div className="alert alert-info">
+                            <span>ℹ️</span>
+                            <span>Dados originais restaurados!</span>
+                        </div>
+                    )}
+                    {mostrarAlerta === 'imported' && (
+                        <div className="alert alert-success">
+                            <span>✓</span>
+                            <span>Dados importados com sucesso!</span>
+                        </div>
+                    )}
+
+                    <div className="toolbar">
+                        <div className="search-box">
+                            <input
+                                type="text"
+                                placeholder="Buscar por cargo, lei, área ou curso..."
+                                value={filtro}
+                                onChange={(e) => setFiltro(e.target.value)}
+                            />
+                            <span className="search-icon">🔍</span>
+                        </div>
+
+                        {/* Status de salvamento */}
+                        <div className={`save-status ${saveStatus}`}>
+                            {saveStatus === 'saving' && (
+                                <>
+                                    <div className="spinner"></div>
+                                    <span>Salvando...</span>
+                                </>
+                            )}
+                            {saveStatus === 'saved' && (
+                                <>
+                                    <span>✓</span>
+                                    <span>Salvo</span>
+                                </>
+                            )}
+                            {saveStatus === 'error' && (
+                                <>
+                                    <span>⚠️</span>
+                                    <span>Erro ao salvar</span>
+                                </>
+                            )}
+                        </div>
+
+                        <button className="btn btn-success" onClick={() => setMostrarModal(true)}>
+                            ➕ Adicionar Registro
+                        </button>
+                        <button className="btn btn-success" onClick={salvarManual} title="Forçar salvamento">
+                            💾 Salvar Agora
+                        </button>
+                        <button className="btn btn-primary" onClick={exportarPDF}>
+                            📄 Exportar PDF
+                        </button>
+                        <button className="btn btn-secondary" onClick={exportarExcel}>
+                            📊 Exportar Excel
+                        </button>
+                        <label className="btn btn-warning" style={{cursor: 'pointer'}}>
+                            📥 Importar Excel
+                            <input 
+                                type="file" 
+                                accept=".xlsx,.xls" 
+                                onChange={importarExcel}
+                                style={{display: 'none'}}
+                            />
+                        </label>
+                        <button className="btn btn-secondary" onClick={restaurarOriginais}>
+                            ↻ Restaurar Originais
+                        </button>
+                    </div>
+
+                    <div className="table-container">
+                        {dadosFiltrados.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-state-icon">🔍</div>
+                                <h3>Nenhum registro encontrado</h3>
+                                <p>Tente ajustar os filtros ou adicione um novo registro</p>
+                            </div>
+                        ) : (
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th className="col-numero">N.º</th>
+                                        <th className="col-lei">Lei</th>
+                                        <th className="col-cargo">Cargo</th>
+                                        <th className="col-areas-cnpq">Áreas CNPq (Nível Área)</th>
+                                        <th className="col-cursos">Cursos/Áreas Correlacionados</th>
+                                        <th className="col-acoes">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dadosFiltrados.map((item, index) => {
+                                        const indexReal = dados.indexOf(item);
+                                        return (
+                                            <tr key={indexReal}>
+                                                <td className="col-numero">{item['N.º']}</td>
+                                                
+                                                <td className="col-lei">
+                                                    {editando?.index === indexReal && editando?.campo === 'LEI' ? (
+                                                        <input
+                                                            className="cell-input"
+                                                            value={editando.valor}
+                                                            onChange={(e) => setEditando({...editando, valor: e.target.value})}
+                                                            onKeyPress={(e) => e.key === 'Enter' && salvarEdicao()}
+                                                            autoFocus
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            className="editable-cell"
+                                                            onClick={() => iniciarEdicao(indexReal, 'LEI')}
+                                                        >
+                                                            {item['LEI'] || '-'}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                
+                                                <td className="col-cargo">
+                                                    {editando?.index === indexReal && editando?.campo === 'Cargo' ? (
+                                                        <input
+                                                            className="cell-input"
+                                                            value={editando.valor}
+                                                            onChange={(e) => setEditando({...editando, valor: e.target.value})}
+                                                            onKeyPress={(e) => e.key === 'Enter' && salvarEdicao()}
+                                                            autoFocus
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            className="editable-cell"
+                                                            onClick={() => iniciarEdicao(indexReal, 'Cargo')}
+                                                        >
+                                                            <strong>{item['Cargo']}</strong>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                
+                                                <td className="col-areas-cnpq">
+                                                    {editando?.index === indexReal && editando?.campo === 'Áreas CNPq (Nível Área)' ? (
+                                                        <textarea
+                                                            className="cell-textarea"
+                                                            value={editando.valor}
+                                                            onChange={(e) => setEditando({...editando, valor: e.target.value})}
+                                                            autoFocus
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            className="editable-cell"
+                                                            onClick={() => iniciarEdicao(indexReal, 'Áreas CNPq (Nível Área)')}
+                                                        >
+                                                            {item['Áreas CNPq (Nível Área)'] || '-'}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                
+                                                <td className="col-cursos">
+                                                    {editando?.index === indexReal && editando?.campo === 'Cursos/Áreas Correlacionados' ? (
+                                                        <textarea
+                                                            className="cell-textarea"
+                                                            value={editando.valor}
+                                                            onChange={(e) => setEditando({...editando, valor: e.target.value})}
+                                                            autoFocus
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            className="editable-cell"
+                                                            onClick={() => iniciarEdicao(indexReal, 'Cursos/Áreas Correlacionados')}
+                                                        >
+                                                            {item['Cursos/Áreas Correlacionados'] || '-'}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                
+                                                <td className="col-acoes">
+                                                    {editando?.index === indexReal ? (
+                                                        <>
+                                                            <button className="btn-icon save" onClick={salvarEdicao} title="Salvar">
+                                                                ✓
+                                                            </button>
+                                                            <button className="btn-icon cancel" onClick={cancelarEdicao} title="Cancelar">
+                                                                ✕
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button className="btn-icon delete" onClick={() => excluirRegistro(indexReal)} title="Excluir">
+                                                                🗑️
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+
+                    <div className="stats">
+                        <div className="stat-item">
+                            <span className="stat-label">Total de Cargos:</span>
+                            <span className="stat-value">{dados.length}</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-label">Registros Exibidos:</span>
+                            <span className="stat-value">{dadosFiltrados.length}</span>
+                        </div>
+                    </div>
+
+                    {/* Modal para adicionar registro */}
+                    {mostrarModal && (
+                        <div className="modal-overlay" onClick={() => setMostrarModal(false)}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <h2>➕ Adicionar Novo Registro</h2>
+                                
+                                <div className="form-group">
+                                    <label>Lei:</label>
+                                    <input
+                                        type="text"
+                                        value={novoRegistro.LEI}
+                                        onChange={(e) => setNovoRegistro({...novoRegistro, LEI: e.target.value})}
+                                        placeholder="Ex: 16.198/2023"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Cargo:</label>
+                                    <input
+                                        type="text"
+                                        value={novoRegistro.Cargo}
+                                        onChange={(e) => setNovoRegistro({...novoRegistro, Cargo: e.target.value})}
+                                        placeholder="Ex: ANALISTA DE SISTEMAS"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Áreas CNPq (Nível Área):</label>
+                                    <textarea
+                                        value={novoRegistro['Áreas CNPq (Nível Área)']}
+                                        onChange={(e) => setNovoRegistro({...novoRegistro, 'Áreas CNPq (Nível Área)': e.target.value})}
+                                        placeholder="Ex: Ciência da Computação; Sistemas de Informação"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Cursos/Áreas Correlacionados:</label>
+                                    <textarea
+                                        value={novoRegistro['Cursos/Áreas Correlacionados']}
+                                        onChange={(e) => setNovoRegistro({...novoRegistro, 'Cursos/Áreas Correlacionados': e.target.value})}
+                                        placeholder="Ex: Análise de Sistemas; Sistemas de Informação; Engenharia de Software"
+                                    />
+                                </div>
+
+                                <div className="modal-actions">
+                                    <button className="btn btn-secondary" onClick={() => setMostrarModal(false)}>
+                                        Cancelar
+                                    </button>
+                                    <button className="btn btn-success" onClick={adicionarRegistro}>
+                                        ✓ Adicionar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
