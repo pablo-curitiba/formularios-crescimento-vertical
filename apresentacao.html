@@ -103,7 +103,10 @@ function FormularioCV() {
     tituloFormulario: 'FORMULÁRIO DO CRESCIMENTO VERTICAL 2025',
     pontosPorMes: 0.0556,
     limiteMaxMeses: 180,
-    limiteTotal: 80.0, // NOVO: Limite total do formulário
+    limiteTotal: 80.0,
+    casasDecimais: 1, // ADICIONADO
+    textoDecreto: '', // ADICIONADO
+    explicacaoMultiplicador: '', // ADICIONADO
     // Rótulos editáveis para quadro completo
     rotulosCompleto: {
       criterio: 'Critério',
@@ -115,14 +118,33 @@ function FormularioCV() {
       mult: 'Mult.',
       total: 'Total'
     },
-    // Rótulos editáveis para quadro por tempo (ALTERADO: era "porAno")
+    // Cores para quadro completo - ADICIONADO
+    coresCompleto: {
+      criterio: '#000',
+      pontUnit: '#000',
+      limite: '#000',
+      qtd: '#000',
+      meses: '#000',
+      base: '#000',
+      mult: '#000',
+      total: '#000'
+    },
+    // Rótulos editáveis para quadro por tempo
     rotulosPorTempo: {
       criterio: 'Critério',
       pontTempo: 'Pont. por Tempo',
       limite: 'Limite',
       qtdTempo: 'Qtd (tempo)',
       total: 'Total',
-      nomeQuadro: 'Por Tempo' // NOVO: Nome editável do tipo de quadro
+      nomeQuadro: 'Por Tempo'
+    },
+    // Cores para quadro por tempo - ADICIONADO
+    coresPorTempo: {
+      criterio: '#000',
+      pontTempo: '#000',
+      limite: '#000',
+      qtdTempo: '#000',
+      total: '#000'
     }
   });
   
@@ -172,7 +194,7 @@ function FormularioCV() {
   const [criteriosDesempate, setCriteriosDesempate] = useState([
     { id: 1, texto: 'Maior pontuação do Quadro A – Escolarização Formal.' },
     { id: 2, texto: 'Maior pontuação do Quadro B – Vida Funcional.' },
-    { id: 3, texto: 'Maior pontuação do Quadro C – Produção de Conteúdo.' },
+    { id: 3, texto: 'Maior pontuação do Quadro C – Outros critérios objetivos.' },
     { id: 4, texto: 'Menor desconto do Quadro D - Inassiduidade.' },
     { id: 5, texto: 'Maior tempo de efetivo exercício no cargo, contado em anos, meses e dias, sendo descontadas as licenças sem vencimentos e disposições funcionais a órgãos ou entidades da União, do Distrito Federal, dos Estados, de outros Municípios; à Câmara Municipal de Curitiba; e às entidades integrantes da Administração Indireta do Município, salvo Autarquias e Fundações de Direito Público do Município de Curitiba.' },
     { id: 6, texto: 'Maior tempo de efetivo exercício na Administração Municipal, contado em anos, meses e dias, sendo descontadas as licenças sem vencimentos e disposições funcionais a órgãos ou entidades da União, do Distrito Federal, dos Estados, de outros Municípios; à Câmara Municipal de Curitiba; e às entidades integrantes da Administração Indireta do Município, salvo Autarquias e Fundações de Direito Público do Município de Curitiba.' },
@@ -684,9 +706,14 @@ function FormularioCV() {
     }
   };
 
-  // NOVO: Calcular total geral do formulário
+  // Calcular total geral do formulário
   const calcularTotalGeral = () => {
     return quadros.reduce((acc, quadro) => acc + calcularTotalQuadro(quadro), 0);
+  };
+
+  // Formatar número com casas decimais
+  const formatarDecimal = (numero) => {
+    return numero.toFixed(config.casasDecimais);
   };
 
   const handleLeiChange = (novaLei) => {
@@ -738,14 +765,14 @@ function FormularioCV() {
         texto += `${idx + 1}. ${crit.nome}`;
         if (quadro.temColunas) {
           const calc = calcularCriterio(crit);
-          texto += ` - Total: ${calc.total.toFixed(1)} pts`;
+          texto += ` - Total: ${formatarDecimal(calc.total)} pts`;
         } else {
           const total = calcularCriterioPorTempo(crit);
-          texto += ` - Total: ${total.toFixed(1)} pts`;
+          texto += ` - Total: ${formatarDecimal(total)} pts`;
         }
         texto += '\n';
       });
-      texto += `TOTAL DO QUADRO: ${calcularTotalQuadro(quadro).toFixed(1)} pts`;
+      texto += `TOTAL DO QUADRO: ${formatarDecimal(calcularTotalQuadro(quadro))} pts`;
       if (quadro.limiteQuadro) {
         texto += ` | LIMITE: ${quadro.limiteQuadro}`;
       }
@@ -753,7 +780,7 @@ function FormularioCV() {
     });
 
     texto += `\n${'='.repeat(50)}\n`;
-    texto += `TOTAL GERAL DO FORMULÁRIO: ${calcularTotalGeral().toFixed(1)} / ${config.limiteTotal.toFixed(1)} pontos\n`;
+    texto += `TOTAL GERAL DO FORMULÁRIO: ${formatarDecimal(calcularTotalGeral())} / ${formatarDecimal(config.limiteTotal)} pontos\n`;
 
     navigator.clipboard.writeText(texto).then(() => {
       alert('Texto copiado para a área de transferência!');
@@ -1292,6 +1319,7 @@ function FormularioCV() {
                 >
                   <option value="BÁSICO">BÁSICO</option>
                   <option value="MÉDIO">MÉDIO</option>
+                  <option value="MÉDIO-TÉCNICO">MÉDIO-TÉCNICO</option>  
                   <option value="SUPERIOR">SUPERIOR</option>
                 </select>
               </div>
@@ -1326,6 +1354,42 @@ function FormularioCV() {
                   placeholder="Ex: 80.0"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-purple-900">Casas Decimais (Pontuação):</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="4"
+                  step="1"
+                  value={config.casasDecimais}
+                  onChange={(e) => setConfig({...config, casasDecimais: parseInt(e.target.value) || 1})}
+                  className="w-full px-3 py-2 border-2 border-purple-300 rounded font-bold"
+                  placeholder="1 a 4"
+                />
+                <p className="text-xs text-gray-500 mt-1">Exemplo: 1 = 10.0 | 4 = 10.0000</p>
+              </div>
+              <div className="md:col-span-1">
+                <label className="block text-sm font-semibold mb-1 text-indigo-900">Texto do Decreto (opcional):</label>
+                <input
+                  type="text"
+                  value={config.textoDecreto}
+                  onChange={(e) => setConfig({...config, textoDecreto: e.target.value})}
+                  className="w-full px-3 py-2 border-2 border-indigo-300 rounded"
+                  placeholder="Ex: ANEXO I DO DECRETO Nº 1234/2025"
+                />
+                <p className="text-xs text-gray-500 mt-1">Aparecerá no topo do formulário</p>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold mb-1 text-teal-900">Explicação do Multiplicador (opcional):</label>
+                <textarea
+                  value={config.explicacaoMultiplicador}
+                  onChange={(e) => setConfig({...config, explicacaoMultiplicador: e.target.value})}
+                  className="w-full px-3 py-2 border-2 border-teal-300 rounded"
+                  placeholder="Ex: O multiplicador é calculado com base no tempo de serviço..."
+                  rows="3"
+                />
+                <p className="text-xs text-gray-500 mt-1">Aparecerá antes dos quadros com destaque azul</p>
+              </div>
             </div>
 
             {/* Configuração de Rótulos */}
@@ -1334,22 +1398,37 @@ function FormularioCV() {
               
               {/* Rótulos Quadro Completo */}
               <div className="mb-4">
-                <h4 className="font-semibold mb-2 text-gray-700">Quadro Completo:</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <h4 className="font-semibold mb-3 text-gray-700">Quadro Completo:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(config.rotulosCompleto).map(([key, value]) => (
-                    <div key={key}>
-                      <label className="block text-xs font-semibold mb-1 text-gray-600 capitalize">
-                        {key}:
-                      </label>
-                      <input
-                        type="text"
-                        value={value}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          rotulosCompleto: { ...config.rotulosCompleto, [key]: e.target.value }
-                        })}
-                        className="w-full px-2 py-1 border rounded text-sm"
-                      />
+                    <div key={key} className="flex items-center gap-2 p-2 bg-gray-50 rounded border">
+                      <div className="flex-1">
+                        <label className="block text-xs font-semibold mb-1 text-gray-600 capitalize">
+                          {key}:
+                        </label>
+                        <input
+                          type="text"
+                          value={value}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            rotulosCompleto: { ...config.rotulosCompleto, [key]: e.target.value }
+                          })}
+                          className="w-full px-2 py-1 border rounded text-sm"
+                        />
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <label className="text-xs text-gray-500 mb-1">Cor:</label>
+                        <input
+                          type="color"
+                          value={config.coresCompleto[key]}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            coresCompleto: { ...config.coresCompleto, [key]: e.target.value }
+                          })}
+                          className="w-10 h-8 border rounded cursor-pointer"
+                          title={`Cor do ${key}`}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1357,25 +1436,106 @@ function FormularioCV() {
 
               {/* Rótulos Quadro Por Tempo */}
               <div>
-                <h4 className="font-semibold mb-2 text-gray-700">Quadro Por Tempo:</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <h4 className="font-semibold mb-3 text-gray-700">Quadro Por Tempo:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(config.rotulosPorTempo).map(([key, value]) => (
-                    <div key={key}>
-                      <label className="block text-xs font-semibold mb-1 text-gray-600 capitalize">
-                        {key === 'nomeQuadro' ? 'Nome do Quadro' : key}:
-                      </label>
-                      <input
-                        type="text"
-                        value={value}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          rotulosPorTempo: { ...config.rotulosPorTempo, [key]: e.target.value }
-                        })}
-                        className="w-full px-2 py-1 border rounded text-sm"
-                      />
+                    <div key={key} className="flex items-center gap-2 p-2 bg-gray-50 rounded border">
+                      <div className="flex-1">
+                        <label className="block text-xs font-semibold mb-1 text-gray-600 capitalize">
+                          {key === 'nomeQuadro' ? 'Nome do Quadro' : key}:
+                        </label>
+                        <input
+                          type="text"
+                          value={value}
+                          onChange={(e) => setConfig({
+                            ...config,
+                            rotulosPorTempo: { ...config.rotulosPorTempo, [key]: e.target.value }
+                          })}
+                          className="w-full px-2 py-1 border rounded text-sm"
+                        />
+                      </div>
+                      {key !== 'nomeQuadro' && (
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs text-gray-500 mb-1">Cor:</label>
+                          <input
+                            type="color"
+                            value={config.coresPorTempo[key]}
+                            onChange={(e) => setConfig({
+                              ...config,
+                              coresPorTempo: { ...config.coresPorTempo, [key]: e.target.value }
+                            })}
+                            className="w-10 h-8 border rounded cursor-pointer"
+                            title={`Cor do ${key}`}
+                          />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Preview das Cores */}
+            <div className="mt-6 pt-6 border-t-2 border-gray-300">
+              <h3 className="text-lg font-bold mb-4 text-blue-900">🎨 Preview das Cores dos Rótulos</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Preview Quadro Completo */}
+                <div className="p-4 bg-gray-50 rounded-lg border-2 border-blue-200">
+                  <h4 className="font-bold mb-3 text-blue-900">Quadro Completo:</h4>
+                  <div className="bg-white rounded border">
+                    <table className="w-full text-xs">
+                      <thead className="bg-gray-200">
+                        <tr>
+                          {Object.entries(config.rotulosCompleto).map(([key, value]) => (
+                            <th key={key} className="border p-2" style={{color: config.coresCompleto[key]}}>
+                              {value}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          {Object.keys(config.rotulosCompleto).map((key) => (
+                            <td key={key} className="border p-2 text-center text-gray-400">...</td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Preview Quadro Por Tempo */}
+                <div className="p-4 bg-gray-50 rounded-lg border-2 border-green-200">
+                  <h4 className="font-bold mb-3 text-green-900">Quadro Por Tempo:</h4>
+                  <div className="bg-white rounded border">
+                    <table className="w-full text-xs">
+                      <thead className="bg-gray-200">
+                        <tr>
+                          {Object.entries(config.rotulosPorTempo).filter(([key]) => key !== 'nomeQuadro').map(([key, value]) => (
+                            <th key={key} className="border p-2" style={{color: config.coresPorTempo[key]}}>
+                              {value}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          {Object.keys(config.rotulosPorTempo).filter(key => key !== 'nomeQuadro').map((key) => (
+                            <td key={key} className="border p-2 text-center text-gray-400">...</td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                <p className="text-sm text-blue-800">
+                  <strong>💡 Dica:</strong> As cores escolhidas aqui serão aplicadas aos títulos das colunas nas tabelas. 
+                  Use cores contrastantes para destacar colunas importantes (ex: vermelho para Total).
+                </p>
               </div>
             </div>
           </div>
@@ -1400,7 +1560,14 @@ function FormularioCV() {
         )}
 
         {/* Formulário principal */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 formulario-principal">
+          {/* Texto do Decreto */}
+          {config.textoDecreto && (
+            <div className="text-center mb-4 pb-3 border-b border-gray-300">
+              <p className="font-bold text-sm text-gray-700">{config.textoDecreto}</p>
+            </div>
+          )}
+
           {/* Cabeçalho */}
           <div className="text-center mb-6 border-b-2 border-blue-900 pb-4">
             {modoEdicao ? (
@@ -1443,6 +1610,14 @@ function FormularioCV() {
               </div>
             ))}
           </div>
+
+          {/* Explicação do Multiplicador */}
+          {config.explicacaoMultiplicador && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500 explicacao-multiplicador">
+              <h3 className="font-bold text-blue-900 mb-2 text-sm">📊 Explicação do Multiplicador:</h3>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">{config.explicacaoMultiplicador}</p>
+            </div>
+          )}
 
           {/* Renderização dos Quadros */}
           {quadros.length === 0 && modoEdicao && (
@@ -1528,14 +1703,14 @@ function FormularioCV() {
                   <table className="w-full border-collapse border text-xs">
                     <thead className="bg-gray-200">
                       <tr>
-                        <th className="border p-2" style={{width: '30%'}}>{config.rotulosCompleto.criterio}</th>
-                        <th className="border p-2" style={{width: '9%'}}>{config.rotulosCompleto.pontUnit}</th>
-                        <th className="border p-2" style={{width: '9%'}}>{config.rotulosCompleto.limite}</th>
-                        <th className="border p-2" style={{width: '9%'}}>{config.rotulosCompleto.qtd}</th>
-                        <th className="border p-2" style={{width: '9%'}}>{config.rotulosCompleto.meses}</th>
-                        <th className="border p-2" style={{width: '9%'}}>{config.rotulosCompleto.base}</th>
-                        <th className="border p-2" style={{width: '9%'}}>{config.rotulosCompleto.mult}</th>
-                        <th className="border p-2" style={{width: '10%'}}>{config.rotulosCompleto.total}</th>
+                        <th className="border p-2" style={{width: '30%', color: config.coresCompleto.criterio}}>{config.rotulosCompleto.criterio}</th>
+                        <th className="border p-2" style={{width: '9%', color: config.coresCompleto.pontUnit}}>{config.rotulosCompleto.pontUnit}</th>
+                        <th className="border p-2" style={{width: '9%', color: config.coresCompleto.limite}}>{config.rotulosCompleto.limite}</th>
+                        <th className="border p-2" style={{width: '9%', color: config.coresCompleto.qtd}}>{config.rotulosCompleto.qtd}</th>
+                        <th className="border p-2" style={{width: '9%', color: config.coresCompleto.meses}}>{config.rotulosCompleto.meses}</th>
+                        <th className="border p-2" style={{width: '9%', color: config.coresCompleto.base}}>{config.rotulosCompleto.base}</th>
+                        <th className="border p-2" style={{width: '9%', color: config.coresCompleto.mult}}>{config.rotulosCompleto.mult}</th>
+                        <th className="border p-2" style={{width: '10%', color: config.coresCompleto.total}}>{config.rotulosCompleto.total}</th>
                         {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
                       </tr>
                     </thead>
@@ -1619,13 +1794,13 @@ function FormularioCV() {
                               />
                             </td>
                             <td className="border p-2 text-center font-semibold">
-                              {calc.ptsBase.toFixed(1)}
+                              {formatarDecimal(calc.ptsBase)}
                             </td>
                             <td className="border p-2 text-center font-semibold">
-                              {calc.ptsMeses.toFixed(1)}
+                              {formatarDecimal(calc.ptsMeses)}
                             </td>
                             <td className="border p-2 text-center font-bold text-blue-900">
-                              {calc.total.toFixed(1)}
+                              {formatarDecimal(calc.total)}
                             </td>
                             {modoEdicao && (
                               <td className="border p-2 text-center no-print">
@@ -1644,7 +1819,7 @@ function FormularioCV() {
                         <tr className="bg-yellow-100 font-bold">
                           <td colSpan={7} className="p-2 text-right">TOTAL DO QUADRO:</td>
                           <td className="p-2 text-center text-lg text-blue-900">
-                            {calcularTotalQuadro(quadro).toFixed(1)}
+                            {formatarDecimal(calcularTotalQuadro(quadro))}
                           </td>
                           {modoEdicao && <td className="no-print"></td>}
                         </tr>
@@ -1658,11 +1833,11 @@ function FormularioCV() {
                   <table className="w-full border-collapse border text-xs">
                     <thead className="bg-gray-200">
                       <tr>
-                        <th className="border p-2" style={{width: '40%'}}>{config.rotulosPorTempo.criterio}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.pontTempo}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.limite}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.qtdTempo}</th>
-                        <th className="border p-2" style={{width: '15%'}}>{config.rotulosPorTempo.total}</th>
+                        <th className="border p-2" style={{width: '40%', color: config.coresPorTempo.criterio}}>{config.rotulosPorTempo.criterio}</th>
+                        <th className="border p-2" style={{width: '15%', color: config.coresPorTempo.pontTempo}}>{config.rotulosPorTempo.pontTempo}</th>
+                        <th className="border p-2" style={{width: '15%', color: config.coresPorTempo.limite}}>{config.rotulosPorTempo.limite}</th>
+                        <th className="border p-2" style={{width: '15%', color: config.coresPorTempo.qtdTempo}}>{config.rotulosPorTempo.qtdTempo}</th>
+                        <th className="border p-2" style={{width: '15%', color: config.coresPorTempo.total}}>{config.rotulosPorTempo.total}</th>
                         {modoEdicao && <th className="border p-2 no-print" style={{width: 'auto'}}>Ações</th>}
                       </tr>
                     </thead>
@@ -1737,7 +1912,7 @@ function FormularioCV() {
                               />
                             </td>
                             <td className="border p-2 text-center font-bold text-blue-900">
-                              {total.toFixed(1)}
+                              {formatarDecimal(total)}
                             </td>
                             {modoEdicao && (
                               <td className="border p-2 text-center no-print">
@@ -1756,7 +1931,7 @@ function FormularioCV() {
                         <tr className="bg-yellow-100 font-bold">
                           <td colSpan={4} className="p-2 text-right">TOTAL DO QUADRO:</td>
                           <td className="p-2 text-center text-lg text-blue-900">
-                            {calcularTotalQuadro(quadro).toFixed(1)}
+                            {formatarDecimal(calcularTotalQuadro(quadro))}
                           </td>
                           {modoEdicao && <td className="no-print"></td>}
                         </tr>
@@ -1800,7 +1975,7 @@ function FormularioCV() {
             </div>
           ))}
 
-          {/* NOVO: Total Geral do Formulário */}
+          {/* Total Geral do Formulário */}
           <div className="mt-6 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg shadow-xl p-6 border-4 border-blue-700 total-geral-container">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -1808,9 +1983,9 @@ function FormularioCV() {
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wide opacity-90">Total Geral do Formulário</h3>
                   <div className="flex items-baseline gap-3 mt-1">
-                    <span className="text-4xl font-bold">{calcularTotalGeral().toFixed(1)}</span>
+                    <span className="text-4xl font-bold">{formatarDecimal(calcularTotalGeral())}</span>
                     <span className="text-2xl opacity-75">/</span>
-                    <span className="text-3xl font-semibold">{config.limiteTotal.toFixed(1)}</span>
+                    <span className="text-3xl font-semibold">{formatarDecimal(config.limiteTotal)}</span>
                     <span className="text-lg opacity-75">pontos</span>
                   </div>
                 </div>
@@ -1836,6 +2011,10 @@ function FormularioCV() {
               <li><strong>Limite do Quadro:</strong> Campo opcional no final de cada quadro para especificar limite máximo</li>
               <li><strong>Total Geral:</strong> Calculado automaticamente e comparado com o limite de {config.limiteTotal} pontos</li>
               <li><strong>Duplicar:</strong> Copia o quadro completo com todos os critérios e valores</li>
+              <li><strong>🎨 Personalização de Cores:</strong> Configure cores individuais para cada coluna em "Configurar Rótulos das Colunas"</li>
+              <li><strong>🔢 Casas Decimais:</strong> Ajuste a precisão (1-4 casas) em "Configurações do Formulário"</li>
+              <li><strong>📋 Texto do Decreto:</strong> Adicione referência opcional do decreto no topo do formulário</li>
+              <li><strong>📖 Explicação do Multiplicador:</strong> Adicione texto explicativo que aparecerá antes dos quadros</li>
               <li><strong>Nomenclaturas Editáveis:</strong> Configure todos os rótulos em "Configurações" → "Configurar Rótulos das Colunas"</li>
               <li><strong>Impressão A4:</strong> Use o botão "Imprimir" para gerar PDF otimizado em uma folha única</li>
             </ul>
