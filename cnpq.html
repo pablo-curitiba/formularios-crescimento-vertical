@@ -190,6 +190,43 @@
             background: #e0a800;
         }
 
+        /* Select de Lei para PDF */
+        .lei-select {
+            padding: 12px 16px;
+            border: 2px solid #2a5298;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            background: white;
+            color: #2a5298;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .lei-select:hover {
+            background: #e7f1ff;
+            border-color: #1e3c72;
+        }
+
+        .lei-select:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .lei-select-label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .lei-select-label span {
+            font-size: 11px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
         /* Status de salvamento */
         .save-status {
             display: flex;
@@ -1476,12 +1513,16 @@
             const [mostrarModal, setMostrarModal] = useState(false);
             const [saveStatus, setSaveStatus] = useState('saved'); // 'saving', 'saved', 'error'
             const [mostrarAlerta, setMostrarAlerta] = useState(null);
+            const [leiSelecionada, setLeiSelecionada] = useState('TODAS'); // Para filtro de PDF
             const [novoRegistro, setNovoRegistro] = useState({
                 'LEI': '',
                 'Cargo': '',
                 'Áreas CNPq (Nível Área)': '',
                 'Cursos/Áreas Correlacionados': ''
             });
+
+            // Extrair leis únicas dos dados
+            const leisUnicas = [...new Set(dados.map(item => item.LEI).filter(Boolean))].sort();
 
             // Auto-save: salvar dados sempre que mudarem
             useEffect(() => {
@@ -1644,6 +1685,18 @@
                     return;
                 }
                 
+                // Filtrar dados pela lei selecionada
+                let dadosParaPDF = dados;
+                if (leiSelecionada !== 'TODAS') {
+                    dadosParaPDF = dados.filter(item => item.LEI === leiSelecionada);
+                    
+                    // Verificar se há dados
+                    if (dadosParaPDF.length === 0) {
+                        alert(`Nenhum cargo encontrado para a lei ${leiSelecionada}`);
+                        return;
+                    }
+                }
+                
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('l', 'mm', 'a4');
                 
@@ -1661,10 +1714,13 @@
                 doc.text('Tabela de Áreas de Conhecimento por Cargo', 148.5, 20, { align: 'center' });
                 
                 doc.setFontSize(10);
-                doc.text(`Anexo I - Edital ${numeroEdital}`, 148.5, 27, { align: 'center' });
+                const textoAnexo = leiSelecionada === 'TODAS' 
+                    ? `Anexo I - Edital ${numeroEdital}` 
+                    : `Anexo I - Edital ${numeroEdital} - Lei ${leiSelecionada}`;
+                doc.text(textoAnexo, 148.5, 27, { align: 'center' });
                 
                 // Preparar dados para a tabela
-                const dadosTabela = dados.map(item => [
+                const dadosTabela = dadosParaPDF.map(item => [
                     item['N.º'],
                     item['LEI'],
                     item['Cargo'],
@@ -1722,8 +1778,13 @@
                     }
                 });
                 
+                // Nome do arquivo com indicação da lei
                 const dataHora = new Date().toISOString().slice(0,10);
-                doc.save(`Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_${dataHora}.pdf`);
+                const nomeArquivo = leiSelecionada === 'TODAS'
+                    ? `Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_Todas_${dataHora}.pdf`
+                    : `Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_Lei_${leiSelecionada.replace(/\//g, '_')}_${dataHora}.pdf`;
+                
+                doc.save(nomeArquivo);
             };
 
             return (
@@ -1823,6 +1884,25 @@
                         <button className="btn btn-success" onClick={salvarManual} title="Forçar salvamento">
                             💾 Salvar Agora
                         </button>
+                        
+                        {/* Select de Lei para PDF */}
+                        <div className="lei-select-label">
+                            <span>Lei para PDF:</span>
+                            <select 
+                                className="lei-select" 
+                                value={leiSelecionada}
+                                onChange={(e) => setLeiSelecionada(e.target.value)}
+                                title="Selecione a lei para exportar no PDF"
+                            >
+                                <option value="TODAS">📋 Todas as Leis</option>
+                                {leisUnicas.map(lei => (
+                                    <option key={lei} value={lei}>
+                                        📄 {lei} ({dados.filter(d => d.LEI === lei).length} cargos)
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        
                         <button className="btn btn-primary" onClick={exportarPDF}>
                             📄 Exportar PDF
                         </button>
