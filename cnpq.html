@@ -1678,10 +1678,11 @@
 
             // Exportar para PDF
             const exportarPDF = () => {
-                // Pedir número do edital
-                const numeroEdital = prompt('Digite o número do edital (ex: 01/2024):', '01/2024');
-                if (!numeroEdital) {
-                    alert('Exportação cancelada. É necessário informar o número do edital.');
+                // Pedir número do edital (OPCIONAL)
+                const numeroEdital = prompt('Digite o número do edital (ex: 01/2024) ou deixe em branco:', '');
+                
+                // Se cancelou, aborta
+                if (numeroEdital === null) {
                     return;
                 }
                 
@@ -1698,26 +1699,34 @@
                 }
                 
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('l', 'mm', 'a4');
+                // MUDANÇA: 'p' para portrait (retrato) ao invés de 'l' (landscape)
+                const doc = new jsPDF('p', 'mm', 'a4');
                 
                 doc.setFont('helvetica');
                 
-                // Cabeçalho
+                // Cabeçalho (ajustado para retrato)
                 doc.setFillColor(42, 82, 152);
-                doc.rect(0, 0, 297, 35, 'F');
+                doc.rect(0, 0, 210, 35, 'F');
                 
                 doc.setTextColor(255, 255, 255);
-                doc.setFontSize(18);
-                doc.text('Prefeitura Municipal de Curitiba', 148.5, 12, { align: 'center' });
+                doc.setFontSize(16);
+                doc.text('Prefeitura Municipal de Curitiba', 105, 12, { align: 'center' });
                 
-                doc.setFontSize(14);
-                doc.text('Tabela de Áreas de Conhecimento por Cargo', 148.5, 20, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text('Tabela de Áreas de Conhecimento por Cargo', 105, 20, { align: 'center' });
                 
-                doc.setFontSize(10);
-                const textoAnexo = leiSelecionada === 'TODAS' 
-                    ? `Anexo I - Edital ${numeroEdital}` 
-                    : `Anexo I - Edital ${numeroEdital} - Lei ${leiSelecionada}`;
-                doc.text(textoAnexo, 148.5, 27, { align: 'center' });
+                // MUDANÇA: Texto do anexo/edital OPCIONAL
+                if (numeroEdital && numeroEdital.trim() !== '') {
+                    doc.setFontSize(10);
+                    const textoAnexo = leiSelecionada === 'TODAS' 
+                        ? `Anexo I - Edital ${numeroEdital}` 
+                        : `Anexo I - Edital ${numeroEdital} - Lei ${leiSelecionada}`;
+                    doc.text(textoAnexo, 105, 27, { align: 'center' });
+                } else if (leiSelecionada !== 'TODAS') {
+                    // Se não tem edital mas tem lei, mostra só a lei
+                    doc.setFontSize(10);
+                    doc.text(`Lei ${leiSelecionada}`, 105, 27, { align: 'center' });
+                }
                 
                 // Preparar dados para a tabela
                 const dadosTabela = dadosParaPDF.map(item => [
@@ -1728,15 +1737,15 @@
                     item['Cursos/Áreas Correlacionados']
                 ]);
                 
-                // Criar tabela
+                // Criar tabela (ajustada para retrato)
                 doc.autoTable({
                     startY: 40,
                     head: [['N.º', 'Lei', 'Cargo', 'Áreas CNPq (Nível Área)', 'Cursos/Áreas Correlacionados']],
                     body: dadosTabela,
                     theme: 'grid',
                     styles: {
-                        fontSize: 8,
-                        cellPadding: 3,
+                        fontSize: 7,
+                        cellPadding: 2,
                         overflow: 'linebreak',
                         font: 'helvetica'
                     },
@@ -1744,28 +1753,29 @@
                         fillColor: [42, 82, 152],
                         textColor: 255,
                         fontStyle: 'bold',
-                        halign: 'center'
+                        halign: 'center',
+                        fontSize: 7
                     },
                     columnStyles: {
-                        0: { cellWidth: 15, halign: 'center' },
-                        1: { cellWidth: 25 },
-                        2: { cellWidth: 50 },
-                        3: { cellWidth: 60 },
-                        4: { cellWidth: 117 }
+                        0: { cellWidth: 12, halign: 'center' },
+                        1: { cellWidth: 20 },
+                        2: { cellWidth: 38 },
+                        3: { cellWidth: 45 },
+                        4: { cellWidth: 75 }
                     },
                     alternateRowStyles: {
                         fillColor: [245, 247, 250]
                     },
                     margin: { top: 40, right: 10, bottom: 15, left: 10 },
                     didDrawPage: function(data) {
-                        // Rodapé
+                        // Rodapé (ajustado para retrato)
                         const anoAtual = new Date().getFullYear();
                         
                         doc.setFontSize(8);
                         doc.setTextColor(128);
                         doc.text(
                             `Página ${doc.internal.getNumberOfPages()}`,
-                            148.5,
+                            105,
                             doc.internal.pageSize.height - 10,
                             { align: 'center' }
                         );
@@ -1778,11 +1788,21 @@
                     }
                 });
                 
-                // Nome do arquivo com indicação da lei
+                // Nome do arquivo (ajustado para opcional)
                 const dataHora = new Date().toISOString().slice(0,10);
-                const nomeArquivo = leiSelecionada === 'TODAS'
-                    ? `Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_Todas_${dataHora}.pdf`
-                    : `Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_Lei_${leiSelecionada.replace(/\//g, '_')}_${dataHora}.pdf`;
+                let nomeArquivo;
+                
+                if (numeroEdital && numeroEdital.trim() !== '') {
+                    // Com número do edital
+                    nomeArquivo = leiSelecionada === 'TODAS'
+                        ? `Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_Todas_${dataHora}.pdf`
+                        : `Anexo_I_Edital_${numeroEdital.replace(/\//g, '_')}_Lei_${leiSelecionada.replace(/\//g, '_')}_${dataHora}.pdf`;
+                } else {
+                    // Sem número do edital
+                    nomeArquivo = leiSelecionada === 'TODAS'
+                        ? `Tabela_Areas_Conhecimento_Todas_${dataHora}.pdf`
+                        : `Tabela_Areas_Conhecimento_Lei_${leiSelecionada.replace(/\//g, '_')}_${dataHora}.pdf`;
+                }
                 
                 doc.save(nomeArquivo);
             };
